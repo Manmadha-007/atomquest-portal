@@ -17,6 +17,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { AnimatedSection } from "./animated-section";
 
 type GovernanceControl = {
   title: string;
@@ -79,9 +80,9 @@ const auditRows = [
 
 export function GovernanceSection() {
   return (
-    <section id="governance" className="border-b bg-muted/25 py-16 sm:py-20">
+    <section id="governance" className="border-b bg-muted/25 py-16 sm:py-20 overflow-hidden">
       <div className="mx-auto grid w-full max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:px-8">
-        <div className="space-y-8">
+        <AnimatedSection className="space-y-8">
           <div className="max-w-3xl space-y-4">
             <div className="inline-flex items-center gap-2 rounded-md border bg-background px-3 py-1 text-xs font-medium text-muted-foreground">
               <ShieldCheck className="size-3.5" aria-hidden="true" />
@@ -125,9 +126,9 @@ export function GovernanceSection() {
               );
             })}
           </div>
-        </div>
+        </AnimatedSection>
 
-        <div className="lg:pt-12">
+        <AnimatedSection delay={200} className="lg:pt-12">
           <div className="rounded-lg border bg-background p-3 shadow-xl shadow-slate-900/5">
             <div className="rounded-md border">
               <div className="border-b p-4">
@@ -182,7 +183,7 @@ export function GovernanceSection() {
               </div>
             </div>
           </div>
-        </div>
+        </AnimatedSection>
       </div>
     </section>
   );

@@ -17,6 +17,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { AnimatedSection } from "./animated-section";
 
 type Capability = {
   title: string;
@@ -72,9 +73,9 @@ const capabilities = [
 
 export function FeatureGrid() {
   return (
-    <section id="platform-capabilities" className="border-b bg-background py-16 sm:py-20">
+    <section id="platform-capabilities" className="border-b bg-background py-16 sm:py-20 overflow-hidden">
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid gap-8 lg:grid-cols-[0.78fr_1.22fr] lg:items-end">
+        <AnimatedSection className="grid gap-8 lg:grid-cols-[0.78fr_1.22fr] lg:items-end">
           <div className="max-w-2xl space-y-4">
             <div className="inline-flex items-center gap-2 rounded-md border bg-muted/40 px-3 py-1 text-xs font-medium text-muted-foreground">
               <FileSearch className="size-3.5" aria-hidden="true" />
@@ -109,14 +110,15 @@ export function FeatureGrid() {
               </div>
             ))}
           </div>
-        </div>
+        </AnimatedSection>
 
         <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {capabilities.map((capability) => {
+          {capabilities.map((capability, index) => {
             const Icon = capability.icon;
 
             return (
-              <Card key={capability.title} className="rounded-lg">
+            <AnimatedSection key={capability.title} delay={index * 100}>
+              <Card className="rounded-lg h-full">
                 <CardHeader className="gap-4">
                   <div
                     className={cn(
@@ -133,13 +135,8 @@ export function FeatureGrid() {
                     </CardDescription>
                   </div>
                 </CardHeader>
-                <CardContent>
-                  <div className="flex items-center gap-2 border-t pt-4 text-xs font-medium text-muted-foreground">
-                    <span className="h-px w-5 bg-foreground/30" />
-                    Production workflow ready
-                  </div>
-                </CardContent>
               </Card>
+            </AnimatedSection>
             );
           })}
         </div>

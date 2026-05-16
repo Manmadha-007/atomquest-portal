@@ -5,8 +5,10 @@ import { ArrowLeft, ArrowRight, LockKeyhole, ShieldCheck } from "lucide-react";
 import { redirect } from "next/navigation";
 
 import { auth, signIn } from "@/auth";
-import { DemoCredentials } from "@/components/auth/demo-credentials";
 import { LoginShowcase } from "@/components/auth/login-showcase";
+import { SignInButton } from "@/components/auth/sign-in-button";
+import { InteractiveGrid } from "@/components/marketing/interactive-grid";
+import { AnimatedSection } from "@/components/marketing/animated-section";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -99,13 +101,10 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
 
   return (
     <main className="relative isolate min-h-svh overflow-hidden bg-[linear-gradient(180deg,#fafafa_0%,#ffffff_58%,#f8fafc_100%)] text-foreground">
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 -z-10 bg-[linear-gradient(to_right,rgba(15,23,42,0.055)_1px,transparent_1px),linear-gradient(to_bottom,rgba(15,23,42,0.055)_1px,transparent_1px)] bg-[size:42px_42px] [mask-image:linear-gradient(to_bottom,black,transparent_82%)]"
-      />
+      <InteractiveGrid />
 
-      <div className="mx-auto flex min-h-svh w-full max-w-7xl flex-col px-4 sm:px-6 lg:px-8">
-        <header className="flex min-h-16 items-center justify-between gap-4 py-3">
+      <header className="fixed inset-x-0 top-0 z-50 border-b border-border/40 bg-background/60 backdrop-blur-md">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <Link href="/" className="flex items-center gap-3">
             <span className="flex size-9 items-center justify-center rounded-lg bg-foreground text-sm font-semibold text-background shadow-sm">
               AQ
@@ -124,12 +123,14 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
               Platform
             </Link>
           </Button>
-        </header>
+        </div>
+      </header>
 
-        <div className="grid flex-1 gap-8 py-8 lg:grid-cols-[1.02fr_0.98fr] lg:items-center lg:gap-12 lg:py-12">
+      <div className="mx-auto flex min-h-svh w-full max-w-7xl flex-col px-4 pt-20 sm:px-6 lg:px-8">
+        <div className="grid flex-1 gap-8 py-4 lg:grid-cols-[1.02fr_0.98fr] lg:items-center lg:gap-12 lg:py-6">
           <LoginShowcase />
 
-          <div className="mx-auto flex w-full max-w-xl flex-col gap-4 lg:mx-0 lg:justify-self-end">
+          <AnimatedSection delay={100} className="mx-auto flex w-full max-w-xl flex-col gap-4 lg:mx-0 lg:justify-self-end">
             <Card className="rounded-lg bg-background/95 shadow-2xl shadow-slate-900/10">
               <CardHeader className="gap-5 border-b p-5 sm:p-6">
                 <div className="flex items-start justify-between gap-4">
@@ -177,7 +178,7 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
                       name="email"
                       type="email"
                       autoComplete="email"
-                      placeholder="admin@atomquest.com"
+                      placeholder="name@company.com"
                       required
                       className="h-10 bg-background"
                     />
@@ -195,16 +196,13 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
                       name="password"
                       type="password"
                       autoComplete="current-password"
-                      placeholder="Password@123"
+                      placeholder="••••••••"
                       required
                       className="h-10 bg-background"
                     />
                   </div>
 
-                  <Button type="submit" size="lg" className="h-11">
-                    Enter Workspace
-                    <ArrowRight className="size-4" aria-hidden="true" />
-                  </Button>
+                  <SignInButton />
 
                   <div className="flex items-start gap-2 rounded-lg border bg-muted/30 p-3 text-xs leading-5 text-muted-foreground">
                     <ShieldCheck
@@ -217,9 +215,7 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
                 </form>
               </CardContent>
             </Card>
-
-            <DemoCredentials />
-          </div>
+          </AnimatedSection>
         </div>
       </div>
     </main>

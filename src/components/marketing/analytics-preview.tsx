@@ -11,6 +11,9 @@ import {
 
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { AnimatedSection } from "./animated-section";
+import { AnimatedProgress } from "./animated-progress";
+import { AnimatedNumber } from "./animated-number";
 
 type Kpi = {
   label: string;
@@ -72,9 +75,9 @@ const governanceIndicators = [
 
 export function AnalyticsPreview() {
   return (
-    <section id="analytics" className="border-b bg-background py-16 sm:py-20">
+    <section id="analytics" className="border-b bg-background py-16 sm:py-20 overflow-hidden">
       <div className="mx-auto grid w-full max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[0.82fr_1.18fr] lg:px-8">
-        <div className="max-w-2xl space-y-6">
+        <AnimatedSection className="max-w-2xl space-y-6">
           <div className="space-y-4">
             <div className="inline-flex items-center gap-2 rounded-md border bg-muted/40 px-3 py-1 text-xs font-medium text-muted-foreground">
               <BarChart3 className="size-3.5" aria-hidden="true" />
@@ -104,7 +107,18 @@ export function AnalyticsPreview() {
                         {kpi.label}
                       </p>
                       <p className="mt-2 text-2xl font-semibold tracking-tight">
-                        {kpi.value}
+                        {kpi.value.endsWith("%") ? (
+                          <AnimatedNumber 
+                            value={parseInt(kpi.value)} 
+                            suffix="%" 
+                            delay={100} 
+                          />
+                        ) : (
+                          <AnimatedNumber 
+                            value={parseInt(kpi.value)} 
+                            delay={100} 
+                          />
+                        )}
                       </p>
                     </div>
                     <div
@@ -123,9 +137,9 @@ export function AnalyticsPreview() {
               );
             })}
           </div>
-        </div>
+        </AnimatedSection>
 
-        <div className="rounded-lg border bg-card p-3 shadow-xl shadow-slate-900/5">
+        <AnimatedSection delay={200} className="rounded-lg border bg-card p-3 shadow-xl shadow-slate-900/5">
           <div className="rounded-md border bg-background">
             <div className="flex flex-col gap-3 border-b p-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
@@ -162,12 +176,14 @@ export function AnalyticsPreview() {
                 </div>
 
                 <div className="mt-6 flex h-56 items-end gap-4 border-b border-l px-3 pb-4">
-                  {trendBars.map((bar) => (
+                  {trendBars.map((bar, index) => (
                     <div key={bar.label} className="flex flex-1 flex-col items-center gap-2">
                       <div className="flex h-44 w-full items-end">
-                        <div
+                        <AnimatedProgress
+                          axis="height"
+                          value={bar.value}
                           className="w-full rounded-t-md bg-slate-900"
-                          style={{ height: `${bar.value}%` }}
+                          delay={index * 150}
                         />
                       </div>
                       <span className="text-xs font-medium text-muted-foreground">
@@ -190,11 +206,12 @@ export function AnalyticsPreview() {
                     />
                   </div>
                   <div className="mt-4 flex h-3 overflow-hidden rounded-full bg-muted">
-                    {completionSegments.map((segment) => (
-                      <span
+                    {completionSegments.map((segment, index) => (
+                      <AnimatedProgress
                         key={segment.label}
+                        value={segment.value}
                         className={segment.className}
-                        style={{ width: `${segment.value}%` }}
+                        delay={index * 200}
                       />
                     ))}
                   </div>
@@ -211,7 +228,9 @@ export function AnalyticsPreview() {
                           />
                           {segment.label}
                         </span>
-                        <span className="font-medium">{segment.value}%</span>
+                        <span className="font-medium">
+                          <AnimatedNumber value={segment.value} suffix="%" delay={200} />
+                        </span>
                       </div>
                     ))}
                   </div>
@@ -246,7 +265,7 @@ export function AnalyticsPreview() {
               </div>
             </div>
           </div>
-        </div>
+        </AnimatedSection>
       </div>
     </section>
   );

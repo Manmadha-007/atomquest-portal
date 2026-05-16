@@ -17,6 +17,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { AnimatedSection } from "./animated-section";
+import { AnimatedProgress } from "./animated-progress";
+import { AnimatedNumber } from "./animated-number";
 
 type RolePreview = {
   role: string;
@@ -102,9 +105,9 @@ const architectureSignals = [
 
 export function RoleShowcase() {
   return (
-    <section id="role-experience" className="border-b bg-muted/25 py-16 sm:py-20">
+    <section id="role-experience" className="border-b bg-muted/25 py-16 sm:py-20 overflow-hidden">
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+        <AnimatedSection className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-3xl space-y-4">
             <div className="inline-flex items-center gap-2 rounded-md border bg-background px-3 py-1 text-xs font-medium text-muted-foreground">
               <Crown className="size-3.5" aria-hidden="true" />
@@ -135,14 +138,15 @@ export function RoleShowcase() {
               </div>
             ))}
           </div>
-        </div>
+        </AnimatedSection>
 
         <div className="mt-10 grid gap-4 lg:grid-cols-3">
-          {rolePreviews.map((preview) => {
+          {rolePreviews.map((preview, index) => {
             const Icon = preview.icon;
 
             return (
-              <Card key={preview.role} className="rounded-lg">
+            <AnimatedSection key={preview.role} delay={index * 150}>
+              <Card className="rounded-lg h-full">
                 <CardHeader className="gap-4">
                   <div className="flex items-start justify-between gap-4">
                     <div
@@ -186,7 +190,14 @@ export function RoleShowcase() {
                       {preview.metrics.map((metric) => (
                         <div key={metric.label} className="border-r p-4 last:border-r-0">
                           <p className="text-xl font-semibold tracking-tight">
-                            {metric.value}
+                            {Number.isNaN(parseInt(metric.value)) ? (
+                              metric.value
+                            ) : (
+                              <>
+                                <AnimatedNumber value={parseFloat(metric.value)} decimals={metric.value.includes('.') ? 1 : 0} />
+                                {metric.value.replace(/[\d.]/g, '')}
+                              </>
+                            )}
                           </p>
                           <p className="mt-1 text-xs text-muted-foreground">
                             {metric.label}
@@ -196,20 +207,25 @@ export function RoleShowcase() {
                     </div>
 
                     <div className="space-y-4 p-4">
-                      {preview.workflow.map((item) => (
+                      {preview.workflow.map((item, index) => (
                         <div key={item.label} className="space-y-2">
                           <div className="flex items-center justify-between gap-3 text-xs">
                             <span className="min-w-0 truncate font-medium">
                               {item.label}
                             </span>
                             <span className="shrink-0 text-muted-foreground">
-                              {item.status}
+                              {item.status.endsWith("%") ? (
+                                <AnimatedNumber value={parseInt(item.status)} suffix="%" delay={300 + index * 150} />
+                              ) : (
+                                item.status
+                              )}
                             </span>
                           </div>
-                          <div className="h-1.5 rounded-full bg-muted">
-                            <div
+                          <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+                            <AnimatedProgress
+                              value={item.progress}
                               className="h-full rounded-full bg-foreground"
-                              style={{ width: `${item.progress}%` }}
+                              delay={300 + index * 150}
                             />
                           </div>
                         </div>
@@ -218,6 +234,7 @@ export function RoleShowcase() {
                   </div>
                 </CardContent>
               </Card>
+            </AnimatedSection>
             );
           })}
         </div>
