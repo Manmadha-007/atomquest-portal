@@ -1,6 +1,7 @@
 "use client";
 
-import { UserRole } from "@prisma/client";
+type UserRole = "ADMIN" | "MANAGER" | "EMPLOYEE";
+
 import {
   flexRender,
   getCoreRowModel,
@@ -63,25 +64,25 @@ type ColumnMeta = {
 type RoleFilter = "ALL" | UserRole;
 
 const roleLabels = {
-  [UserRole.ADMIN]: "Admin",
-  [UserRole.MANAGER]: "Manager",
-  [UserRole.EMPLOYEE]: "Employee",
+  ADMIN: "Admin",
+  MANAGER: "Manager",
+  EMPLOYEE: "Employee",
 } satisfies Record<UserRole, string>;
 
 const roleBadgeClasses = {
-  [UserRole.ADMIN]:
+  ADMIN:
     "border-slate-300 bg-slate-100 text-slate-700 dark:border-slate-800 dark:bg-slate-900/70 dark:text-slate-300",
-  [UserRole.MANAGER]:
+  MANAGER:
     "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-900 dark:bg-blue-950/50 dark:text-blue-300",
-  [UserRole.EMPLOYEE]:
+  EMPLOYEE:
     "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/50 dark:text-emerald-300",
 } satisfies Record<UserRole, string>;
 
 const roleOptions = [
   { label: "All roles", value: "ALL" },
-  { label: "Admins", value: UserRole.ADMIN },
-  { label: "Managers", value: UserRole.MANAGER },
-  { label: "Employees", value: UserRole.EMPLOYEE },
+  { label: "Admins", value: "ADMIN" },
+  { label: "Managers", value: "MANAGER" },
+  { label: "Employees", value: "EMPLOYEE" },
 ] as const satisfies ReadonlyArray<{ label: string; value: RoleFilter }>;
 
 function RoleBadge({ role }: { role: UserRole }) {
