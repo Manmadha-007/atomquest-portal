@@ -2,7 +2,7 @@ import type { UserRole } from "@prisma/client";
 
 export type AppRole = UserRole;
 
-export const SIGN_IN_PATH = "/api/auth/signin";
+export const SIGN_IN_PATH = "/sign-in";
 export const DASHBOARD_ROOT_PATH = "/dashboard";
 
 const roleDashboardPaths = {

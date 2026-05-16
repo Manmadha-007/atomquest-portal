@@ -1,0 +1,227 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { AuthError } from "next-auth";
+import { ArrowLeft, ArrowRight, LockKeyhole, ShieldCheck } from "lucide-react";
+import { redirect } from "next/navigation";
+
+import { auth, signIn } from "@/auth";
+import { DemoCredentials } from "@/components/auth/demo-credentials";
+import { LoginShowcase } from "@/components/auth/login-showcase";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import {
+  DASHBOARD_ROOT_PATH,
+  SIGN_IN_PATH,
+  getDashboardPathForRole,
+  isAppRole,
+} from "@/lib/auth";
+
+export const metadata: Metadata = {
+  title: "Sign In | AtomQuest",
+  description:
+    "Secure enterprise workspace access for AtomQuest goal execution and governance.",
+};
+
+type SignInPageProps = {
+  searchParams: Promise<{
+    callbackUrl?: string | string[];
+    error?: string | string[];
+  }>;
+};
+
+function getFirstSearchParam(value?: string | string[]) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+function getSafeCallbackUrl(value?: string) {
+  if (value?.startsWith("/") && !value.startsWith("//")) {
+    return value;
+  }
+
+  return DASHBOARD_ROOT_PATH;
+}
+
+function getAuthErrorMessage(error?: string) {
+  if (!error) {
+    return null;
+  }
+
+  if (error === "CredentialsSignin") {
+    return "The email or password did not match an active AtomQuest workspace account.";
+  }
+
+  return "Authentication could not be completed. Please verify the account and try again.";
+}
+
+async function authenticate(formData: FormData) {
+  "use server";
+
+  const callbackUrl = getSafeCallbackUrl(
+    formData.get("callbackUrl")?.toString(),
+  );
+
+  try {
+    await signIn("credentials", {
+      email: formData.get("email"),
+      password: formData.get("password"),
+      redirectTo: callbackUrl,
+    });
+  } catch (error) {
+    if (error instanceof AuthError) {
+      const params = new URLSearchParams({
+        callbackUrl,
+        error:
+          error.type === "CredentialsSignin"
+            ? "CredentialsSignin"
+            : "Configuration",
+      });
+
+      redirect(`${SIGN_IN_PATH}?${params.toString()}`);
+    }
+
+    throw error;
+  }
+}
+
+export default async function SignInPage({ searchParams }: SignInPageProps) {
+  const session = await auth();
+
+  if (session?.user && isAppRole(session.user.role)) {
+    redirect(getDashboardPathForRole(session.user.role));
+  }
+
+  const params = await searchParams;
+  const callbackUrl = getSafeCallbackUrl(
+    getFirstSearchParam(params.callbackUrl),
+  );
+  const errorMessage = getAuthErrorMessage(getFirstSearchParam(params.error));
+
+  return (
+    <main className="relative isolate min-h-svh overflow-hidden bg-[linear-gradient(180deg,#fafafa_0%,#ffffff_58%,#f8fafc_100%)] text-foreground">
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 -z-10 bg-[linear-gradient(to_right,rgba(15,23,42,0.055)_1px,transparent_1px),linear-gradient(to_bottom,rgba(15,23,42,0.055)_1px,transparent_1px)] bg-[size:42px_42px] [mask-image:linear-gradient(to_bottom,black,transparent_82%)]"
+      />
+
+      <div className="mx-auto flex min-h-svh w-full max-w-7xl flex-col px-4 sm:px-6 lg:px-8">
+        <header className="flex min-h-16 items-center justify-between gap-4 py-3">
+          <Link href="/" className="flex items-center gap-3">
+            <span className="flex size-9 items-center justify-center rounded-lg bg-foreground text-sm font-semibold text-background shadow-sm">
+              AQ
+            </span>
+            <span className="grid">
+              <span className="text-sm font-semibold leading-5">AtomQuest</span>
+              <span className="text-xs text-muted-foreground">
+                Goal Operations
+              </span>
+            </span>
+          </Link>
+
+          <Button asChild variant="outline" size="sm" className="bg-background/80">
+            <Link href="/">
+              <ArrowLeft className="size-3.5" aria-hidden="true" />
+              Platform
+            </Link>
+          </Button>
+        </header>
+
+        <div className="grid flex-1 gap-8 py-8 lg:grid-cols-[1.02fr_0.98fr] lg:items-center lg:gap-12 lg:py-12">
+          <LoginShowcase />
+
+          <div className="mx-auto flex w-full max-w-xl flex-col gap-4 lg:mx-0 lg:justify-self-end">
+            <Card className="rounded-lg bg-background/95 shadow-2xl shadow-slate-900/10">
+              <CardHeader className="gap-5 border-b p-5 sm:p-6">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex size-11 items-center justify-center rounded-lg bg-slate-950 text-slate-50">
+                    <LockKeyhole className="size-5" aria-hidden="true" />
+                  </div>
+                  <div className="rounded-md border bg-muted/40 px-2.5 py-1 text-xs font-medium text-muted-foreground">
+                    RBAC secured
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <CardTitle className="text-2xl tracking-tight sm:text-3xl">
+                    Sign in to your enterprise workspace
+                  </CardTitle>
+                  <p className="text-sm leading-6 text-muted-foreground">
+                    Access role-aware execution dashboards, governed review
+                    workflows, completion monitoring, and audit-ready reporting.
+                  </p>
+                </div>
+              </CardHeader>
+
+              <CardContent className="p-5 sm:p-6">
+                <form action={authenticate} className="grid gap-5">
+                  <input type="hidden" name="callbackUrl" value={callbackUrl} />
+
+                  {errorMessage ? (
+                    <div
+                      role="alert"
+                      className="rounded-lg border border-destructive/20 bg-destructive/10 px-3 py-2.5 text-sm leading-5 text-destructive"
+                    >
+                      {errorMessage}
+                    </div>
+                  ) : null}
+
+                  <div className="grid gap-2">
+                    <label
+                      htmlFor="email"
+                      className="text-sm font-medium text-foreground"
+                    >
+                      Email
+                    </label>
+                    <Input
+                      id="email"
+                      name="email"
+                      type="email"
+                      autoComplete="email"
+                      placeholder="admin@atomquest.com"
+                      required
+                      className="h-10 bg-background"
+                    />
+                  </div>
+
+                  <div className="grid gap-2">
+                    <label
+                      htmlFor="password"
+                      className="text-sm font-medium text-foreground"
+                    >
+                      Password
+                    </label>
+                    <Input
+                      id="password"
+                      name="password"
+                      type="password"
+                      autoComplete="current-password"
+                      placeholder="Password@123"
+                      required
+                      className="h-10 bg-background"
+                    />
+                  </div>
+
+                  <Button type="submit" size="lg" className="h-11">
+                    Enter Workspace
+                    <ArrowRight className="size-4" aria-hidden="true" />
+                  </Button>
+
+                  <div className="flex items-start gap-2 rounded-lg border bg-muted/30 p-3 text-xs leading-5 text-muted-foreground">
+                    <ShieldCheck
+                      className="mt-0.5 size-3.5 shrink-0 text-emerald-600"
+                      aria-hidden="true"
+                    />
+                    Credentials are evaluated against active workspace users and
+                    routed to the correct employee, manager, or admin workspace.
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
+
+            <DemoCredentials />
+          </div>
+        </div>
+      </div>
+    </main>
+  );
+}

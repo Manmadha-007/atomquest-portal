@@ -5,7 +5,7 @@ import NextAuth, { type DefaultSession, type NextAuthConfig } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { z } from "zod";
 
-import { DASHBOARD_ROOT_PATH } from "@/lib/auth";
+import { DASHBOARD_ROOT_PATH, SIGN_IN_PATH } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 declare module "next-auth" {
@@ -37,6 +37,9 @@ export const authConfig = {
   adapter: PrismaAdapter(prisma),
   session: {
     strategy: "jwt",
+  },
+  pages: {
+    signIn: SIGN_IN_PATH,
   },
   providers: [
     Credentials({

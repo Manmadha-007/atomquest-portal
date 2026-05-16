@@ -1,9 +1,8 @@
 import type { UserRole } from "@prisma/client";
-import { LogOut } from "lucide-react";
 
 import { signOut } from "@/auth";
+import { SignoutConfirmation } from "@/components/auth/signout-confirmation";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 
@@ -24,6 +23,13 @@ const roleLabels = {
 } satisfies Record<UserRole, string>;
 
 export function DashboardHeader({ user }: DashboardHeaderProps) {
+  async function signOutAction(_formData: FormData) {
+    "use server";
+
+    void _formData;
+    await signOut({ redirectTo: "/" });
+  }
+
   return (
     <header className="sticky top-0 z-20 flex h-16 shrink-0 items-center gap-3 border-b border-border/70 bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/80">
       <SidebarTrigger className="-ml-1" />
@@ -46,23 +52,11 @@ export function DashboardHeader({ user }: DashboardHeaderProps) {
         </p>
       </div>
 
-      <form
-        action={async () => {
-          "use server";
-
-          await signOut({ redirectTo: "/" });
-        }}
-      >
-        <Button
-          type="submit"
-          variant="outline"
-          size="sm"
-          className="gap-1.5"
-        >
-          <LogOut className="size-3.5" />
-          <span className="hidden sm:inline">Sign out</span>
-        </Button>
-      </form>
+      <SignoutConfirmation
+        action={signOutAction}
+        userLabel={user.name ?? user.email}
+        workspaceLabel={roleLabels[user.role]}
+      />
     </header>
   );
 }

@@ -3,6 +3,7 @@ import {
   GoalStatus,
   QuarterlyStatus,
   UserRole,
+  type GoalMeasurementType,
   type Prisma,
 } from "@prisma/client";
 
@@ -36,6 +37,25 @@ export type ProgressTrendDatum = {
   averageProgress: number;
   completedCount: number;
   updateCount: number;
+};
+
+export type ProgressTrendSource = {
+  quarter: number;
+  progressValue?: Prisma.Decimal | number | string | null;
+  quarterlyStatus: QuarterlyStatus;
+  goal: {
+    measurementType: GoalMeasurementType;
+    startValue?: Prisma.Decimal | number | string | null;
+    targetValue?: Prisma.Decimal | number | string | null;
+    currentValue?: Prisma.Decimal | number | string | null;
+    timelineTarget?: Date | string | null;
+    createdAt: Date | string;
+    reviewCycle: {
+      name: string;
+      year: number;
+      quarter: number;
+    };
+  };
 };
 
 export type TeamPerformanceDatum = {
@@ -440,7 +460,9 @@ function buildTeamPerformance(
     .slice(0, 8);
 }
 
-function buildProgressTrend(updates: TrendUpdateRecord[]) {
+export function buildProgressTrendData(
+  updates: ProgressTrendSource[],
+): ProgressTrendDatum[] {
   const groupedUpdates = new Map<
     string,
     {
@@ -505,6 +527,10 @@ function buildProgressTrend(updates: TrendUpdateRecord[]) {
       completedCount: item.completedCount,
       updateCount: item.updateCount,
     }));
+}
+
+function buildProgressTrend(updates: TrendUpdateRecord[]) {
+  return buildProgressTrendData(updates);
 }
 
 function getCurrentQuarterUpdate(goal: CompletionGoalRecord, quarter: number) {
