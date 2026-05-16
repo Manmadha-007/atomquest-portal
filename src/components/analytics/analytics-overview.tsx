@@ -7,6 +7,7 @@ import {
   UsersRound,
 } from "lucide-react";
 
+import { CompletionMonitoringTable } from "@/components/analytics/completion-monitoring-table";
 import { KpiCard } from "@/components/analytics/kpi-card";
 import { ProgressTrendChart } from "@/components/analytics/progress-trend-chart";
 import { StatusDistributionChart } from "@/components/analytics/status-distribution-chart";
@@ -106,6 +107,8 @@ export function AnalyticsOverview({
   scope,
 }: AnalyticsOverviewProps) {
   const kpis = getKpis(analytics, scope);
+  const scopeLabel =
+    scope === "admin" ? "the organization" : "direct reports";
 
   return (
     <div className="grid gap-6">
@@ -131,6 +134,11 @@ export function AnalyticsOverview({
       </div>
 
       <TeamPerformanceChart data={analytics.teamPerformance} scope={scope} />
+
+      <CompletionMonitoringTable
+        completionMonitoring={analytics.completionMonitoring}
+        scopeLabel={scopeLabel}
+      />
     </div>
   );
 }

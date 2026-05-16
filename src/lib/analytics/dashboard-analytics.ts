@@ -1,4 +1,10 @@
-import { GoalStatus, QuarterlyStatus, UserRole, type Prisma } from "@prisma/client";
+import {
+  ApprovalDecision,
+  GoalStatus,
+  QuarterlyStatus,
+  UserRole,
+  type Prisma,
+} from "@prisma/client";
 
 import { calculateQuarterlyProgress } from "@/lib/goals/quarterly-progress";
 import { prisma } from "@/lib/prisma";
@@ -12,6 +18,7 @@ export type AnalyticsReviewCycle = {
   quarter: number;
   startDate: Date;
   endDate: Date;
+  submissionDeadline: Date | null;
   label: string;
 };
 
@@ -39,6 +46,52 @@ export type TeamPerformanceDatum = {
   overdueCount: number;
 };
 
+export type CompletionStatus =
+  | "completed"
+  | "pending"
+  | "overdue"
+  | "reviewed"
+  | "awaiting_review";
+
+export type CompletionMonitoringSummary = {
+  completedQuarterlyUpdates: number;
+  pendingQuarterlyUpdates: number;
+  overdueQuarterlyUpdates: number;
+  noSubmissionEmployees: number;
+  reviewedSubmissions: number;
+  pendingReviews: number;
+  overdueReviews: number;
+  quarterlyCompletionPercentage: number;
+  managerReviewPercentage: number;
+};
+
+export type CompletionMonitoringRow = {
+  id: string;
+  employeeName: string;
+  employeeEmail: string;
+  managerName: string;
+  reviewCycleLabel: string;
+  quarterlySubmissionStatus: CompletionStatus;
+  quarterlySubmissionLabel: string;
+  managerReviewStatus: CompletionStatus;
+  managerReviewLabel: string;
+  lastUpdateTimestamp: string;
+  completionPercentage: number;
+  isOverdue: boolean;
+  overdueLabel: string;
+  completedQuarterlyUpdates: number;
+  pendingQuarterlyUpdates: number;
+  overdueQuarterlyUpdates: number;
+  reviewedSubmissions: number;
+  pendingReviews: number;
+  overdueReviews: number;
+};
+
+export type CompletionMonitoring = {
+  summary: CompletionMonitoringSummary;
+  rows: CompletionMonitoringRow[];
+};
+
 export type DashboardAnalytics = {
   scope: AnalyticsScope;
   reviewCycle: AnalyticsReviewCycle | null;
@@ -55,6 +108,7 @@ export type DashboardAnalytics = {
   statusDistribution: StatusDistributionDatum[];
   progressTrend: ProgressTrendDatum[];
   teamPerformance: TeamPerformanceDatum[];
+  completionMonitoring: CompletionMonitoring;
 };
 
 const analyticsGoalSelect = {
@@ -132,11 +186,66 @@ const trendUpdateSelect = {
   },
 } as const satisfies Prisma.GoalUpdateSelect;
 
+const completionEmployeeSelect = {
+  id: true,
+  firstName: true,
+  lastName: true,
+  email: true,
+  manager: {
+    select: {
+      firstName: true,
+      lastName: true,
+      email: true,
+    },
+  },
+} as const satisfies Prisma.UserSelect;
+
+const completionGoalSelect = {
+  id: true,
+  ownerId: true,
+  status: true,
+  submittedAt: true,
+  parentGoalId: true,
+  isPrimaryOwner: true,
+  measurementType: true,
+  startValue: true,
+  targetValue: true,
+  currentValue: true,
+  timelineTarget: true,
+  createdAt: true,
+  updates: {
+    orderBy: { createdAt: "desc" },
+    select: {
+      id: true,
+      quarter: true,
+      progressValue: true,
+      quarterlyStatus: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  },
+  approvals: {
+    orderBy: [{ decidedAt: "desc" }, { updatedAt: "desc" }],
+    select: {
+      decision: true,
+      decidedAt: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  },
+} as const satisfies Prisma.GoalSelect;
+
 type AnalyticsGoalRecord = Prisma.GoalGetPayload<{
   select: typeof analyticsGoalSelect;
 }>;
 type TrendUpdateRecord = Prisma.GoalUpdateGetPayload<{
   select: typeof trendUpdateSelect;
+}>;
+type CompletionEmployeeRecord = Prisma.UserGetPayload<{
+  select: typeof completionEmployeeSelect;
+}>;
+type CompletionGoalRecord = Prisma.GoalGetPayload<{
+  select: typeof completionGoalSelect;
 }>;
 
 const goalStatuses = [
@@ -175,6 +284,49 @@ function toPercentage(numerator: number, denominator: number) {
   }
 
   return Math.round((numerator / denominator) * 100);
+}
+
+function formatPersonName(person: {
+  email?: string | null;
+  firstName?: string | null;
+  lastName?: string | null;
+}) {
+  return (
+    `${person.firstName ?? ""} ${person.lastName ?? ""}`.trim() ||
+    person.email ||
+    "Unknown user"
+  );
+}
+
+function formatDateTime(value?: Date | null) {
+  if (!value) {
+    return "No current-quarter update";
+  }
+
+  return new Intl.DateTimeFormat("en", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(value);
+}
+
+function getEmptyCompletionMonitoring(): CompletionMonitoring {
+  return {
+    summary: {
+      completedQuarterlyUpdates: 0,
+      pendingQuarterlyUpdates: 0,
+      overdueQuarterlyUpdates: 0,
+      noSubmissionEmployees: 0,
+      reviewedSubmissions: 0,
+      pendingReviews: 0,
+      overdueReviews: 0,
+      quarterlyCompletionPercentage: 0,
+      managerReviewPercentage: 0,
+    },
+    rows: [],
+  };
 }
 
 function getGoalProgress(goal: AnalyticsGoalRecord) {
@@ -218,9 +370,7 @@ function isGoalOverdue(goal: AnalyticsGoalRecord, progress: number) {
 }
 
 function getEmployeeName(goal: AnalyticsGoalRecord) {
-  return (
-    `${goal.owner.firstName} ${goal.owner.lastName}`.trim() || goal.owner.email
-  );
+  return formatPersonName(goal.owner);
 }
 
 function buildStatusDistribution(
@@ -357,6 +507,248 @@ function buildProgressTrend(updates: TrendUpdateRecord[]) {
     }));
 }
 
+function getCurrentQuarterUpdate(goal: CompletionGoalRecord, quarter: number) {
+  return goal.updates.find((update) => update.quarter === quarter) ?? null;
+}
+
+function isGoalReviewed(goal: CompletionGoalRecord) {
+  if (
+    goal.status === GoalStatus.APPROVED ||
+    goal.status === GoalStatus.REJECTED ||
+    goal.status === GoalStatus.LOCKED
+  ) {
+    return true;
+  }
+
+  return goal.approvals.some(
+    (approval) => approval.decision !== ApprovalDecision.PENDING,
+  );
+}
+
+function getLatestUpdateTimestamp(
+  goals: CompletionGoalRecord[],
+  quarter: number,
+) {
+  return goals.reduce<Date | null>((latestTimestamp, goal) => {
+    const update = getCurrentQuarterUpdate(goal, quarter);
+    const updateTimestamp = update?.updatedAt ?? update?.createdAt ?? null;
+
+    if (!updateTimestamp) {
+      return latestTimestamp;
+    }
+
+    if (!latestTimestamp || updateTimestamp > latestTimestamp) {
+      return updateTimestamp;
+    }
+
+    return latestTimestamp;
+  }, null);
+}
+
+function getSubmissionStatus(input: {
+  completedCount: number;
+  isPastDue: boolean;
+  requiredCount: number;
+}): { label: string; status: CompletionStatus } {
+  if (input.requiredCount === 0) {
+    return { label: "No required updates", status: "pending" };
+  }
+
+  if (input.completedCount >= input.requiredCount) {
+    return { label: "Completed", status: "completed" };
+  }
+
+  if (input.isPastDue) {
+    return {
+      label: input.completedCount > 0 ? "Partially overdue" : "Overdue",
+      status: "overdue",
+    };
+  }
+
+  return {
+    label: input.completedCount > 0 ? "Partially submitted" : "No submission",
+    status: "pending",
+  };
+}
+
+function getManagerReviewStatus(input: {
+  isPastDue: boolean;
+  pendingCount: number;
+  reviewableCount: number;
+  reviewedCount: number;
+}): { label: string; status: CompletionStatus } {
+  if (input.reviewableCount === 0) {
+    return { label: "No submissions", status: "pending" };
+  }
+
+  if (input.pendingCount === 0) {
+    return { label: "Reviewed", status: "reviewed" };
+  }
+
+  if (input.isPastDue) {
+    return { label: "Overdue review", status: "overdue" };
+  }
+
+  if (input.reviewedCount > 0) {
+    return { label: "Partially reviewed", status: "awaiting_review" };
+  }
+
+  return { label: "Awaiting review", status: "awaiting_review" };
+}
+
+function getOverdueLabel(input: {
+  overdueReviews: number;
+  overdueUpdates: number;
+}) {
+  if (input.overdueUpdates > 0 && input.overdueReviews > 0) {
+    return "Submission and review overdue";
+  }
+
+  if (input.overdueUpdates > 0) {
+    return "Submission overdue";
+  }
+
+  if (input.overdueReviews > 0) {
+    return "Review overdue";
+  }
+
+  return "On schedule";
+}
+
+function buildCompletionMonitoring(input: {
+  employees: CompletionEmployeeRecord[];
+  goals: CompletionGoalRecord[];
+  reviewCycle: Pick<
+    AnalyticsReviewCycle,
+    "endDate" | "label" | "quarter" | "submissionDeadline"
+  >;
+}): CompletionMonitoring {
+  const goalsByOwnerId = new Map<string, CompletionGoalRecord[]>();
+  const dueDate = input.reviewCycle.submissionDeadline ?? input.reviewCycle.endDate;
+  const isPastDue = dueDate < new Date();
+
+  for (const goal of input.goals) {
+    const ownerGoals = goalsByOwnerId.get(goal.ownerId) ?? [];
+
+    ownerGoals.push(goal);
+    goalsByOwnerId.set(goal.ownerId, ownerGoals);
+  }
+
+  const rows = input.employees.map((employee) => {
+    const employeeGoals = goalsByOwnerId.get(employee.id) ?? [];
+    const quarterlyUpdateGoals = employeeGoals.filter(
+      (goal) =>
+        goal.status === GoalStatus.APPROVED &&
+        goal.isPrimaryOwner &&
+        !goal.parentGoalId,
+    );
+    const completedQuarterlyUpdates = quarterlyUpdateGoals.filter((goal) =>
+      Boolean(getCurrentQuarterUpdate(goal, input.reviewCycle.quarter)),
+    ).length;
+    const pendingQuarterlyUpdates =
+      quarterlyUpdateGoals.length - completedQuarterlyUpdates;
+    const overdueQuarterlyUpdates = isPastDue ? pendingQuarterlyUpdates : 0;
+    const submittedGoals = employeeGoals.filter(
+      (goal) => goal.status === GoalStatus.SUBMITTED,
+    );
+    const reviewedGoals = employeeGoals.filter(isGoalReviewed);
+    const reviewedSubmissions = reviewedGoals.length;
+    const pendingReviews = submittedGoals.length;
+    const overdueReviews = isPastDue ? pendingReviews : 0;
+    const reviewableCount = reviewedSubmissions + pendingReviews;
+    const quarterlyStatus = getSubmissionStatus({
+      completedCount: completedQuarterlyUpdates,
+      isPastDue,
+      requiredCount: quarterlyUpdateGoals.length,
+    });
+    const managerReviewStatus = getManagerReviewStatus({
+      isPastDue,
+      pendingCount: pendingReviews,
+      reviewableCount,
+      reviewedCount: reviewedSubmissions,
+    });
+    const latestUpdateTimestamp = getLatestUpdateTimestamp(
+      quarterlyUpdateGoals,
+      input.reviewCycle.quarter,
+    );
+    const overdueLabel = getOverdueLabel({
+      overdueReviews,
+      overdueUpdates: overdueQuarterlyUpdates,
+    });
+
+    return {
+      id: employee.id,
+      employeeName: formatPersonName(employee),
+      employeeEmail: employee.email,
+      managerName: employee.manager
+        ? formatPersonName(employee.manager)
+        : "Unassigned",
+      reviewCycleLabel: input.reviewCycle.label,
+      quarterlySubmissionStatus: quarterlyStatus.status,
+      quarterlySubmissionLabel: quarterlyStatus.label,
+      managerReviewStatus: managerReviewStatus.status,
+      managerReviewLabel: managerReviewStatus.label,
+      lastUpdateTimestamp: formatDateTime(latestUpdateTimestamp),
+      completionPercentage: toPercentage(
+        completedQuarterlyUpdates,
+        quarterlyUpdateGoals.length,
+      ),
+      isOverdue: overdueQuarterlyUpdates > 0 || overdueReviews > 0,
+      overdueLabel,
+      completedQuarterlyUpdates,
+      pendingQuarterlyUpdates,
+      overdueQuarterlyUpdates,
+      reviewedSubmissions,
+      pendingReviews,
+      overdueReviews,
+    } satisfies CompletionMonitoringRow;
+  });
+
+  const summary = rows.reduce<CompletionMonitoringSummary>(
+    (totals, row) => {
+      totals.completedQuarterlyUpdates += row.completedQuarterlyUpdates;
+      totals.pendingQuarterlyUpdates += row.pendingQuarterlyUpdates;
+      totals.overdueQuarterlyUpdates += row.overdueQuarterlyUpdates;
+      totals.reviewedSubmissions += row.reviewedSubmissions;
+      totals.pendingReviews += row.pendingReviews;
+      totals.overdueReviews += row.overdueReviews;
+
+      if (
+        row.completedQuarterlyUpdates === 0 &&
+        row.pendingQuarterlyUpdates > 0
+      ) {
+        totals.noSubmissionEmployees += 1;
+      }
+
+      return totals;
+    },
+    getEmptyCompletionMonitoring().summary,
+  );
+  const totalQuarterlyUpdates =
+    summary.completedQuarterlyUpdates + summary.pendingQuarterlyUpdates;
+  const totalReviews = summary.reviewedSubmissions + summary.pendingReviews;
+
+  summary.quarterlyCompletionPercentage = toPercentage(
+    summary.completedQuarterlyUpdates,
+    totalQuarterlyUpdates,
+  );
+  summary.managerReviewPercentage = toPercentage(
+    summary.reviewedSubmissions,
+    totalReviews,
+  );
+
+  return {
+    summary,
+    rows: rows.sort((first, second) => {
+      if (first.isOverdue !== second.isOverdue) {
+        return first.isOverdue ? -1 : 1;
+      }
+
+      return first.employeeName.localeCompare(second.employeeName);
+    }),
+  };
+}
+
 function getGoalScopeWhere(input: {
   reviewCycleId: string;
   managerId?: string;
@@ -405,6 +797,7 @@ async function getDashboardAnalytics(input: {
       quarter: true,
       startDate: true,
       endDate: true,
+      submissionDeadline: true,
     },
   });
 
@@ -434,6 +827,7 @@ async function getDashboardAnalytics(input: {
       statusDistribution: buildStatusDistribution([], 0),
       progressTrend: [],
       teamPerformance: [],
+      completionMonitoring: getEmptyCompletionMonitoring(),
     };
   }
 
@@ -442,7 +836,14 @@ async function getDashboardAnalytics(input: {
     managerId: input.managerId,
   });
 
-  const [totalGoals, statusCounts, goals, trendUpdates] = await Promise.all([
+  const [
+    totalGoals,
+    statusCounts,
+    goals,
+    trendUpdates,
+    completionEmployees,
+    completionGoals,
+  ] = await Promise.all([
     prisma.goal.count({ where: goalWhere }),
     prisma.goal.groupBy({
       by: ["status"],
@@ -462,6 +863,16 @@ async function getDashboardAnalytics(input: {
         { createdAt: "asc" },
       ],
       select: trendUpdateSelect,
+    }),
+    prisma.user.findMany({
+      where: employeeWhere,
+      orderBy: [{ lastName: "asc" }, { firstName: "asc" }],
+      select: completionEmployeeSelect,
+    }),
+    prisma.goal.findMany({
+      where: goalWhere,
+      orderBy: [{ owner: { lastName: "asc" } }, { createdAt: "asc" }],
+      select: completionGoalSelect,
     }),
   ]);
 
@@ -510,6 +921,14 @@ async function getDashboardAnalytics(input: {
     statusDistribution: buildStatusDistribution(statusCounts, totalGoals),
     progressTrend: buildProgressTrend(trendUpdates),
     teamPerformance: buildTeamPerformance(goals, input.scope),
+    completionMonitoring: buildCompletionMonitoring({
+      employees: completionEmployees,
+      goals: completionGoals,
+      reviewCycle: {
+        ...activeReviewCycle,
+        label: formatReviewCycleLabel(activeReviewCycle),
+      },
+    }),
   };
 }
 

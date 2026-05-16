@@ -1,16 +1,21 @@
 "use client";
 
-import type { GoalMeasurementType, GoalStatus } from "@prisma/client";
+import { GoalStatus, type GoalMeasurementType } from "@prisma/client";
 import {
   flexRender,
   getCoreRowModel,
   useReactTable,
   type ColumnDef,
 } from "@tanstack/react-table";
-import { CalendarClock, ListChecks } from "lucide-react";
+import { CalendarClock, ListChecks, Loader2, Send } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useTransition } from "react";
+import { toast } from "sonner";
 
+import { submitGoal } from "@/actions/goals/submit-goal";
 import { EmployeeGoalStatusBadge } from "@/components/goals/employee-goal-status-badge";
 import { SharedGoalBadge } from "@/components/goals/shared-goal-badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -90,6 +95,52 @@ const priorityConfig: Record<number, PriorityConfig> = {
 
 function getPriorityConfig(priority: number) {
   return priorityConfig[priority] ?? priorityConfig[3];
+}
+
+function SubmitGoalButton({
+  goalId,
+  goalTitle,
+}: {
+  goalId: string;
+  goalTitle: string;
+}) {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+
+  function handleSubmit() {
+    startTransition(async () => {
+      const result = await submitGoal({ goalId });
+
+      if (!result.ok) {
+        toast.error("Goal was not submitted", {
+          description: result.message,
+        });
+        return;
+      }
+
+      toast.success("Goal submitted", {
+        description: "Your manager can now review this goal.",
+      });
+      router.refresh();
+    });
+  }
+
+  return (
+    <Button
+      type="button"
+      size="sm"
+      disabled={isPending}
+      onClick={handleSubmit}
+      aria-label={`Submit ${goalTitle} for manager approval`}
+    >
+      {isPending ? (
+        <Loader2 className="size-3.5 animate-spin" aria-hidden="true" />
+      ) : (
+        <Send className="size-3.5" aria-hidden="true" />
+      )}
+      {isPending ? "Submitting" : "Submit"}
+    </Button>
+  );
 }
 
 const columns: ColumnDef<EmployeeGoalTableRow>[] = [
@@ -209,6 +260,24 @@ const columns: ColumnDef<EmployeeGoalTableRow>[] = [
       );
     },
   },
+  {
+    id: "actions",
+    header: "Actions",
+    cell: ({ row }) => {
+      const goal = row.original;
+      const canSubmit = goal.status === GoalStatus.DRAFT && !goal.isSharedGoal;
+
+      return (
+        <div className="flex min-w-28 justify-end">
+          {canSubmit ? (
+            <SubmitGoalButton goalId={goal.id} goalTitle={goal.title} />
+          ) : (
+            <span className="text-xs text-muted-foreground">-</span>
+          )}
+        </div>
+      );
+    },
+  },
 ];
 
 function getColumnMeta<TData, TValue>(column: ColumnDef<TData, TValue>) {
@@ -264,51 +333,51 @@ export function EmployeeGoalsTable({
             <Table>
               <TableHeader>
                 {table.getHeaderGroups().map((headerGroup) => (
-                    <TableRow key={headerGroup.id} className="bg-muted/40">
+                  <TableRow key={headerGroup.id} className="bg-muted/40">
                     {headerGroup.headers.map((header) => {
-                        const meta = getColumnMeta(header.column.columnDef);
+                      const meta = getColumnMeta(header.column.columnDef);
 
-                        return (
+                      return (
                         <TableHead
-                            key={header.id}
-                            className={cn(
+                          key={header.id}
+                          className={cn(
                             "h-11 px-4 text-xs uppercase tracking-wide text-muted-foreground",
                             meta?.headerClassName,
-                            )}
+                          )}
                         >
-                            {header.isPlaceholder
+                          {header.isPlaceholder
                             ? null
                             : flexRender(
                                 header.column.columnDef.header,
                                 header.getContext(),
-                                )}
+                              )}
                         </TableHead>
-                        );
+                      );
                     })}
-                    </TableRow>
+                  </TableRow>
                 ))}
-                </TableHeader>
-                <TableBody>
+              </TableHeader>
+              <TableBody>
                 {table.getRowModel().rows.map((row) => (
-                    <TableRow key={row.id} className="hover:bg-muted/30">
+                  <TableRow key={row.id} className="hover:bg-muted/30">
                     {row.getVisibleCells().map((cell) => {
-                        const meta = getColumnMeta(cell.column.columnDef);
+                      const meta = getColumnMeta(cell.column.columnDef);
 
-                        return (
+                      return (
                         <TableCell
-                            key={cell.id}
-                            className={cn("px-4 py-4", meta?.cellClassName)}
+                          key={cell.id}
+                          className={cn("px-4 py-4", meta?.cellClassName)}
                         >
-                            {flexRender(
+                          {flexRender(
                             cell.column.columnDef.cell,
                             cell.getContext(),
-                            )}
+                          )}
                         </TableCell>
-                        );
+                      );
                     })}
-                    </TableRow>
+                  </TableRow>
                 ))}
-                </TableBody>
+              </TableBody>
             </Table>
           </div>
         )}
