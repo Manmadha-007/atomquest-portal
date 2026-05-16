@@ -1,6 +1,6 @@
 "use client";
 
-import type { UserRole } from "@prisma/client";
+type UserRole = "EMPLOYEE" | "MANAGER" | "ADMIN";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { PanelLeft } from "lucide-react";

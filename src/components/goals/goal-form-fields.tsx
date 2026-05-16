@@ -1,6 +1,6 @@
 "use client";
 
-import { GoalMeasurementType } from "@prisma/client";
+type GoalMeasurementType = "MIN" | "MAX" | "TIMELINE" | "ZERO";
 import { useFormContext } from "react-hook-form";
 
 import { Badge } from "@/components/ui/badge";
@@ -73,8 +73,8 @@ export function GoalFormFields({ disabled = false }: GoalFormFieldsProps) {
     formState: { errors },
   } = useFormContext<CreateGoalInput>();
   const measurementType = watch("measurementType");
-  const isTimelineGoal = measurementType === GoalMeasurementType.TIMELINE;
-  const isZeroGoal = measurementType === GoalMeasurementType.ZERO;
+  const isTimelineGoal = measurementType === "TIMELINE";
+  const isZeroGoal = measurementType === "ZERO";
 
   return (
     <div className="grid gap-8">

@@ -1,6 +1,7 @@
 "use client";
 
-import { GoalStatus, type GoalMeasurementType } from "@prisma/client";
+type GoalStatus = "DRAFT" | "SUBMITTED" | "APPROVED" | "REJECTED" | "LOCKED";
+type GoalMeasurementType = "MIN" | "MAX" | "TIMELINE" | "ZERO";
 import {
   flexRender,
   getCoreRowModel,
@@ -265,7 +266,7 @@ const columns: ColumnDef<EmployeeGoalTableRow>[] = [
     header: "Actions",
     cell: ({ row }) => {
       const goal = row.original;
-      const canSubmit = goal.status === GoalStatus.DRAFT && !goal.isSharedGoal;
+      const canSubmit = goal.status === "DRAFT" && !goal.isSharedGoal;
 
       return (
         <div className="flex min-w-28 justify-end">

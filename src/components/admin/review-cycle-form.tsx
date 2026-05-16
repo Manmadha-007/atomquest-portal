@@ -1,7 +1,11 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { QuarterlyStatus } from "@prisma/client";
+type QuarterlyStatus =
+  | "NOT_STARTED"
+  | "ON_TRACK"
+  | "COMPLETED"
+  | "DELAYED";
 import { Loader2, PlusCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useForm, type FieldPath, type Resolver } from "react-hook-form";
@@ -26,17 +30,17 @@ import {
 } from "@/lib/validations/review-cycle";
 
 const statusLabels = {
-  [QuarterlyStatus.NOT_STARTED]: "Not started",
-  [QuarterlyStatus.ON_TRACK]: "On track",
-  [QuarterlyStatus.COMPLETED]: "Completed",
-  [QuarterlyStatus.DELAYED]: "Delayed",
+  NOT_STARTED: "Not started",
+  ON_TRACK: "On track",
+  COMPLETED: "Completed",
+  DELAYED: "Delayed",
 } satisfies Record<QuarterlyStatus, string>;
 
 const defaultValues = {
   name: "",
   year: new Date().getFullYear(),
   quarter: 1,
-  status: QuarterlyStatus.NOT_STARTED,
+  status: "NOT_STARTED",
   startDate: "",
   endDate: "",
   submissionDeadline: "",

@@ -1,6 +1,7 @@
 "use client";
 
-import type { GoalStatus, QuarterlyStatus } from "@prisma/client";
+type GoalStatus = "DRAFT" | "SUBMITTED" | "APPROVED" | "REJECTED" | "LOCKED";
+type QuarterlyStatus = "NOT_STARTED" | "ON_TRACK" | "COMPLETED" | "DELAYED";
 import {
   flexRender,
   getCoreRowModel,

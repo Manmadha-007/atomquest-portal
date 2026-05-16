@@ -1,7 +1,8 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { GoalMeasurementType, QuarterlyStatus } from "@prisma/client";
+type GoalMeasurementType = "MIN" | "MAX" | "TIMELINE" | "ZERO";
+type QuarterlyStatus = "NOT_STARTED" | "ON_TRACK" | "COMPLETED" | "DELAYED";
 import { ClipboardList, Loader2, Save } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useMemo } from "react";
@@ -93,7 +94,7 @@ function getDefaultValues(goalId: string): QuarterlyUpdateInput {
   return {
     goalId,
     achievementValue: "",
-    quarterlyStatus: QuarterlyStatus.ON_TRACK,
+    quarterlyStatus: "ON_TRACK",
     accomplishmentSummary: "",
     blockerCommentary: "",
     notes: "",
@@ -132,7 +133,7 @@ export function QuarterlyUpdateForm({
   const selectedGoalId = watch("goalId");
   const selectedGoal = goals.find((goal) => goal.id === selectedGoalId);
   const isTimelineGoal =
-    selectedGoal?.measurementType === GoalMeasurementType.TIMELINE;
+    selectedGoal?.measurementType === "TIMELINE";
   const hasAvailableGoals = availableGoalCount > 0;
 
   const onSubmit = handleSubmit(async (values) => {

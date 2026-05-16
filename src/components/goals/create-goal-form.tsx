@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { GoalMeasurementType } from "@prisma/client";
+type GoalMeasurementType = "MIN" | "MAX" | "TIMELINE" | "ZERO";
 import { Loader2, Save } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useForm, FormProvider, type FieldPath } from "react-hook-form";
@@ -27,7 +27,7 @@ const defaultValues = {
   title: "",
   thrustArea: "",
   description: "",
-  measurementType: GoalMeasurementType.MAX,
+  measurementType: "MAX",
   startValue: "",
   targetValue: "",
   weightage: 10,

@@ -1,6 +1,6 @@
 "use client";
 
-import type { QuarterlyStatus } from "@prisma/client";
+type QuarterlyStatus = "NOT_STARTED" | "ON_TRACK" | "COMPLETED" | "DELAYED";
 import {
   flexRender,
   getCoreRowModel,

@@ -1,6 +1,7 @@
 "use client";
 
-import type { GoalMeasurementType, GoalStatus } from "@prisma/client";
+type GoalMeasurementType = "MIN" | "MAX" | "TIMELINE" | "ZERO";
+type GoalStatus = "DRAFT" | "SUBMITTED" | "APPROVED" | "REJECTED" | "LOCKED";
 import {
   flexRender,
   getCoreRowModel,

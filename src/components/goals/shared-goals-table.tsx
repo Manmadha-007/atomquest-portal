@@ -1,6 +1,6 @@
 "use client";
 
-import type { GoalMeasurementType } from "@prisma/client";
+type GoalMeasurementType = "MIN" | "MAX" | "TIMELINE" | "ZERO";
 import {
   flexRender,
   getCoreRowModel,

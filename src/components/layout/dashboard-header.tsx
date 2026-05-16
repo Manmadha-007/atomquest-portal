@@ -1,4 +1,4 @@
-import type { UserRole } from "@prisma/client";
+type UserRole = "EMPLOYEE" | "MANAGER" | "ADMIN";
 
 import { signOut } from "@/auth";
 import { SignoutConfirmation } from "@/components/auth/signout-confirmation";

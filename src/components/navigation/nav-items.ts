@@ -1,4 +1,4 @@
-import type { UserRole } from "@prisma/client";
+type UserRole = "EMPLOYEE" | "MANAGER" | "ADMIN";
 import {
   Activity,
   BarChart3,
