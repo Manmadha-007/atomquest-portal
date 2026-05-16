@@ -7,6 +7,7 @@ import {
   Goal,
   LayoutDashboard,
   ListChecks,
+  Share2,
   ShieldCheck,
   Target,
   Users,
@@ -41,6 +42,12 @@ export const dashboardNavItems = {
       description: "Quarterly cycle governance",
     },
     {
+      title: "Shared Goals",
+      href: "/dashboard/admin/shared-goals",
+      icon: Share2,
+      description: "KPI propagation control",
+    },
+    {
       title: "Analytics",
       href: "/dashboard/admin/analytics",
       icon: BarChart3,
@@ -65,6 +72,12 @@ export const dashboardNavItems = {
       href: "/dashboard/manager/approvals",
       icon: ClipboardCheck,
       description: "Pending goal decisions",
+    },
+    {
+      title: "Shared Goals",
+      href: "/dashboard/manager/shared-goals",
+      icon: Share2,
+      description: "Direct-report KPI propagation",
     },
     {
       title: "Team Progress",

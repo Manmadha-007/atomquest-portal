@@ -109,6 +109,8 @@ export async function createQuarterlyUpdate(
             id: true,
             title: true,
             ownerId: true,
+            parentGoalId: true,
+            isPrimaryOwner: true,
             reviewCycleId: true,
             status: true,
             isArchived: true,
@@ -138,6 +140,19 @@ export async function createQuarterlyUpdate(
             message: "You can only update goals you own.",
             fieldErrors: {
               goalId: ["You can only update goals you own."],
+            },
+          } satisfies CreateQuarterlyUpdateResult;
+        }
+
+        if (goal.parentGoalId || !goal.isPrimaryOwner) {
+          return {
+            ok: false,
+            message:
+              "Shared goals sync progress from the primary owner. You can only adjust their weightage.",
+            fieldErrors: {
+              goalId: [
+                "Select a primary owned goal; shared goals cannot receive achievement updates.",
+              ],
             },
           } satisfies CreateQuarterlyUpdateResult;
         }
@@ -259,6 +274,8 @@ export async function createQuarterlyUpdate(
       revalidatePath("/dashboard/employee/quarterly-updates");
       revalidatePath("/dashboard/manager");
       revalidatePath("/dashboard/manager/team-progress");
+      revalidatePath("/dashboard/manager/shared-goals");
+      revalidatePath("/dashboard/admin/shared-goals");
     }
 
     return result;

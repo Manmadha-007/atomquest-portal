@@ -22,6 +22,8 @@ import { prisma } from "@/lib/prisma";
 
 const goalSelect = {
   id: true,
+  parentGoalId: true,
+  isPrimaryOwner: true,
   title: true,
   description: true,
   thrustArea: true,
@@ -34,6 +36,32 @@ const goalSelect = {
   weight: true,
   priority: true,
   createdAt: true,
+  parentGoal: {
+    select: {
+      id: true,
+      measurementType: true,
+      startValue: true,
+      targetValue: true,
+      currentValue: true,
+      timelineTarget: true,
+      createdAt: true,
+      owner: {
+        select: {
+          firstName: true,
+          lastName: true,
+        },
+      },
+      updates: {
+        orderBy: { createdAt: "desc" },
+        take: 1,
+        select: {
+          progressValue: true,
+          quarterlyStatus: true,
+          createdAt: true,
+        },
+      },
+    },
+  },
   updates: {
     orderBy: { createdAt: "desc" },
     take: 1,
@@ -92,16 +120,20 @@ function isGoalOverdue(goal: EmployeeGoalRecord, progressPercentage: number) {
 }
 
 function mapGoalToTableRow(goal: EmployeeGoalRecord): EmployeeGoalTableRow {
-  const latestProgressValue = goal.updates[0]?.progressValue;
-  const currentValue = latestProgressValue ?? goal.currentValue;
+  const progressSource = goal.parentGoal ?? goal;
+  const latestProgressValue = progressSource.updates[0]?.progressValue;
+  const currentValue = latestProgressValue ?? progressSource.currentValue;
   const progressPercentage = calculateGoalProgress({
-    measurementType: goal.measurementType,
-    startValue: toNumber(goal.startValue),
-    targetValue: toNumber(goal.targetValue),
+    measurementType: progressSource.measurementType,
+    startValue: toNumber(progressSource.startValue),
+    targetValue: toNumber(progressSource.targetValue),
     currentValue: toNumber(currentValue),
-    dueDate: goal.timelineTarget,
-    createdAt: goal.createdAt,
+    dueDate: progressSource.timelineTarget,
+    createdAt: progressSource.createdAt,
   });
+  const primaryOwnerName = goal.parentGoal
+    ? `${goal.parentGoal.owner.firstName} ${goal.parentGoal.owner.lastName}`.trim()
+    : null;
 
   return {
     id: goal.id,
@@ -112,8 +144,10 @@ function mapGoalToTableRow(goal: EmployeeGoalRecord): EmployeeGoalTableRow {
     measurementType: goal.measurementType,
     weightage: goal.weight,
     progressPercentage,
-    dueDateLabel: formatDate(goal.timelineTarget),
+    dueDateLabel: formatDate(progressSource.timelineTarget),
     priority: goal.priority,
+    isSharedGoal: Boolean(goal.parentGoalId) || !goal.isPrimaryOwner,
+    primaryOwnerName,
   };
 }
 

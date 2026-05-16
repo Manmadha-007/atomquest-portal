@@ -10,6 +10,7 @@ import {
 import { CalendarClock, ListChecks } from "lucide-react";
 
 import { EmployeeGoalStatusBadge } from "@/components/goals/employee-goal-status-badge";
+import { SharedGoalBadge } from "@/components/goals/shared-goal-badge";
 import {
   Card,
   CardContent,
@@ -38,6 +39,8 @@ export type EmployeeGoalTableRow = {
   progressPercentage: number;
   dueDateLabel: string;
   priority: number;
+  isSharedGoal: boolean;
+  primaryOwnerName: string | null;
 };
 
 type EmployeeGoalsTableProps = {
@@ -98,7 +101,10 @@ const columns: ColumnDef<EmployeeGoalTableRow>[] = [
 
       return (
         <div className="min-w-64 space-y-1">
-          <div className="font-medium text-foreground">{goal.title}</div>
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="font-medium text-foreground">{goal.title}</div>
+            {goal.isSharedGoal ? <SharedGoalBadge kind="linked" /> : null}
+          </div>
           {goal.description ? (
             <p className="line-clamp-2 max-w-xl text-xs leading-5 text-muted-foreground">
               {goal.description}
@@ -108,6 +114,11 @@ const columns: ColumnDef<EmployeeGoalTableRow>[] = [
               No description provided
             </p>
           )}
+          {goal.primaryOwnerName ? (
+            <p className="text-xs text-muted-foreground">
+              Progress synced from {goal.primaryOwnerName}
+            </p>
+          ) : null}
         </div>
       );
     },

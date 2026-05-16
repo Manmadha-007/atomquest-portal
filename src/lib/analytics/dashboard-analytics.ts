@@ -59,6 +59,7 @@ export type DashboardAnalytics = {
 
 const analyticsGoalSelect = {
   id: true,
+  parentGoalId: true,
   status: true,
   measurementType: true,
   startValue: true,
@@ -82,6 +83,27 @@ const analyticsGoalSelect = {
       progressValue: true,
       quarterlyStatus: true,
       createdAt: true,
+    },
+  },
+  parentGoal: {
+    select: {
+      id: true,
+      status: true,
+      measurementType: true,
+      startValue: true,
+      targetValue: true,
+      currentValue: true,
+      timelineTarget: true,
+      createdAt: true,
+      updates: {
+        orderBy: { createdAt: "desc" },
+        take: 1,
+        select: {
+          progressValue: true,
+          quarterlyStatus: true,
+          createdAt: true,
+        },
+      },
     },
   },
 } as const satisfies Prisma.GoalSelect;
@@ -156,21 +178,23 @@ function toPercentage(numerator: number, denominator: number) {
 }
 
 function getGoalProgress(goal: AnalyticsGoalRecord) {
-  const latestUpdate = goal.updates[0];
+  const progressSource = goal.parentGoal ?? goal;
+  const latestUpdate = progressSource.updates[0];
 
   return calculateQuarterlyProgress({
-    measurementType: goal.measurementType,
-    startValue: goal.startValue,
-    targetValue: goal.targetValue,
-    currentValue: goal.currentValue,
+    measurementType: progressSource.measurementType,
+    startValue: progressSource.startValue,
+    targetValue: progressSource.targetValue,
+    currentValue: progressSource.currentValue,
     achievementValue: latestUpdate?.progressValue,
-    dueDate: goal.timelineTarget,
-    createdAt: goal.createdAt,
+    dueDate: progressSource.timelineTarget,
+    createdAt: progressSource.createdAt,
   });
 }
 
 function isGoalComplete(goal: AnalyticsGoalRecord, progress: number) {
-  const latestUpdate = goal.updates[0];
+  const progressSource = goal.parentGoal ?? goal;
+  const latestUpdate = progressSource.updates[0];
 
   return (
     goal.status === GoalStatus.LOCKED ||
@@ -180,7 +204,9 @@ function isGoalComplete(goal: AnalyticsGoalRecord, progress: number) {
 }
 
 function isGoalOverdue(goal: AnalyticsGoalRecord, progress: number) {
-  if (!goal.timelineTarget || progress >= 100) {
+  const progressSource = goal.parentGoal ?? goal;
+
+  if (!progressSource.timelineTarget || progress >= 100) {
     return false;
   }
 
@@ -188,7 +214,7 @@ function isGoalOverdue(goal: AnalyticsGoalRecord, progress: number) {
     return false;
   }
 
-  return goal.timelineTarget < new Date();
+  return progressSource.timelineTarget < new Date();
 }
 
 function getEmployeeName(goal: AnalyticsGoalRecord) {

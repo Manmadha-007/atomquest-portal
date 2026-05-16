@@ -173,6 +173,9 @@ model Goal {
   owner             User                @relation("GoalOwner", fields: [ownerId], references: [id], onDelete: Restrict)
   createdById       String              @db.Uuid
   createdBy         User                @relation("GoalCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  parentGoalId      String?             @db.Uuid
+  parentGoal        Goal?               @relation("SharedGoalParent", fields: [parentGoalId], references: [id], onDelete: Restrict)
+  sharedGoals       Goal[]              @relation("SharedGoalParent")
   sharedGoalGroupId String?             @db.Uuid
   sharedGoalGroup   SharedGoalGroup?    @relation(fields: [sharedGoalGroupId], references: [id], onDelete: SetNull)
   title             String
@@ -203,9 +206,11 @@ model Goal {
   @@index([ownerId, reviewCycleId])
   @@index([reviewCycleId, status])
   @@index([createdById])
+  @@index([parentGoalId])
   @@index([sharedGoalGroupId])
   @@index([sharedGoalGroupId, isPrimaryOwner])
   @@index([isArchived])
+  @@unique([parentGoalId, ownerId])
 }
 
 model GoalUpdate {
