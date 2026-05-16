@@ -2,10 +2,21 @@ import { BarChart3 } from "lucide-react";
 import { redirect } from "next/navigation";
 import { UserRole } from "@prisma/client";
 
+import { auth } from "@/auth";
 import { AnalyticsOverview } from "@/components/analytics/analytics-overview";
+import { ExportActions } from "@/components/reports/export-actions";
 import { getAdminAnalytics } from "@/lib/analytics/dashboard-analytics";
 import { getDashboardPathForRole, SIGN_IN_PATH } from "@/lib/auth";
-import { auth } from "@/auth";
+
+const adminExportActions = [
+  { id: "goals", label: "Goals", href: "/api/exports/goals" },
+  {
+    id: "quarterly-updates",
+    label: "Quarterly updates",
+    href: "/api/exports/quarterly-updates",
+  },
+  { id: "audit-logs", label: "Audit logs", href: "/api/exports/audit-logs" },
+];
 
 function formatDate(value?: Date | null) {
   if (!value) {
@@ -71,6 +82,11 @@ export default async function AdminAnalyticsPage() {
           </div>
         </div>
       </section>
+
+      <ExportActions
+        actions={adminExportActions}
+        description="Organization-wide CSV/XLSX reporting."
+      />
 
       <AnalyticsOverview analytics={analytics} scope="admin" />
     </div>

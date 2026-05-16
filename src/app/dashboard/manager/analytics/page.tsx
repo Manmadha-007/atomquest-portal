@@ -4,8 +4,18 @@ import { UserRole } from "@prisma/client";
 
 import { auth } from "@/auth";
 import { AnalyticsOverview } from "@/components/analytics/analytics-overview";
+import { ExportActions } from "@/components/reports/export-actions";
 import { getManagerAnalytics } from "@/lib/analytics/dashboard-analytics";
 import { getDashboardPathForRole, SIGN_IN_PATH } from "@/lib/auth";
+
+const managerExportActions = [
+  { id: "goals", label: "Goals", href: "/api/exports/goals" },
+  {
+    id: "quarterly-updates",
+    label: "Quarterly updates",
+    href: "/api/exports/quarterly-updates",
+  },
+];
 
 function formatDate(value?: Date | null) {
   if (!value) {
@@ -71,6 +81,11 @@ export default async function ManagerAnalyticsPage() {
           </div>
         </div>
       </section>
+
+      <ExportActions
+        actions={managerExportActions}
+        description="Direct-report CSV/XLSX reporting."
+      />
 
       <AnalyticsOverview analytics={analytics} scope="manager" />
     </div>

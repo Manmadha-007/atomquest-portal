@@ -7,6 +7,7 @@ import {
   AuditLogsTable,
   type AuditLogTableRow,
 } from "@/components/admin/audit-logs-table";
+import { ExportActions } from "@/components/reports/export-actions";
 import {
   Card,
   CardDescription,
@@ -15,6 +16,10 @@ import {
 } from "@/components/ui/card";
 import { getDashboardPathForRole, SIGN_IN_PATH } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+
+const auditLogExportActions = [
+  { id: "audit-logs", label: "Audit logs", href: "/api/exports/audit-logs" },
+];
 
 const auditLogSelect = {
   id: true,
@@ -182,6 +187,11 @@ export default async function AdminAuditLogsPage() {
           </CardHeader>
         </Card>
       </div>
+
+      <ExportActions
+        actions={auditLogExportActions}
+        description="Governance CSV/XLSX reporting."
+      />
 
       <AuditLogsTable logs={tableRows} />
     </div>
