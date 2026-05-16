@@ -55,6 +55,7 @@ export function toApprovalFieldErrors(
 export function getApprovalRevalidationPaths(ownerId: string) {
   return [
     "/dashboard/manager",
+    "/dashboard/manager/team-goals",
     "/dashboard/manager/approvals",
     "/dashboard/employee",
     `/dashboard/employee/${ownerId}`,

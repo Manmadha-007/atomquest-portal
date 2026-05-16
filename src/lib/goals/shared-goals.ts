@@ -456,6 +456,7 @@ export function buildSharedGoalGroupName(parentGoal: {
 
 export function getSharedGoalRevalidationPaths() {
   return [
+    "/dashboard/manager/team-goals",
     "/dashboard/admin/shared-goals",
     "/dashboard/manager/shared-goals",
     "/dashboard/employee",

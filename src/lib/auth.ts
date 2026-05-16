@@ -7,7 +7,7 @@ export const DASHBOARD_ROOT_PATH = "/dashboard";
 
 const roleDashboardPaths = {
   ADMIN: "/dashboard/admin",
-  MANAGER: "/dashboard/manager",
+  MANAGER: "/dashboard/manager/team-goals",
   EMPLOYEE: "/dashboard/employee",
 } satisfies Record<AppRole, string>;
 

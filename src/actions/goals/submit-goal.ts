@@ -264,6 +264,7 @@ export async function submitGoal(
 
     if (result.ok) {
       revalidatePath("/dashboard/employee");
+      revalidatePath("/dashboard/manager/team-goals");
       revalidatePath("/dashboard/manager/approvals");
     }
 

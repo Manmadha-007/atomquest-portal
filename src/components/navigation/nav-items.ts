@@ -63,7 +63,7 @@ export const dashboardNavItems = {
   MANAGER: [
     {
       title: "Team Goals",
-      href: "/dashboard/manager",
+      href: "/dashboard/manager/team-goals",
       icon: Goal,
       description: "Team goal portfolio",
     },

@@ -220,6 +220,7 @@ export async function createGoal(
     if (result.ok) {
       revalidatePath("/dashboard/employee");
       revalidatePath("/dashboard/employee/quarterly-updates");
+      revalidatePath("/dashboard/manager/team-goals");
     }
 
     return result;

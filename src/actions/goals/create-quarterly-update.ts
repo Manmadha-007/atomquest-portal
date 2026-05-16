@@ -273,6 +273,7 @@ export async function createQuarterlyUpdate(
       revalidatePath("/dashboard/employee");
       revalidatePath("/dashboard/employee/quarterly-updates");
       revalidatePath("/dashboard/manager");
+      revalidatePath("/dashboard/manager/team-goals");
       revalidatePath("/dashboard/manager/team-progress");
       revalidatePath("/dashboard/manager/shared-goals");
       revalidatePath("/dashboard/admin/shared-goals");

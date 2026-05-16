@@ -62,6 +62,7 @@ export function getGovernanceRevalidationPaths() {
     "/dashboard/admin/analytics",
     "/dashboard/employee",
     "/dashboard/employee/quarterly-updates",
+    "/dashboard/manager/team-goals",
     "/dashboard/manager/approvals",
     "/dashboard/manager/analytics",
   ];
