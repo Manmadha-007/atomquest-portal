@@ -1,4 +1,4 @@
-import { GoalStatus, UserRole, type Prisma } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 import { ClipboardList } from "lucide-react";
 import { redirect } from "next/navigation";
 
@@ -112,7 +112,7 @@ function isGoalOverdue(goal: EmployeeGoalRecord, progressPercentage: number) {
     return false;
   }
 
-  if (goal.status === GoalStatus.REJECTED || goal.status === GoalStatus.LOCKED) {
+  if (goal.status === "REJECTED" || goal.status === "LOCKED") {
     return false;
   }
 
@@ -158,7 +158,7 @@ export default async function EmployeeDashboardPage() {
     redirect(`${SIGN_IN_PATH}?callbackUrl=/dashboard/employee`);
   }
 
-  if (session.user.role !== UserRole.EMPLOYEE) {
+  if (session.user.role !== "EMPLOYEE") {
     redirect(getDashboardPathForRole(session.user.role));
   }
 
@@ -192,9 +192,9 @@ export default async function EmployeeDashboardPage() {
   const metrics = {
     totalGoals: goals.length,
     totalWeightage: goals.reduce((total, goal) => total + goal.weight, 0),
-    approvedGoals: goals.filter((goal) => goal.status === GoalStatus.APPROVED)
+    approvedGoals: goals.filter((goal) => goal.status === "APPROVED")
       .length,
-    draftGoals: goals.filter((goal) => goal.status === GoalStatus.DRAFT).length,
+    draftGoals: goals.filter((goal) => goal.status === "DRAFT").length,
     overdueGoals: goals.filter((goal, index) =>
       isGoalOverdue(goal, tableRows[index]?.progressPercentage ?? 0),
     ).length,
