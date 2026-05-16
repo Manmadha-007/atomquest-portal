@@ -1,0 +1,406 @@
+import { GoalStatus, UserRole, type Prisma } from "@prisma/client";
+import {
+  AlertTriangle,
+  ClipboardCheck,
+  ShieldCheck,
+  UserRound,
+  UsersRound,
+  type LucideIcon,
+} from "lucide-react";
+import { redirect } from "next/navigation";
+
+import { auth } from "@/auth";
+import {
+  EmployeesTable,
+  type EmployeeDirectoryTableRow,
+} from "@/components/admin/employees-table";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import type { CompletionStatus } from "@/lib/analytics/dashboard-analytics";
+import { getAdminAnalytics } from "@/lib/analytics/dashboard-analytics";
+import { getDashboardPathForRole, SIGN_IN_PATH } from "@/lib/auth";
+import { calculateGoalProgress } from "@/lib/goals/goal-progress";
+import { prisma } from "@/lib/prisma";
+
+const EMPTY_REVIEW_CYCLE_ID = "00000000-0000-4000-8000-000000000000";
+
+const directoryGoalSelect = {
+  id: true,
+  status: true,
+  measurementType: true,
+  startValue: true,
+  targetValue: true,
+  currentValue: true,
+  timelineTarget: true,
+  createdAt: true,
+  parentGoal: {
+    select: {
+      measurementType: true,
+      startValue: true,
+      targetValue: true,
+      currentValue: true,
+      timelineTarget: true,
+      createdAt: true,
+      updates: {
+        orderBy: { createdAt: "desc" },
+        take: 1,
+        select: {
+          progressValue: true,
+          quarterlyStatus: true,
+          createdAt: true,
+        },
+      },
+    },
+  },
+  updates: {
+    orderBy: { createdAt: "desc" },
+    take: 1,
+    select: {
+      progressValue: true,
+      quarterlyStatus: true,
+      createdAt: true,
+    },
+  },
+} as const satisfies Prisma.GoalSelect;
+
+const directoryUserSelect = {
+  id: true,
+  firstName: true,
+  lastName: true,
+  email: true,
+  title: true,
+  department: true,
+  role: true,
+  isActive: true,
+  createdAt: true,
+  manager: {
+    select: {
+      firstName: true,
+      lastName: true,
+      email: true,
+    },
+  },
+  goalsOwned: {
+    select: directoryGoalSelect,
+  },
+} as const satisfies Prisma.UserSelect;
+
+type DirectoryGoalRecord = Prisma.GoalGetPayload<{
+  select: typeof directoryGoalSelect;
+}>;
+type DirectoryUserRecord = Prisma.UserGetPayload<{
+  select: typeof directoryUserSelect;
+}>;
+
+type DirectoryMetric = {
+  description: string;
+  icon: LucideIcon;
+  label: string;
+  value: number | string;
+};
+
+function formatDate(value: Date) {
+  return new Intl.DateTimeFormat("en", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).format(value);
+}
+
+function formatPersonName(person: {
+  email: string;
+  firstName: string;
+  lastName: string;
+}) {
+  return `${person.firstName} ${person.lastName}`.trim() || person.email;
+}
+
+function toNumber(value?: Prisma.Decimal | null) {
+  return value === null || value === undefined ? null : Number(value);
+}
+
+function getGoalProgress(goal: DirectoryGoalRecord) {
+  const progressSource = goal.parentGoal ?? goal;
+  const latestProgressValue = progressSource.updates[0]?.progressValue;
+  const currentValue = latestProgressValue ?? progressSource.currentValue;
+
+  return calculateGoalProgress({
+    measurementType: progressSource.measurementType,
+    startValue: toNumber(progressSource.startValue),
+    targetValue: toNumber(progressSource.targetValue),
+    currentValue: toNumber(currentValue),
+    dueDate: progressSource.timelineTarget,
+    createdAt: progressSource.createdAt,
+  });
+}
+
+function isGoalOverdue(goal: DirectoryGoalRecord, now: Date) {
+  const progressSource = goal.parentGoal ?? goal;
+  const progress = getGoalProgress(goal);
+
+  if (!progressSource.timelineTarget || progress >= 100) {
+    return false;
+  }
+
+  if (goal.status === GoalStatus.REJECTED || goal.status === GoalStatus.LOCKED) {
+    return false;
+  }
+
+  return progressSource.timelineTarget < now;
+}
+
+function getSearchText(input: {
+  department: string | null;
+  email: string;
+  managerName: string | null;
+  name: string;
+  role: UserRole;
+  title: string | null;
+}) {
+  return [
+    input.name,
+    input.email,
+    input.title,
+    input.department,
+    input.managerName,
+    input.role,
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+}
+
+function mapUserToRow(input: {
+  completionByEmployeeId: Map<
+    string,
+    {
+      completionPercentage: number;
+      quarterlySubmissionLabel: string;
+      quarterlySubmissionStatus: CompletionStatus;
+    }
+  >;
+  now: Date;
+  user: DirectoryUserRecord;
+}): EmployeeDirectoryTableRow {
+  const { completionByEmployeeId, now, user } = input;
+  const name = formatPersonName(user);
+  const managerName = user.manager ? formatPersonName(user.manager) : null;
+  const completion = completionByEmployeeId.get(user.id);
+  const tracksQuarterlyCompletion =
+    user.role === UserRole.EMPLOYEE && Boolean(completion);
+  const activeGoalsCount = user.goalsOwned.length;
+  const pendingApprovals = user.goalsOwned.filter(
+    (goal) => goal.status === GoalStatus.SUBMITTED,
+  ).length;
+  const overdueGoals = user.goalsOwned.filter((goal) =>
+    isGoalOverdue(goal, now),
+  ).length;
+
+  return {
+    id: user.id,
+    name,
+    email: user.email,
+    role: user.role,
+    title: user.title,
+    department: user.department,
+    managerName,
+    isActive: user.isActive,
+    activeGoalsCount,
+    completionPercentage: tracksQuarterlyCompletion
+      ? completion?.completionPercentage ?? 0
+      : null,
+    pendingApprovals,
+    overdueGoals,
+    quarterlyStatus: completion?.quarterlySubmissionStatus ?? "pending",
+    quarterlyStatusLabel:
+      user.role === UserRole.EMPLOYEE
+        ? completion?.quarterlySubmissionLabel ?? "No active cycle"
+        : "Not tracked",
+    createdDateLabel: formatDate(user.createdAt),
+    searchText: getSearchText({
+      department: user.department,
+      email: user.email,
+      managerName,
+      name,
+      role: user.role,
+      title: user.title,
+    }),
+  };
+}
+
+function buildMetrics(rows: EmployeeDirectoryTableRow[]): DirectoryMetric[] {
+  const activeUsers = rows.filter((row) => row.isActive).length;
+  const managerCount = rows.filter((row) => row.role === UserRole.MANAGER).length;
+  const employeeCount = rows.filter(
+    (row) => row.role === UserRole.EMPLOYEE,
+  ).length;
+  const pendingApprovals = rows.reduce(
+    (total, row) => total + row.pendingApprovals,
+    0,
+  );
+  const overdueGoals = rows.reduce((total, row) => total + row.overdueGoals, 0);
+
+  return [
+    {
+      label: "Total users",
+      value: rows.length,
+      description: `${activeUsers} active workforce records.`,
+      icon: UsersRound,
+    },
+    {
+      label: "Employees",
+      value: employeeCount,
+      description: "Individual contributors in the goal workflow.",
+      icon: UserRound,
+    },
+    {
+      label: "Managers",
+      value: managerCount,
+      description: "People managers with direct-report visibility.",
+      icon: ShieldCheck,
+    },
+    {
+      label: "Pending approvals",
+      value: pendingApprovals,
+      description: "Submitted goals awaiting manager decision.",
+      icon: ClipboardCheck,
+    },
+    {
+      label: "Overdue goals",
+      value: overdueGoals,
+      description: "Active-cycle goals past target date.",
+      icon: AlertTriangle,
+    },
+  ];
+}
+
+export default async function AdminEmployeesPage() {
+  const session = await auth();
+
+  if (!session?.user?.id) {
+    redirect(`${SIGN_IN_PATH}?callbackUrl=/dashboard/admin/employees`);
+  }
+
+  if (session.user.role !== UserRole.ADMIN) {
+    redirect(getDashboardPathForRole(session.user.role));
+  }
+
+  const analytics = await getAdminAnalytics();
+  const activeReviewCycleId = analytics.reviewCycle?.id ?? EMPTY_REVIEW_CYCLE_ID;
+  const users: DirectoryUserRecord[] = await prisma.user.findMany({
+    orderBy: [
+      { role: "asc" },
+      { lastName: "asc" },
+      { firstName: "asc" },
+      { email: "asc" },
+    ],
+    select: {
+      ...directoryUserSelect,
+      goalsOwned: {
+        where: {
+          reviewCycleId: activeReviewCycleId,
+          isArchived: false,
+        },
+        orderBy: [{ priority: "asc" }, { createdAt: "asc" }],
+        select: directoryGoalSelect,
+      },
+    },
+  });
+
+  const completionByEmployeeId = new Map(
+    analytics.completionMonitoring.rows.map((row) => [
+      row.id,
+      {
+        completionPercentage: row.completionPercentage,
+        quarterlySubmissionLabel: row.quarterlySubmissionLabel,
+        quarterlySubmissionStatus: row.quarterlySubmissionStatus,
+      },
+    ]),
+  );
+  const now = new Date();
+  const tableRows = users.map((user) =>
+    mapUserToRow({ completionByEmployeeId, now, user }),
+  );
+  const metrics = buildMetrics(tableRows);
+  const reviewCycleLabel =
+    analytics.reviewCycle?.label ?? "no active review cycle";
+
+  return (
+    <div className="grid gap-6">
+      <section className="overflow-hidden rounded-2xl border bg-card">
+        <div className="relative isolate p-6 sm:p-8">
+          <div className="absolute inset-y-0 right-0 -z-10 hidden w-1/2 bg-gradient-to-l from-blue-500/10 via-emerald-500/5 to-transparent lg:block" />
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div className="max-w-3xl space-y-3">
+              <div className="inline-flex items-center gap-2 rounded-full border bg-background px-3 py-1 text-xs font-medium text-muted-foreground">
+                <UsersRound className="size-3.5" aria-hidden="true" />
+                Admin workforce directory
+              </div>
+              <div className="space-y-2">
+                <h1 className="font-heading text-3xl font-semibold tracking-tight sm:text-4xl">
+                  Employees
+                </h1>
+                <p className="text-sm leading-6 text-muted-foreground sm:text-base">
+                  Inspect role coverage, manager relationships, active-cycle
+                  goal load, completion readiness, and approval exposure across
+                  the enterprise workforce.
+                </p>
+              </div>
+            </div>
+            <div className="rounded-xl border bg-background/80 p-4 shadow-sm">
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                Current cycle
+              </p>
+              <p className="mt-1 font-semibold">{reviewCycleLabel}</p>
+              {analytics.reviewCycle ? (
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {formatDate(analytics.reviewCycle.startDate)} to{" "}
+                  {formatDate(analytics.reviewCycle.endDate)}
+                </p>
+              ) : (
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Workforce records remain visible without cycle analytics.
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+        {metrics.map((metric) => {
+          const Icon = metric.icon;
+
+          return (
+            <Card className="rounded-lg" key={metric.label}>
+              <CardHeader className="grid-cols-[1fr_auto] items-start gap-3 pb-2">
+                <div className="space-y-1">
+                  <CardDescription>{metric.label}</CardDescription>
+                  <CardTitle className="text-2xl">{metric.value}</CardTitle>
+                </div>
+                <div className="rounded-lg bg-muted p-2 text-muted-foreground">
+                  <Icon className="size-4" aria-hidden="true" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-xs leading-5 text-muted-foreground">
+                  {metric.description}
+                </p>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </section>
+
+      <EmployeesTable
+        employees={tableRows}
+        reviewCycleLabel={reviewCycleLabel}
+      />
+    </div>
+  );
+}
