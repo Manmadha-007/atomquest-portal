@@ -1,4 +1,4 @@
-import { GoalMeasurementType } from "@prisma/client";
+
 import { z } from "zod";
 
 const requiredText = (field: string, maxLength: number) =>
@@ -27,10 +27,10 @@ const parseNumber = (value?: string) => {
 };
 
 export const goalMeasurementTypeOptions = [
-  GoalMeasurementType.MIN,
-  GoalMeasurementType.MAX,
-  GoalMeasurementType.TIMELINE,
-  GoalMeasurementType.ZERO,
+  "MIN",
+  "MAX",
+  "TIMELINE",
+  "ZERO",
 ] as const;
 
 export const goalPriorityOptions = [
@@ -80,9 +80,9 @@ export const createGoalSchema = z
     const targetValue = parseNumber(value.targetValue);
 
     if (
-      value.measurementType === GoalMeasurementType.MIN ||
-      value.measurementType === GoalMeasurementType.MAX ||
-      value.measurementType === GoalMeasurementType.ZERO
+      value.measurementType === "MIN" ||
+      value.measurementType === "MAX" ||
+      value.measurementType === "ZERO"
     ) {
       if (startValue === null) {
         context.addIssue({
@@ -94,8 +94,8 @@ export const createGoalSchema = z
     }
 
     if (
-      value.measurementType === GoalMeasurementType.MIN ||
-      value.measurementType === GoalMeasurementType.MAX
+      value.measurementType === "MIN" ||
+      value.measurementType === "MAX"
     ) {
       if (targetValue === null) {
         context.addIssue({
@@ -107,7 +107,7 @@ export const createGoalSchema = z
     }
 
     if (
-      value.measurementType === GoalMeasurementType.MAX &&
+      value.measurementType === "MAX" &&
       startValue !== null &&
       targetValue !== null &&
       targetValue <= startValue
@@ -120,7 +120,7 @@ export const createGoalSchema = z
     }
 
     if (
-      value.measurementType === GoalMeasurementType.MIN &&
+      value.measurementType === "MIN" &&
       startValue !== null &&
       targetValue !== null &&
       targetValue >= startValue
@@ -132,7 +132,7 @@ export const createGoalSchema = z
       });
     }
 
-    if (value.measurementType === GoalMeasurementType.ZERO) {
+    if (value.measurementType === "ZERO") {
       if (targetValue !== null && targetValue !== 0) {
         context.addIssue({
           code: "custom",

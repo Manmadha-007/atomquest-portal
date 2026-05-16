@@ -1,4 +1,4 @@
-import { QuarterlyStatus } from "@prisma/client";
+
 import { z } from "zod";
 
 const requiredText = (field: string, maxLength: number) =>
@@ -23,10 +23,10 @@ const numericText = z
   );
 
 export const quarterlyStatusOptions = [
-  QuarterlyStatus.NOT_STARTED,
-  QuarterlyStatus.ON_TRACK,
-  QuarterlyStatus.COMPLETED,
-  QuarterlyStatus.DELAYED,
+  "NOT_STARTED",
+  "ON_TRACK",
+  "COMPLETED",
+  "DELAYED",
 ] as const;
 
 export const quarterlyUpdateSchema = z.object({

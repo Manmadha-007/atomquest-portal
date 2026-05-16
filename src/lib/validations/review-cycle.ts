@@ -1,4 +1,4 @@
-import { QuarterlyStatus } from "@prisma/client";
+
 import { z } from "zod";
 
 const requiredText = (field: string, maxLength: number) =>
@@ -34,10 +34,10 @@ function toUtcDate(value: string) {
 }
 
 export const reviewCycleStatusOptions = [
-  QuarterlyStatus.NOT_STARTED,
-  QuarterlyStatus.ON_TRACK,
-  QuarterlyStatus.COMPLETED,
-  QuarterlyStatus.DELAYED,
+  "NOT_STARTED",
+  "ON_TRACK",
+  "COMPLETED",
+  "DELAYED",
 ] as const;
 
 export const reviewCycleSchema = z
