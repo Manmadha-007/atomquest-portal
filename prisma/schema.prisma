@@ -1,3 +1,219 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
 datasource db {
   provider = "postgresql"
+}
+
+enum UserRole {
+  EMPLOYEE
+  MANAGER
+  ADMIN
+}
+
+enum GoalStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+  REJECTED
+  LOCKED
+}
+
+enum GoalMeasurementType {
+  MIN
+  MAX
+  TIMELINE
+  ZERO
+}
+
+enum QuarterlyStatus {
+  NOT_STARTED
+  ON_TRACK
+  COMPLETED
+  DELAYED
+}
+
+enum ApprovalDecision {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model User {
+  id                      String            @id @default(uuid()) @db.Uuid
+  employeeNumber          String?           @unique
+  email                   String            @unique
+  firstName               String
+  lastName                String
+  title                   String?
+  department              String?
+  role                    UserRole          @default(EMPLOYEE)
+  isActive                Boolean           @default(true)
+  managerId               String?           @db.Uuid
+  manager                 User?             @relation("ManagerToReports", fields: [managerId], references: [id], onDelete: SetNull)
+  directReports           User[]            @relation("ManagerToReports")
+  goalsOwned              Goal[]            @relation("GoalOwner")
+  goalsCreated            Goal[]            @relation("GoalCreator")
+  goalUpdates             GoalUpdate[]      @relation("GoalUpdateAuthor")
+  goalApprovals           GoalApproval[]    @relation("GoalApprover")
+  reviewCyclesCreated     ReviewCycle[]     @relation("ReviewCycleCreator")
+  sharedGoalGroups        SharedGoalGroup[] @relation("SharedGoalGroupMembers")
+  sharedGoalGroupsCreated SharedGoalGroup[] @relation("SharedGoalGroupCreator")
+  auditLogs               AuditLog[]        @relation("AuditActor")
+  createdAt               DateTime          @default(now())
+  updatedAt               DateTime          @updatedAt
+
+  @@index([managerId])
+  @@index([role, isActive])
+  @@index([department])
+  @@index([lastName, firstName])
+}
+
+model ReviewCycle {
+  id                 String            @id @default(uuid()) @db.Uuid
+  name               String
+  year               Int
+  quarter            Int               @db.SmallInt
+  status             QuarterlyStatus   @default(NOT_STARTED)
+  startDate          DateTime
+  endDate            DateTime
+  submissionDeadline DateTime?
+  lockDate           DateTime?
+  isActive           Boolean           @default(false)
+  createdById        String?           @db.Uuid
+  createdBy          User?             @relation("ReviewCycleCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  goals              Goal[]
+  sharedGoalGroups   SharedGoalGroup[]
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+
+  @@unique([year, quarter])
+  @@index([isActive])
+  @@index([startDate, endDate])
+}
+
+model SharedGoalGroup {
+  id            String       @id @default(uuid()) @db.Uuid
+  name          String
+  description   String?
+  createdById   String       @db.Uuid
+  createdBy     User         @relation("SharedGoalGroupCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  reviewCycleId String?      @db.Uuid
+  reviewCycle   ReviewCycle? @relation(fields: [reviewCycleId], references: [id], onDelete: SetNull)
+  members       User[]       @relation("SharedGoalGroupMembers")
+  goals         Goal[]
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@unique([reviewCycleId, name])
+  @@index([createdById])
+  @@index([reviewCycleId])
+}
+
+// Business rules:
+// - A goal belongs to exactly one owner and one review cycle.
+// - Shared goals are grouped, but each goal row still tracks one accountable owner.
+// - Submitted, approved, rejected, and locked state changes should be captured in GoalApproval and AuditLog.
+// - Archived goals remain queryable for history but should be excluded from active workflows.
+model Goal {
+  id                String              @id @default(uuid()) @db.Uuid
+  reviewCycleId     String              @db.Uuid
+  reviewCycle       ReviewCycle         @relation(fields: [reviewCycleId], references: [id], onDelete: Restrict)
+  ownerId           String              @db.Uuid
+  owner             User                @relation("GoalOwner", fields: [ownerId], references: [id], onDelete: Restrict)
+  createdById       String              @db.Uuid
+  createdBy         User                @relation("GoalCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  sharedGoalGroupId String?             @db.Uuid
+  sharedGoalGroup   SharedGoalGroup?    @relation(fields: [sharedGoalGroupId], references: [id], onDelete: SetNull)
+  title             String
+  description       String?
+  thrustArea        String
+  measurementType   GoalMeasurementType
+  unit              String?
+  startValue        Decimal?            @db.Decimal(14, 4)
+  targetValue       Decimal?            @db.Decimal(14, 4)
+  currentValue      Decimal?            @db.Decimal(14, 4)
+  timelineTarget    DateTime?
+  weight            Int                 @db.SmallInt
+  priority          Int                 @default(3) @db.SmallInt
+  isPrimaryOwner    Boolean             @default(true)
+  isArchived        Boolean             @default(false)
+  status            GoalStatus          @default(DRAFT)
+  version           Int                 @default(1)
+  submittedAt       DateTime?
+  approvedAt        DateTime?
+  rejectedAt        DateTime?
+  lockedAt          DateTime?
+  updates           GoalUpdate[]
+  approvals         GoalApproval[]
+  auditLogs         AuditLog[]
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  @@index([ownerId, reviewCycleId])
+  @@index([reviewCycleId, status])
+  @@index([createdById])
+  @@index([sharedGoalGroupId])
+  @@index([sharedGoalGroupId, isPrimaryOwner])
+  @@index([isArchived])
+}
+
+model GoalUpdate {
+  id              String          @id @default(uuid()) @db.Uuid
+  goalId          String          @db.Uuid
+  goal            Goal            @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  quarter         Int             @db.SmallInt
+  createdById     String          @db.Uuid
+  createdBy       User            @relation("GoalUpdateAuthor", fields: [createdById], references: [id], onDelete: Restrict)
+  summary         String
+  progressValue   Decimal?        @db.Decimal(14, 4)
+  quarterlyStatus QuarterlyStatus @default(NOT_STARTED)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@unique([goalId, quarter])
+  @@index([goalId, createdAt])
+  @@index([createdById])
+  @@index([quarterlyStatus])
+  @@index([quarter, quarterlyStatus])
+}
+
+model GoalApproval {
+  id         String           @id @default(uuid()) @db.Uuid
+  goalId     String           @db.Uuid
+  goal       Goal             @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  approverId String           @db.Uuid
+  approver   User             @relation("GoalApprover", fields: [approverId], references: [id], onDelete: Restrict)
+  version    Int
+  stepOrder  Int              @default(1)
+  decision   ApprovalDecision @default(PENDING)
+  comments   String?
+  decidedAt  DateTime?
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  @@unique([goalId, approverId, version, stepOrder])
+  @@index([goalId, version])
+  @@index([approverId, decision])
+}
+
+model AuditLog {
+  id         String   @id @default(uuid()) @db.Uuid
+  actorId    String?  @db.Uuid
+  actor      User?    @relation("AuditActor", fields: [actorId], references: [id], onDelete: SetNull)
+  goalId     String?  @db.Uuid
+  goal       Goal?    @relation(fields: [goalId], references: [id], onDelete: SetNull)
+  entityType String
+  entityId   String
+  action     String
+  metadata   Json?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  @@index([actorId, createdAt])
+  @@index([goalId, createdAt])
+  @@index([entityType, entityId, createdAt])
+  @@index([action])
 }
