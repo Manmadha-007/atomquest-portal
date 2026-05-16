@@ -8,11 +8,11 @@ import type {
   ApprovalCommentInput,
   GoalApprovalActionResult,
   RejectionCommentInput,
-} from "@/lib/goals/approval-workflow";
+} from "@/lib/goals/approval-ui";
 import {
   approvalCommentSchema,
   rejectionCommentSchema,
-} from "@/lib/goals/approval-workflow";
+} from "@/lib/goals/approval-ui";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 

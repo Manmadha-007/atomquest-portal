@@ -20,7 +20,7 @@ import type {
   ApprovalCommentInput,
   GoalApprovalActionResult,
   RejectionCommentInput,
-} from "@/lib/goals/approval-workflow";
+} from "@/lib/goals/approval-ui";
 
 type GoalApprovalDialogProps = {
   goal: {

@@ -6,11 +6,13 @@ import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import {
   approvalCommentSchema,
-  decideGoalApproval,
-  getApprovalRevalidationPaths,
   toApprovalFieldErrors,
   type ApprovalCommentInput,
   type GoalApprovalActionResult,
+} from "@/lib/goals/approval-ui";
+import {
+  decideGoalApproval,
+  getApprovalRevalidationPaths,
 } from "@/lib/goals/approval-workflow";
 import { prisma } from "@/lib/prisma";
 
