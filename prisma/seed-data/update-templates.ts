@@ -1,0 +1,268 @@
+// Quarterly update summary templates by department context
+// Each array has [strong, moderate, stalled, overdue] variants
+// Templates include tone diversity: executive, engineering, defensive, escalation, burnout, vague corporate
+
+export const updateTemplates: Record<string, string[][]> = {
+  "Product Engineering": [
+    [ // strong
+      "Feature rollout completed ahead of schedule. Integration tests passing at 99.2%. Production deployment confirmed with zero regressions.",
+      "Shipped the dashboard refactor with full backward compatibility. Customer feedback from beta cohort has been overwhelmingly positive.",
+      "Completed authentication hardening rollout and reduced login latency by 31%. Infrastructure validation completed in staging.",
+      "Sprint velocity improved 18% after backlog refinement. All critical path items delivered on schedule.",
+      "API gateway migration complete. Circuit breakers and rate limiting validated under 3x expected load. Production traffic shifted successfully.",
+      "Multi-tenant isolation layer shipped to all enterprise tenants. Zero downtime during rollout. Monitoring confirms stable behavior.",
+    ],
+    [ // moderate
+      "Core implementation complete but edge cases remain. Testing coverage at 78% — targeting 90% by end of sprint.",
+      "Reusable metric extracts are in place; commentary workflow still needs finance review before we can declare done.",
+      "Frontend performance improvements underway. Bundle size reduced by 15% but further optimization requires refactoring vendor imports.",
+      "API migration progressing but blocked on contract finalization with legacy service owners. Escalated to architecture review board.",
+      "Good progress on the component library migration. Remaining pages are lower-priority admin views that can slip if needed.",
+      "Implementation is tracking but velocity dipped due to team member OOO. Will assess gap in Thursday standup.",
+    ],
+    [ // stalled
+      "Blocked by upstream dependency on authentication service refactor. No meaningful progress possible until unblocked.",
+      "Technical debt in the event system is slowing feature delivery. Proposal submitted for dedicated remediation sprint.",
+      "Scope creep from stakeholder requests has stalled the original timeline. Re-scoping discussion scheduled for next week.",
+      "Migration progress blocked by incomplete API contract documentation from external billing provider. No ETA from vendor.",
+      "Awaiting architectural decision on state management approach before proceeding. Decision was expected two weeks ago.",
+      "Team bandwidth fully consumed by production support rotation. Feature work effectively paused this sprint.",
+    ],
+    [ // overdue
+      "Original timeline missed due to underestimated complexity in multi-tenant isolation. Revised estimate: 3 weeks delay.",
+      "Delivery delayed by two sprints due to production incident response consuming team capacity. Recovery plan being drafted.",
+      "Behind schedule — vendor SDK incompatibility discovered late in integration testing. Evaluating alternative approaches.",
+      "Overdue by 2 weeks. Resource reallocation from P0 incident response impacted planned delivery timeline significantly.",
+      "Timeline risk realized. Cross-team dependency on infrastructure changes was not surfaced during planning. Escalating.",
+      "Missed target. Honest assessment: we underscoped the effort and need to reset expectations with stakeholders.",
+    ],
+  ],
+  "Infrastructure": [
+    [ // strong
+      "Migration completed across all three regions with zero downtime. Monitoring confirms stable performance post-migration.",
+      "Automated runbooks reduced MTTR from 52 to 28 minutes. On-call process improvements are fully operational and documented.",
+      "Achieved 99.97% uptime this quarter. The remaining gap was a single planned maintenance window — no unplanned downtime.",
+      "Deployment automation coverage reached 91%. CI/CD pipeline changes reduced deployment time from 45 minutes to 8 minutes.",
+      "Chaos engineering experiments completed successfully. All identified failure modes now have automated recovery procedures.",
+      "Observability platform migration complete. Distributed tracing now covers 95% of production request paths.",
+    ],
+    [ // moderate
+      "Two of three regions validated for failover. Third region testing delayed due to capacity reservation constraints in EU-West.",
+      "Infrastructure cost optimization at 60% of target. Spot instance strategy showing promising results in non-prod environments.",
+      "Database migration at 35% completion. Production cutover plan drafted but pending security review and change advisory approval.",
+      "GitOps adoption at 65% of services. Remaining services require configuration refactoring before ArgoCD migration.",
+      "Progress steady but not fast enough. Need to parallelize the remaining work across two tracks to hit the deadline.",
+      "Terraform module standardization on track. Some legacy modules require manual state surgery which is slowing things down.",
+    ],
+    [ // stalled
+      "Network segmentation project stalled due to dependency on firewall rule migration from legacy provider. Vendor unresponsive.",
+      "Container image scanning integration paused — vendor API breaking changes require SDK upgrade that conflicts with our Go version.",
+      "Drift detection tool deployment blocked by Terraform state migration. Infrastructure team evaluating workarounds.",
+      "Capacity planning initiative deprioritized due to urgent Sev-1 incident response. Will resume next sprint at earliest.",
+      "Blocked on cross-team IAM role standardization. Security team owns the dependency and their timeline slipped by 3 weeks.",
+      "Cannot proceed without budget approval for additional compute capacity. Finance review cycle is the bottleneck.",
+    ],
+    [ // overdue
+      "Network segmentation deadline missed. Vendor dependency on firewall rule exports unresolved for 3 weeks. Escalated to VP level.",
+      "Database migration significantly behind schedule. Data integrity validation revealed edge cases requiring manual intervention.",
+      "Overdue — provisioning automation blocked by cross-team dependency on IAM role standardization. No resolution path yet.",
+      "Behind target — cloud cost optimization paused during production scaling event. Resuming after stabilization but timeline is blown.",
+      "Missed the DR validation deadline. The failover procedure worked but RTO exceeded our target by 4x. Redesigning approach.",
+      "This is behind and I want to be transparent about why: we've been firefighting production issues that weren't in our plan.",
+    ],
+  ],
+  "AI Research": [
+    [ // strong
+      "Completed benchmark evaluation pipeline for retrieval experiments. Model performance improved from 83% to 89% on internal QA dataset.",
+      "Model serving infrastructure scaled to handle 7,500 concurrent requests. Auto-scaling policies validated under sustained load testing.",
+      "Evaluation framework deployed with 8 benchmark suites covering accuracy, latency, and fairness metrics. Research team adoption confirmed.",
+      "Training cost per experiment reduced 38% through mixed-precision optimization and improved spot instance scheduling strategies.",
+      "RAG pipeline producing significantly better results than baseline. Internal blind evaluation showed 2.3x improvement in answer relevance.",
+      "Published internal findings on retrieval augmentation. Three product teams have already expressed interest in integration.",
+    ],
+    [ // moderate
+      "Knowledge graph entity coverage at 72%. Relationship extraction module requires additional training data — coordinating with data ops.",
+      "A/B testing framework architecture finalized. Implementation in progress — targeting end of month for MVP deployment.",
+      "Document classification accuracy improved to 84%. Remaining gap requires additional labeled enterprise data which is being collected.",
+      "Model regression testing partially automated. CI integration pending infrastructure team support for GPU runner allocation.",
+      "Experiments progressing. Current results are promising but not yet statistically significant. Need another iteration cycle.",
+      "The approach is sound but we need more compute time. Requested additional GPU allocation through the resource committee.",
+    ],
+    [ // stalled
+      "Data pipeline optimization stalled — ETL framework upgrade introduced breaking changes requiring full rollback and replanning.",
+      "Human evaluation pipeline launch blocked by legal review of crowdsourcing platform terms of service. No ETA from legal.",
+      "Benchmark comparison paused due to rate limiting on external model API endpoints. Negotiating higher quotas with vendors.",
+      "Data quality monitoring deployment stalled — schema evolution in upstream data sources requires complete rework of ingestion layer.",
+      "Frankly stuck. The approach we chose for fine-tuning isn't converging and we need to reconsider the architecture.",
+      "Waiting on labeled data from the annotation team. Their capacity was redirected to a different project mid-quarter.",
+    ],
+    [ // overdue
+      "A/B testing framework delivery overdue by 3 weeks. Statistical significance engine complexity was significantly underestimated.",
+      "Behind schedule on data pipeline optimization. Vendor dependency on data connector upgrade remains unresolved after multiple escalations.",
+      "LLM benchmark evaluation delayed — internal GPU cluster maintenance consumed 2 weeks of planned compute time. Very frustrating.",
+      "Model versioning system overdue. Integration with existing CI/CD pipeline proved more complex than any of us estimated.",
+      "We missed the target date. Root cause: the research exploration took longer than planned and the engineering work hadn't started.",
+      "Timeline blown. Needed to pivot approach after initial results were disappointing. New direction is promising but we lost 3 weeks.",
+    ],
+  ],
+  "Security & Compliance": [
+    [ // strong
+      "SOC2 evidence collection 85% complete. All critical controls documented and validated by internal audit team.",
+      "Endpoint protection coverage reached 95%. Remaining 5% are ephemeral CI/CD runners scheduled for next deployment window.",
+      "Vendor risk assessments completed for 18 of 25 targeted vendors. Framework receiving positive feedback from procurement leadership.",
+      "Security awareness training completion at 87%. Phishing simulation click rate decreased from 12% to 4%. Strong improvement.",
+      "Zero-trust architecture Phase 1 complete. Identity-based access controls now protecting all tier-1 production services.",
+      "MTTD reduced to 18 minutes, approaching target. New SIEM correlation rules catching 93% of simulated attack patterns.",
+    ],
+    [ // moderate
+      "Critical vulnerability backlog reduced from 18 to 14. Remaining CVEs require application-layer patches pending dev team capacity allocation.",
+      "Compliance audit findings reduced to 5. Two remaining findings depend on infrastructure team configuration changes in their backlog.",
+      "SIEM log ingestion at 55% of services. Remaining services require structured logging format migration — coordinating with platform team.",
+      "Incident response playbooks at 10 of 15 completed. Remaining scenarios require tabletop exercises for validation with ops team.",
+      "Progress is adequate but the pace concerns me. We need dev team cooperation to close the remaining vulnerability items.",
+      "Compliance posture improving but audit timeline pressure is real. Need to prioritize evidence collection over net-new controls.",
+    ],
+    [ // stalled
+      "Red team exercise scope definition complete but execution delayed by team availability and scheduling conflicts.",
+      "Secrets rotation automation at 30%. Integration with legacy credential stores proving significantly more complex than anticipated.",
+      "GDPR automation project blocked by legal review of data classification taxonomy. Have been waiting 6 weeks for feedback.",
+      "SOC2 evidence collection delayed due to dependency on third-party audit exports. Timeline risk identified and escalated.",
+      "Cannot make progress on vulnerability remediation without engineering team bandwidth. They are fully committed to feature work.",
+      "Stalled. The compliance monitoring tool we selected has a critical bug. Vendor acknowledges issue but no fix timeline.",
+    ],
+    [ // overdue
+      "SIEM deployment significantly behind target. Resource constraints and vendor onboarding delays impacting timeline. Risk to Q3 audit.",
+      "False positive reduction behind schedule — correlation rule tuning requires larger historical dataset than currently available.",
+      "Zero-trust rollout overdue. Identity provider migration complexity underestimated by 4 weeks. Executive escalation initiated.",
+      "Critical vulnerability remediation pace insufficient. Application team bandwidth is the primary bottleneck. This is a governance risk.",
+      "Behind on SOC2 timeline. If we don't close the remaining evidence gaps by end of month, we risk the Q3 audit schedule.",
+      "Overdue and at risk. This needs executive attention — the cross-team dependencies are not being prioritized appropriately.",
+    ],
+  ],
+  "Revenue Operations": [
+    [ // strong
+      "Forecast accuracy improved to 89% through enhanced weighted pipeline scoring. Executive team confirmed alignment in Thursday review.",
+      "Executive revenue dashboard launched with real-time metrics. Sales leadership actively using it in weekly operating reviews.",
+      "Data warehouse query performance improved 38%. Dashboard load times reduced from 8 seconds to under 3. Users are noticing.",
+      "Automated reconciliation pipeline processing $2.4M in monthly transactions with 99.7% accuracy. Finance team validated output.",
+      "Pipeline conversion improvements driving measurable revenue impact. Early indicators suggest we'll beat the quarterly ARR target.",
+      "Territory planning model v2 shipped. Regional managers report 40% time savings in weekly pipeline review prep.",
+    ],
+    [ // moderate
+      "Pipeline conversion rate at 21%, up from 18%. Lead scoring model refinement showing incremental improvements week over week.",
+      "Sales cycle reduction progressing — average at 54 days, down from 62. Contract template automation should accelerate further.",
+      "CPQ adoption at 58%. Sales team training sessions scheduled for remaining regions. Some resistance from senior reps.",
+      "Churn prediction model in development. Feature engineering complete, model training in progress. Initial results look encouraging.",
+      "Directionally positive. The numbers are moving in the right direction but we need to sustain this pace through quarter end.",
+      "Revenue reporting improvements are landing well. Still need to close the gap on real-time materialized views.",
+    ],
+    [ // stalled
+      "Territory planning dashboard development stalled — data integration from regional CRM instances delayed by IT change freeze.",
+      "Deal desk workflow optimization paused pending legal review of automated approval thresholds. Legal team is backlogged.",
+      "Pricing documentation standardization blocked by ongoing pricing strategy revision from product leadership. Can't document a moving target.",
+      "Self-service analytics rollout paused — data governance concerns raised by compliance team need resolution first.",
+      "Blocked on CRM data quality. The forecasting model can't be trained on dirty pipeline data. Data cleanup is prerequisite.",
+      "Initiative is paused. We lost the data engineer who was leading this work and the replacement hasn't ramped yet.",
+    ],
+    [ // overdue
+      "Churn prediction model delivery overdue. Training data quality issues required 2 additional weeks of data cleaning and validation.",
+      "Enterprise renewal rate below target at 84%. Three large accounts in active churn risk requiring immediate executive intervention.",
+      "Reporting latency reduction behind schedule — data warehouse migration introduced unexpected query regression in three key reports.",
+      "Deal desk turnaround time still at 10 hours. Approval routing logic more complex than initially scoped. Needs rearchitecting.",
+      "Missed forecast accuracy target. Turns out the historical data we were training on had systematic bias. Starting over.",
+      "Behind plan. The honest answer is we overcommitted this quarter and something had to give. Reprioritizing next week.",
+    ],
+  ],
+  "Customer Success": [
+    [ // strong
+      "Enterprise NPS improved from 42 to 51. Structured QBR cadence generating strong customer sentiment improvement.",
+      "Eight of twelve strategic accounts completed the new health review cadence. Health score trending upward across the portfolio.",
+      "Response playbooks are live. P1 resolution time down to 9.5 hours. Weekend coverage is the remaining gap — hiring for it.",
+      "Technical health scoring deployed for 24 accounts. Automated alerts triggering proactive CSM engagement before issues escalate.",
+      "Onboarding NPS at all-time high. Three enterprise customers specifically cited the new checklist process in their feedback.",
+      "Customer advisory board confirmed with 8 of 10 target accounts. First session scheduled for May 28.",
+    ],
+    [ // moderate
+      "Onboarding time reduced to 13 days. Self-serve provisioning component still requires additional testing before GA rollout.",
+      "Renewal engagement started for Q3 cohort. 86% of accounts currently tracking for on-time renewal. Three accounts need attention.",
+      "Knowledge base at 32 of 50 articles. Top integration issues well-documented. Edge cases and advanced configurations remain.",
+      "Customer advisory board program on track — 7 of 10 target customers confirmed participation. Agenda being finalized.",
+      "Health scoring is generating good signals but the CSM team needs more training on how to action the alerts effectively.",
+      "Moderate progress. The accounts that are engaging are improving. The challenge is the accounts that aren't engaging at all.",
+    ],
+    [ // stalled
+      "Customer insights platform stalled — data pipeline integration with support ticketing system delayed by vendor API changes.",
+      "QBR report automation blocked by inconsistent data formats across product analytics and CRM systems. Need data team support.",
+      "Customer journey mapping at 25% — stakeholder interviews for remaining accounts not yet scheduled due to customer availability.",
+      "Training academy development paused — LMS vendor evaluation taking longer than expected. Down to two finalists.",
+      "Cannot proceed with expansion playbook without product team alignment on packaging changes. Meeting keeps getting rescheduled.",
+      "Stalled on churn prediction integration. The model from RevOps team isn't ready yet and our process depends on it.",
+    ],
+    [ // overdue
+      "Enterprise renewal rate at 86%, below 92% target. Two strategic accounts signaling potential non-renewal. Executive calls scheduled.",
+      "Involuntary churn still at 4.1%. Payment recovery automation delayed by billing system API limitations. This is a revenue leak.",
+      "Onboarding milestone completion at 81%, below 90% target. Enterprise complexity varies significantly and our playbook needs segmentation.",
+      "Customer insights platform behind schedule. Third-party data connector certification taking 3x longer than estimated.",
+      "We're not going to hit the NPS target this quarter. Lost ground after a production incident impacted two key accounts.",
+      "Behind on renewal rate. Candidly, we need more CSM headcount to properly manage the current account load.",
+    ],
+  ],
+  // Executive / Admin strategic goals
+  "Executive": [
+    [
+      "Initiative remains on track with strong alignment across participating departments. All key milestones trending green.",
+      "Cross-functional execution progressing well. Department leads confirmed resource commitments through quarter end.",
+      "Strategic initiative tracking to plan. Monthly operating review confirmed stakeholder alignment and budget adherence.",
+      "Program governance cadence established and functioning. Risk register reviewed weekly with department heads.",
+    ],
+    [
+      "Initiative aligned with quarterly operational priorities. Some workstreams ahead of schedule, others require attention.",
+      "Cross-functional alignment discussions progressing. Minor timeline adjustments under consideration for two workstreams.",
+      "Program status: adequate but room for improvement. Will discuss resource allocation at next leadership meeting.",
+      "Tracking with acceptable variance. One workstream flagged as amber — remediation plan expected by end of week.",
+    ],
+    [
+      "Cross-functional dependencies creating friction between workstreams. Escalation path activated.",
+      "Initiative velocity below expectations. Resource contention across participating departments is the primary factor.",
+      "Program progress stalled pending resolution of budget reallocation request. Decision expected from CFO.",
+      "Multiple workstreams reporting blockers simultaneously. Scheduling dedicated war room session.",
+    ],
+    [
+      "Initiative timeline at risk. Critical path workstream delayed by 3 weeks with cascading impact on dependent milestones.",
+      "Strategic program behind schedule. Root cause is insufficient cross-team coordination at the execution layer.",
+      "Timeline pressure increasing. If current trajectory continues, we will miss the quarterly commitment.",
+      "Behind plan. Need to have a candid conversation with the leadership team about trade-offs and reprioritization.",
+    ],
+  ],
+};
+
+// Blocker commentary templates — null means no blocker
+export const blockerTemplates = [
+  "Vendor dependency on third-party integration is the primary blocker. No resolution timeline from their side.",
+  "Cross-team dependency on infrastructure changes is creating delays. Their sprint is fully committed.",
+  "Resource constraints from concurrent P0 incident response impacting delivery capacity across the team.",
+  "Stakeholder alignment on scope changes required before proceeding. Conflicting priorities from two VPs.",
+  "Legal and compliance review cycle taking longer than anticipated. Have escalated through governance channel.",
+  "Technical debt in legacy systems is slowing integration work. Every change requires twice the expected effort.",
+  "External API rate limiting is constraining testing and validation cadence. Vendor won't increase limits.",
+  "Budget approval for additional tooling required before next phase can begin. Awaiting finance committee.",
+  "Data quality issues in upstream systems require remediation before this work can produce reliable results.",
+  "Team capacity reduced due to planned time off and hiring backfill gaps. Two open reqs still unfilled.",
+  "Dependency on another team's deliverable that was supposed to ship last sprint. No updated ETA provided.",
+  "Production incident investigation consumed the team for most of this sprint. Feature work deprioritized.",
+  null, null, null, null, null, null, null, null, // ~50% of updates have no blockers
+];
+
+// Notes templates — null means no notes
+export const notesTemplates = [
+  "Will provide detailed status in next weekly sync with leadership.",
+  "Escalated to leadership for prioritization guidance and resource allocation decision.",
+  "Dependency tracked in cross-team coordination board. Owner notified.",
+  "Risk documented in quarterly risk register. Mitigation plan under development.",
+  "Additional context shared in team retrospective notes and sprint review recording.",
+  "Aligning with architecture team on technical approach before committing to implementation.",
+  "Customer impact assessment completed and shared with CS and support leadership.",
+  "Discussed in 1:1 with manager. Adjusting approach based on feedback.",
+  "This may need to be re-scoped for next quarter if blockers persist.",
+  null, null, null, null, null, null, null, null, null, // ~65% have no notes
+];
