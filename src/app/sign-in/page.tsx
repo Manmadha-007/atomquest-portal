@@ -14,6 +14,7 @@ import { SignInButton } from "@/components/auth/sign-in-button";
 import { AnimatedSection } from "@/components/marketing/animated-section";
 import { InteractiveGrid } from "@/components/marketing/interactive-grid";
 import { Button } from "@/components/ui/button";
+import { PasswordInput } from "@/components/auth/password-input";
 import {
   Card,
   CardContent,
@@ -252,15 +253,7 @@ export default async function SignInPage({
                       Password
                     </label>
 
-                    <Input
-                      id="password"
-                      name="password"
-                      type="password"
-                      autoComplete="current-password"
-                      placeholder="••••••••"
-                      required
-                      className="h-10 bg-background"
-                    />
+                    <PasswordInput />
                   </div>
 
                   <SignInButton />
