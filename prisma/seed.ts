@@ -218,7 +218,7 @@ async function seedGoals() {
   }
 
   console.log(`  ✓ ${allGoals.filter((g) => g.parentIdx).length} hierarchy links`);
-  
+
   console.log(`  ✓ ${allGoals.length} goals`);
 }
 
@@ -660,9 +660,9 @@ async function main() {
 
   console.log("\n═══ Seed complete ═══");
   console.log("Demo password: Password@123");
-  console.log("Admin: admin@atomquest.io");
-  console.log("Manager: sarah.chen@atomquest.io");
-  console.log("Employee: arjun.patel@atomquest.io");
+  console.log("Admin: atomquest.admin.demo@gmail.como");
+  console.log("Manager: atomquest.manager.demo@gmail.com");
+  console.log("Employee: atomquest.employee.demo@gmail.com");
 }
 
 main()

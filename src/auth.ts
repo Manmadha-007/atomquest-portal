@@ -20,6 +20,7 @@ import {
   type AppRole,
 } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import MicrosoftEntraID from "next-auth/providers/microsoft-entra-id";
 
 declare module "next-auth" {
   interface Session {
@@ -51,6 +52,14 @@ export const authConfig = {
   },
 
   providers: [
+    MicrosoftEntraID({
+      clientId: process.env.AUTH_MICROSOFT_ENTRA_ID_ID!,
+      clientSecret:
+        process.env.AUTH_MICROSOFT_ENTRA_ID_SECRET!,
+      issuer:
+        process.env.AUTH_MICROSOFT_ENTRA_ID_ISSUER!,
+    }),
+
     Credentials({
       credentials: {
         email: {
@@ -126,19 +135,31 @@ export const authConfig = {
       user?: {
         id?: string;
         role?: AppRole;
+        email?: string | null;
       };
     }) {
-      if (user) {
-        token.id =
-          typeof user.id === "string"
-            ? user.id
-            : String(user.id);
+      const email =
+        user?.email ??
+        (typeof token.email === "string"
+          ? token.email
+          : null);
+
+      if (email) {
+        const existingUser =
+          await prisma.user.findUnique({
+            where: { email },
+            select: {
+              id: true,
+              role: true,
+            },
+          });
 
         if (
-          typeof user.role === "string" &&
-          isAppRole(user.role)
+          existingUser &&
+          isAppRole(existingUser.role)
         ) {
-          token.role = user.role;
+          token.id = existingUser.id;
+          token.role = existingUser.role;
         }
       }
 

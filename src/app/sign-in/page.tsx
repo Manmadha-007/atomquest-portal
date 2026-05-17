@@ -9,11 +9,13 @@ import {
 import { redirect } from "next/navigation";
 
 import { signIn } from "@/auth";
+
 import { LoginShowcase } from "@/components/auth/login-showcase";
 import { SignInButton } from "@/components/auth/sign-in-button";
 import { AnimatedSection } from "@/components/marketing/animated-section";
 import { InteractiveGrid } from "@/components/marketing/interactive-grid";
 import { Button } from "@/components/ui/button";
+import { MicrosoftSignInButton } from "@/components/auth/microsoft-signin-button";
 import { PasswordInput } from "@/components/auth/password-input";
 import {
   Card,
@@ -226,6 +228,20 @@ export default async function SignInPage({
                     </div>
                   ) : null}
 
+                  <MicrosoftSignInButton />
+
+                  <div className="relative my-4">
+                    <div className="absolute inset-0 flex items-center">
+                      <span className="w-full border-t" />
+                    </div>
+
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-background px-2 text-muted-foreground">
+                        Or continue with credentials
+                      </span>
+                    </div>
+                  </div>
+
                   <div className="grid gap-2">
                     <label
                       htmlFor="email"
@@ -239,7 +255,7 @@ export default async function SignInPage({
                       name="email"
                       type="email"
                       autoComplete="email"
-                      placeholder="name@company.com"
+                      placeholder="Enter your email"
                       required
                       className="h-10 bg-background"
                     />
