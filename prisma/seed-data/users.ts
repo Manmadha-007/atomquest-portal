@@ -9,14 +9,14 @@ export const users: UserDef[] = [
   { idx: 2, empNo: "AQ-0002", email: "governance@atomquest.io", first: "Nadia", last: "Al-Rashid", title: "Director of Governance & Compliance", dept: "Executive", role: R.ADMIN },
 
   // ─── MANAGERS ───
-  { idx: 3, empNo: "AQ-0100", email: "atomquest.manager.demo@gmail.com", first: "Priya", last: "Nair", title: "VP, Product Engineering", dept: "Product Engineering", role: R.MANAGER, mgrIdx: 1 },
+  { idx: 3, empNo: "AQ-0100", email: "manmadhasaibaratam@gmail.com", first: "Priya", last: "Nair", title: "VP, Product Engineering", dept: "Product Engineering", role: R.MANAGER, mgrIdx: 1 },
   { idx: 4, empNo: "AQ-0101", email: "michael.torres@atomquest.io", first: "Michael", last: "Torres", title: "Director, Infrastructure & Reliability", dept: "Infrastructure", role: R.MANAGER, mgrIdx: 1 },
   { idx: 5, empNo: "AQ-0102", email: "priya.raman@atomquest.io", first: "Priya", last: "Raman", title: "Head of AI Research", dept: "AI Research", role: R.MANAGER, mgrIdx: 1 },
   { idx: 6, empNo: "AQ-0103", email: "daniel.brooks@atomquest.io", first: "Daniel", last: "Brooks", title: "Director, Security & Compliance", dept: "Security & Compliance", role: R.MANAGER, mgrIdx: 2 },
   { idx: 7, empNo: "AQ-0104", email: "olivia.carter@atomquest.io", first: "Olivia", last: "Carter", title: "VP, Revenue Operations", dept: "Revenue Operations", role: R.MANAGER, mgrIdx: 2 },
   { idx: 8, empNo: "AQ-0105", email: "ethan.walker@atomquest.io", first: "Ethan", last: "Walker", title: "Director, Customer Success", dept: "Customer Success", role: R.MANAGER, mgrIdx: 2 },
 
-  // ─── PRODUCT ENGINEERING (manager: Sarah Chen, idx 3) ───
+  // PRODUCT ENGINEERING (manager: Priya Nair, idx 3)
   { idx: 9, empNo: "AQ-1001", email: "atomquest.employee.demo@gmail.com", first: "Rahul", last: "Verma", title: "Senior Platform Engineer", dept: "Product Engineering", role: R.EMPLOYEE, mgrIdx: 3 },
   { idx: 10, empNo: "AQ-1002", email: "sophia.kim@atomquest.io", first: "Sophia", last: "Kim", title: "Full-Stack Developer", dept: "Product Engineering", role: R.EMPLOYEE, mgrIdx: 3 },
   { idx: 11, empNo: "AQ-1003", email: "liam.anderson@atomquest.io", first: "Liam", last: "Anderson", title: "Backend Engineer", dept: "Product Engineering", role: R.EMPLOYEE, mgrIdx: 3 },

@@ -660,7 +660,7 @@ async function main() {
 
   console.log("\n═══ Seed complete ═══");
   console.log("Demo password: Password@123");
-  console.log("Admin: atomquest.admin.demo@gmail.como");
+  console.log("Admin: atomquest.admin.demo@gmail.com");
   console.log("Manager: atomquest.manager.demo@gmail.com");
   console.log("Employee: atomquest.employee.demo@gmail.com");
 }

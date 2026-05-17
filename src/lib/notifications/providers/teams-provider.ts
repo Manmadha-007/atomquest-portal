@@ -1,0 +1,73 @@
+import { NotificationProvider, ProviderExecutionResult } from './types';
+import { NotificationPayload, NotificationEvent } from '../types';
+import { sendTeamsWebhook } from '../teams/teams-client';
+import { generateGoalSubmittedCard } from '../teams/cards/goal-submitted-card';
+
+export class TeamsProvider implements NotificationProvider {
+  name = 'Teams';
+
+  async send(payload: NotificationPayload): Promise<ProviderExecutionResult> {
+    const startTime = Date.now();
+
+    const createResult = (
+      status: 'success' | 'skipped' | 'failed',
+      error?: string
+    ): ProviderExecutionResult => ({
+      providerName: this.name,
+      status,
+      durationMs: Date.now() - startTime,
+      recipientIdentifier: 'Teams Webhook',
+      error,
+    });
+
+    try {
+      // Only handle GOAL_SUBMITTED for now
+      if (payload.event !== NotificationEvent.GOAL_SUBMITTED) {
+        return createResult('skipped', 'Unsupported event');
+      }
+
+      const webhookUrl = process.env.TEAMS_WEBHOOK_URL;
+      if (!webhookUrl) {
+        return createResult('skipped', 'TEAMS_WEBHOOK_URL not configured');
+      }
+
+      // Validate the webhook URL format defensively
+      try {
+        const parsed = new URL(webhookUrl);
+        if (parsed.protocol !== 'https:') {
+          return createResult('skipped', 'TEAMS_WEBHOOK_URL must use HTTPS');
+        }
+      } catch {
+        return createResult('failed', 'TEAMS_WEBHOOK_URL is not a valid URL');
+      }
+
+      // Extract and validate metadata
+      const goalId = String(payload.metadata?.goalId || '');
+      const goalTitle = String(payload.metadata?.goalTitle || 'Unknown Goal');
+      const actorName = payload.actor.name || 'A team member';
+
+      if (!goalId) {
+        return createResult('skipped', 'Missing goalId in metadata');
+      }
+
+      // Generate the Adaptive Card payload
+      const card = generateGoalSubmittedCard({
+        actorName,
+        goalTitle,
+        goalId,
+      });
+
+      // Send via webhook
+      await sendTeamsWebhook(webhookUrl, card);
+
+      console.log(`[Provider: ${this.name}] Successfully delivered ${payload.event} adaptive card`);
+      return createResult('success');
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      console.error(`[Provider: ${this.name}] Delivery failed:`, errorMessage);
+      return createResult('failed', errorMessage);
+    }
+  }
+}
+
+export const teamsProvider = new TeamsProvider();
