@@ -821,6 +821,15 @@ async function getDashboardAnalytics(input: {
       activeEmployeeCount,
       averageProgress: 0,
       statusDistribution: buildStatusDistribution([], 0),
+      thrustAreaDistribution: [],
+      measurementDistribution: [],
+      priorityDistribution: [],
+      managerEffectiveness: {
+        averageTurnaroundTimeHours: 0,
+        approvalRatio: 0,
+        pendingApprovals: 0,
+        reviewedCount: 0,
+      },
       progressTrend: [],
       teamPerformance: [],
       completionMonitoring: getEmptyCompletionMonitoring(),
@@ -835,14 +844,33 @@ async function getDashboardAnalytics(input: {
   const [
     totalGoals,
     statusCounts,
+    thrustAreaCounts,
+    measurementCounts,
+    priorityCounts,
     goals,
     trendUpdates,
     completionEmployees,
     completionGoals,
+    decidedApprovals,
   ] = await Promise.all([
     prisma.goal.count({ where: goalWhere }),
     prisma.goal.groupBy({
       by: ["status"],
+      where: goalWhere,
+      _count: { _all: true },
+    }),
+    prisma.goal.groupBy({
+      by: ["thrustArea"],
+      where: goalWhere,
+      _count: { _all: true },
+    }),
+    prisma.goal.groupBy({
+      by: ["measurementType"],
+      where: goalWhere,
+      _count: { _all: true },
+    }),
+    prisma.goal.groupBy({
+      by: ["priority"],
       where: goalWhere,
       _count: { _all: true },
     }),
@@ -873,6 +901,18 @@ async function getDashboardAnalytics(input: {
       orderBy: [{ owner: { lastName: "asc" } }, { createdAt: "asc" }],
       select: completionGoalSelect,
     }),
+    prisma.goalApproval.findMany({
+      where: {
+        goal: goalWhere,
+        decision: { not: "PENDING" },
+        decidedAt: { not: null },
+      },
+      select: {
+        createdAt: true,
+        decidedAt: true,
+        decision: true,
+      },
+    }),
   ]);
 
   const countByStatus = new Map(
@@ -901,6 +941,86 @@ async function getDashboardAnalytics(input: {
         )
       : 0;
 
+  // Generic distribution builder
+  const buildGenericDistribution = (
+    data: Array<{ _count: { _all: number } } & Record<string, unknown>>,
+    keyField: string,
+    total: number,
+    colorScale: string[],
+    labelFormatter?: (val: unknown) => string,
+  ) => {
+    return data
+      .map((item, index) => {
+        const val = item[keyField];
+        const count = item._count._all;
+        return {
+          key: String(val),
+          label: labelFormatter ? labelFormatter(val) : String(val),
+          count,
+          percentage: toPercentage(count, total),
+          fill: colorScale[index % colorScale.length],
+        };
+      })
+      .sort((a, b) => b.count - a.count);
+  };
+
+  const priorityLabels: Record<number, string> = {
+    1: "Critical",
+    2: "High",
+    3: "Medium",
+    4: "Low",
+  };
+
+  const thrustAreaDistribution = buildGenericDistribution(
+    thrustAreaCounts,
+    "thrustArea",
+    totalGoals,
+    ["#3b82f6", "#8b5cf6", "#ec4899", "#f59e0b", "#10b981", "#64748b"]
+  );
+
+  const measurementDistribution = buildGenericDistribution(
+    measurementCounts,
+    "measurementType",
+    totalGoals,
+    ["#14b8a6", "#f43f5e", "#6366f1", "#f97316"],
+    (val) => {
+      const v = String(val);
+      if (v === "MIN") return "Minimize";
+      if (v === "MAX") return "Maximize";
+      if (v === "TIMELINE") return "Timeline";
+      if (v === "ZERO") return "Zero Target";
+      return v;
+    }
+  );
+
+  const priorityDistribution = buildGenericDistribution(
+    priorityCounts,
+    "priority",
+    totalGoals,
+    ["#ef4444", "#f97316", "#eab308", "#22c55e"],
+    (val) => priorityLabels[Number(val)] ?? "Medium"
+  );
+
+  // Manager Effectiveness Math
+  let totalTurnaroundTimeHours = 0;
+  let approvedDecisions = 0;
+  let rejectedDecisions = 0;
+
+  for (const app of decidedApprovals) {
+    if (app.decidedAt) {
+      const turnaroundMs = app.decidedAt.getTime() - app.createdAt.getTime();
+      totalTurnaroundTimeHours += turnaroundMs / (1000 * 60 * 60);
+    }
+    if (app.decision === ApprovalDecision.APPROVED) approvedDecisions++;
+    if (app.decision === ApprovalDecision.REJECTED) rejectedDecisions++;
+  }
+
+  const reviewedCount = approvedDecisions + rejectedDecisions;
+  const averageTurnaroundTimeHours =
+    reviewedCount > 0 ? totalTurnaroundTimeHours / reviewedCount : 0;
+  const approvalRatio = toPercentage(approvedDecisions, reviewedCount);
+  const pendingApprovals = submittedGoals; // from statusCounts
+
   return {
     scope: input.scope,
     reviewCycle: serializeReviewCycle(
@@ -917,6 +1037,15 @@ async function getDashboardAnalytics(input: {
     activeEmployeeCount,
     averageProgress,
     statusDistribution: buildStatusDistribution(statusCounts, totalGoals),
+    thrustAreaDistribution,
+    measurementDistribution,
+    priorityDistribution,
+    managerEffectiveness: {
+      averageTurnaroundTimeHours,
+      approvalRatio,
+      pendingApprovals,
+      reviewedCount,
+    },
     progressTrend: buildProgressTrend(trendUpdates),
     teamPerformance: buildTeamPerformance(goals, input.scope),
     completionMonitoring: buildCompletionMonitoring({

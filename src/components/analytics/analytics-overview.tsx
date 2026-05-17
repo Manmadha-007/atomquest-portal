@@ -12,6 +12,8 @@ import { KpiCard } from "@/components/analytics/kpi-card";
 import { ProgressTrendChart } from "@/components/analytics/progress-trend-chart";
 import { StatusDistributionChart } from "@/components/analytics/status-distribution-chart";
 import { TeamPerformanceChart } from "@/components/analytics/team-performance-chart";
+import { DistributionChart } from "@/components/analytics/extended-distribution-charts";
+import { ManagerEffectivenessCards } from "@/components/analytics/manager-effectiveness-cards";
 import type {
   AnalyticsScope,
   DashboardAnalytics,
@@ -131,6 +133,32 @@ export function AnalyticsOverview({
       <div className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
         <StatusDistributionChart data={analytics.statusDistribution} />
         <ProgressTrendChart data={analytics.progressTrend} />
+      </div>
+
+      <div className="grid gap-6 xl:grid-cols-3">
+        <DistributionChart
+          title="Thrust areas"
+          description="Goals broken down by strategic thrust area."
+          data={analytics.thrustAreaDistribution}
+          emptyMessage="No goals available for thrust area analysis."
+        />
+        <DistributionChart
+          title="Measurement types"
+          description="Distribution of goal measurement strategies."
+          data={analytics.measurementDistribution}
+          emptyMessage="No goals available for measurement analysis."
+        />
+        <DistributionChart
+          title="Priority distribution"
+          description="Goals categorized by priority level."
+          data={analytics.priorityDistribution}
+          emptyMessage="No goals available for priority analysis."
+        />
+      </div>
+
+      <div className="space-y-4">
+        <h3 className="text-xl font-semibold tracking-tight">Manager Effectiveness</h3>
+        <ManagerEffectivenessCards metrics={analytics.managerEffectiveness} />
       </div>
 
       <TeamPerformanceChart data={analytics.teamPerformance} scope={scope} />

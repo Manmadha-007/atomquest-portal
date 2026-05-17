@@ -42,6 +42,15 @@ export type AnalyticsReviewCycle =
     label: string;
   }>;
 
+export type DistributionDatum =
+  Readonly<{
+    key: string;
+    label: string;
+    count: number;
+    percentage: number;
+    fill: string;
+  }>;
+
 export type StatusDistributionDatum =
   Readonly<{
     status: GoalStatusValue;
@@ -49,6 +58,14 @@ export type StatusDistributionDatum =
     count: number;
     percentage: number;
     fill: string;
+  }>;
+
+export type ManagerEffectivenessMetrics =
+  Readonly<{
+    averageTurnaroundTimeHours: number;
+    approvalRatio: number;
+    pendingApprovals: number;
+    reviewedCount: number;
   }>;
 
 export type ProgressTrendDatum =
@@ -166,6 +183,17 @@ export type DashboardAnalytics =
 
     statusDistribution:
       readonly StatusDistributionDatum[];
+
+    thrustAreaDistribution:
+      readonly DistributionDatum[];
+
+    measurementDistribution:
+      readonly DistributionDatum[];
+
+    priorityDistribution:
+      readonly DistributionDatum[];
+
+    managerEffectiveness: ManagerEffectivenessMetrics;
 
     progressTrend:
       readonly ProgressTrendDatum[];
