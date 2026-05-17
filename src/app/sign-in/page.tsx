@@ -177,10 +177,10 @@ export default async function SignInPage({
 
           <AnimatedSection
             delay={100}
-            className="mx-auto flex w-full max-w-md flex-col gap-4 lg:mx-0 lg:justify-self-end"
+            className="mx-auto flex w-full max-w-xl flex-col gap-4 lg:mx-0 lg:justify-self-end"
           >
             <Card className="rounded-lg bg-background/95 shadow-2xl shadow-slate-900/10">
-              <CardHeader className="gap-4 border-b p-4 sm:p-5">
+              <CardHeader className="gap-3 border-b p-4 sm:px-6 sm:py-5">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex size-11 items-center justify-center rounded-lg bg-slate-950 text-slate-50">
                     <LockKeyhole
@@ -194,7 +194,7 @@ export default async function SignInPage({
                   </div>
                 </div>
 
-                <div className="space-y-1.5">
+                <div className="space-y-1">
                   <CardTitle className="text-xl tracking-tight sm:text-2xl">
                     Sign in to your enterprise workspace
                   </CardTitle>
@@ -208,10 +208,10 @@ export default async function SignInPage({
                 </div>
               </CardHeader>
 
-              <CardContent className="p-4 sm:p-5">
+              <CardContent className="p-4 sm:px-6 sm:py-5">
                 <form
                   action={authenticate}
-                  className="grid gap-4"
+                  className="grid gap-3.5"
                 >
                   <input
                     type="hidden"
@@ -230,7 +230,7 @@ export default async function SignInPage({
 
                   <MicrosoftSignInButton />
 
-                  <div className="relative my-2">
+                  <div className="relative my-1.5">
                     <div className="absolute inset-0 flex items-center">
                       <span className="w-full border-t border-border/40" />
                     </div>
@@ -242,7 +242,7 @@ export default async function SignInPage({
                     </div>
                   </div>
 
-                  <div className="grid gap-2">
+                  <div className="grid gap-1.5">
                     <label
                       htmlFor="email"
                       className="text-sm font-medium text-foreground"
@@ -261,7 +261,7 @@ export default async function SignInPage({
                     />
                   </div>
 
-                  <div className="grid gap-2">
+                  <div className="grid gap-1.5">
                     <label
                       htmlFor="password"
                       className="text-sm font-medium text-foreground"
@@ -274,7 +274,7 @@ export default async function SignInPage({
 
                   <SignInButton />
 
-                  <div className="mt-1 flex items-start gap-2 rounded-lg border bg-muted/30 p-3 text-xs leading-5 text-muted-foreground">
+                  <div className="flex items-start gap-2 rounded-lg border bg-muted/30 p-2.5 text-xs leading-5 text-muted-foreground">
                     <ShieldCheck
                       className="mt-0.5 size-3.5 shrink-0 text-emerald-600"
                       aria-hidden="true"
