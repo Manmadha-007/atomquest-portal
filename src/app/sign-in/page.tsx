@@ -133,8 +133,8 @@ export default async function SignInPage({
     <main className="relative isolate min-h-svh overflow-hidden bg-[linear-gradient(180deg,#fafafa_0%,#ffffff_58%,#f8fafc_100%)] text-foreground">
       <InteractiveGrid />
 
-      <div className="mx-auto flex min-h-svh w-full max-w-7xl flex-col px-4 py-6 sm:px-6 lg:px-8">
-        <div className="absolute left-4 top-6 z-10 sm:left-6 lg:left-8">
+      <div className="mx-auto flex min-h-svh w-full max-w-7xl flex-col px-4 py-4 sm:px-6 lg:px-8">
+        <div className="absolute left-4 top-4 z-10 sm:left-6 lg:left-8">
           <Link
             href="/"
             className="inline-flex items-center gap-2 rounded-md px-2 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
@@ -144,7 +144,7 @@ export default async function SignInPage({
           </Link>
         </div>
 
-        <div className="grid flex-1 gap-8 py-4 lg:grid-cols-[1.02fr_0.98fr] lg:items-center lg:gap-12 lg:py-6">
+        <div className="grid flex-1 gap-6 py-2 lg:grid-cols-[1.02fr_0.98fr] lg:items-center lg:gap-8 lg:py-2">
           <LoginShowcase />
 
           <AnimatedSection

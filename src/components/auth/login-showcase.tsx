@@ -42,8 +42,8 @@ const monitorRows = [
 
 export function LoginShowcase() {
   return (
-    <section className="space-y-4">
-      <AnimatedSection className="max-w-3xl space-y-3">
+    <section className="space-y-3">
+      <AnimatedSection className="max-w-3xl space-y-2">
         <Badge
           variant="outline"
           className="h-7 rounded-md border-foreground/10 bg-background/80 px-3 text-muted-foreground shadow-sm"
@@ -52,7 +52,7 @@ export function LoginShowcase() {
           Secure enterprise access
         </Badge>
 
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           <h1 className="max-w-3xl text-balance font-heading text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
             Governed workspace access for every execution owner.
           </h1>
@@ -84,8 +84,8 @@ export function LoginShowcase() {
             </Badge>
           </div>
 
-          <div className="grid gap-3 p-3 xl:grid-cols-[0.95fr_1.05fr]">
-            <div className="space-y-2">
+          <div className="grid gap-2.5 p-2.5 xl:grid-cols-[0.95fr_1.05fr]">
+            <div className="space-y-1.5">
               {accessLanes.map((lane) => {
                 const Icon = lane.icon;
 
@@ -113,7 +113,7 @@ export function LoginShowcase() {
               })}
             </div>
 
-            <div className="rounded-md border bg-background p-3">
+            <div className="rounded-md border bg-background p-2.5">
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <h3 className="text-xs font-semibold">
@@ -123,7 +123,7 @@ export function LoginShowcase() {
                 <Gauge className="size-4 text-muted-foreground" aria-hidden="true" />
               </div>
 
-              <div className="mt-4 space-y-4">
+              <div className="mt-3 space-y-3">
                 {monitorRows.map((row, index) => (
                   <div key={row.label} className="space-y-2">
                     <div className="flex items-center justify-between gap-3 text-xs">
