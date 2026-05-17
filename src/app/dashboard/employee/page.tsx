@@ -154,14 +154,12 @@ function mapGoalToTableRow(goal: EmployeeGoalRecord): EmployeeGoalTableRow {
 export default async function EmployeeDashboardPage() {
   const session = await auth();
 
-  if (!session?.user?.id) {
-    redirect(`${SIGN_IN_PATH}?callbackUrl=/dashboard/employee`);
-  }
+  const userId = session?.user?.id;
 
-  if (session.user.role !== "EMPLOYEE") {
-    redirect(getDashboardPathForRole(session.user.role));
+  if (!userId) {
+    return null;
   }
-
+  
   const activeReviewCycle = await prisma.reviewCycle.findFirst({
     where: { isActive: true },
     orderBy: [{ year: "desc" }, { quarter: "desc" }, { startDate: "desc" }],
