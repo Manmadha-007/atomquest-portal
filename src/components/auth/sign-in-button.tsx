@@ -8,7 +8,7 @@ export function SignInButton() {
   const { pending } = useFormStatus();
 
   return (
-    <Button type="submit" size="lg" className="h-11" disabled={pending}>
+    <Button type="submit" className="h-10" disabled={pending}>
       {pending ? (
         <>
           <Loader2 className="mr-2 size-4 animate-spin" aria-hidden="true" />
@@ -17,7 +17,7 @@ export function SignInButton() {
       ) : (
         <>
           Enter Workspace
-          <ArrowRight className="size-4" aria-hidden="true" />
+          <ArrowRight className="ml-2 size-4" aria-hidden="true" />
         </>
       )}
     </Button>

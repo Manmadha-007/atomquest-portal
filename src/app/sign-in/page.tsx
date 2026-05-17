@@ -177,10 +177,10 @@ export default async function SignInPage({
 
           <AnimatedSection
             delay={100}
-            className="mx-auto flex w-full max-w-xl flex-col gap-4 lg:mx-0 lg:justify-self-end"
+            className="mx-auto flex w-full max-w-md flex-col gap-4 lg:mx-0 lg:justify-self-end"
           >
             <Card className="rounded-lg bg-background/95 shadow-2xl shadow-slate-900/10">
-              <CardHeader className="gap-5 border-b p-5 sm:p-6">
+              <CardHeader className="gap-4 border-b p-4 sm:p-5">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex size-11 items-center justify-center rounded-lg bg-slate-950 text-slate-50">
                     <LockKeyhole
@@ -194,12 +194,12 @@ export default async function SignInPage({
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <CardTitle className="text-2xl tracking-tight sm:text-3xl">
+                <div className="space-y-1.5">
+                  <CardTitle className="text-xl tracking-tight sm:text-2xl">
                     Sign in to your enterprise workspace
                   </CardTitle>
 
-                  <p className="text-sm leading-6 text-muted-foreground">
+                  <p className="text-sm leading-5 text-muted-foreground">
                     Access role-aware execution dashboards,
                     governed review workflows,
                     completion monitoring, and
@@ -208,10 +208,10 @@ export default async function SignInPage({
                 </div>
               </CardHeader>
 
-              <CardContent className="p-5 sm:p-6">
+              <CardContent className="p-4 sm:p-5">
                 <form
                   action={authenticate}
-                  className="grid gap-5"
+                  className="grid gap-4"
                 >
                   <input
                     type="hidden"
@@ -230,14 +230,14 @@ export default async function SignInPage({
 
                   <MicrosoftSignInButton />
 
-                  <div className="relative my-4">
+                  <div className="relative my-2">
                     <div className="absolute inset-0 flex items-center">
-                      <span className="w-full border-t" />
+                      <span className="w-full border-t border-border/40" />
                     </div>
 
-                    <div className="relative flex justify-center text-xs uppercase">
-                      <span className="bg-background px-2 text-muted-foreground">
-                        Or continue with credentials
+                    <div className="relative flex justify-center text-xs">
+                      <span className="bg-background px-2 text-muted-foreground/60">
+                        Or
                       </span>
                     </div>
                   </div>
@@ -274,7 +274,7 @@ export default async function SignInPage({
 
                   <SignInButton />
 
-                  <div className="flex items-start gap-2 rounded-lg border bg-muted/30 p-3 text-xs leading-5 text-muted-foreground">
+                  <div className="mt-1 flex items-start gap-2 rounded-lg border bg-muted/30 p-3 text-xs leading-5 text-muted-foreground">
                     <ShieldCheck
                       className="mt-0.5 size-3.5 shrink-0 text-emerald-600"
                       aria-hidden="true"
