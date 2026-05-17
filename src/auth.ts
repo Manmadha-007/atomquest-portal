@@ -1,3 +1,8 @@
+import type { JWT } from "next-auth/jwt";
+type AppJWT = JWT & {
+  id?: string;
+  role?: AppRole;
+};
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { compare } from "bcryptjs";
 import NextAuth, {
@@ -26,13 +31,6 @@ declare module "next-auth" {
 
   interface User {
     role: AppRole;
-  }
-}
-
-declare module "next-auth/jwt" {
-  interface JWT {
-    id?: string;
-    role?: AppRole;
   }
 }
 
@@ -120,7 +118,16 @@ export const authConfig = {
   ],
 
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({
+      token,
+      user,
+    }: {
+      token: AppJWT;
+      user?: {
+        id?: string;
+        role?: AppRole;
+      };
+    }) {
       if (user) {
         token.id =
           typeof user.id === "string"
@@ -138,7 +145,18 @@ export const authConfig = {
       return token;
     },
 
-    async session({ session, token }) {
+    async session({
+      session,
+      token,
+    }: {
+      session: DefaultSession & {
+        user: {
+          id: string;
+          role: AppRole;
+        } & DefaultSession["user"];
+      };
+      token: AppJWT;
+    }) {
       if (!session.user) {
         return session;
       }

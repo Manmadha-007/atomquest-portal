@@ -1,100 +1,164 @@
-import { getToken } from "next-auth/jwt";
 import { NextResponse, type NextRequest } from "next/server";
 
+import { auth } from "@/auth";
 import {
   DASHBOARD_ROOT_PATH,
   SIGN_IN_PATH,
   getDashboardPathForRole,
   getRequiredRoleForPath,
   getSafeDashboardCallbackPath,
-  isAppRole,
 } from "@/lib/auth";
 
 function redirectTo(url: URL) {
   return NextResponse.redirect(url);
 }
 
-function createSignInRedirect(request: NextRequest) {
-  const signInUrl = new URL(SIGN_IN_PATH, request.url);
-  const callbackUrl = getSafeDashboardCallbackPath(
-    `${request.nextUrl.pathname}${request.nextUrl.search}`,
+function createSignInRedirect(
+  request: NextRequest,
+) {
+  const signInUrl = new URL(
+    SIGN_IN_PATH,
+    request.url,
   );
 
-  signInUrl.searchParams.set("callbackUrl", callbackUrl);
+  const callbackUrl =
+    getSafeDashboardCallbackPath(
+      `${request.nextUrl.pathname}${request.nextUrl.search}`,
+    );
+
+  signInUrl.searchParams.set(
+    "callbackUrl",
+    callbackUrl,
+  );
 
   return redirectTo(signInUrl);
 }
 
-function normalizeSignInRequest(request: NextRequest) {
-  const callbackUrl = request.nextUrl.searchParams.get("callbackUrl");
+function normalizeSignInRequest(
+  request: NextRequest,
+) {
+  const callbackUrl =
+    request.nextUrl.searchParams.get(
+      "callbackUrl",
+    );
 
   if (!callbackUrl) {
     return null;
   }
 
-  const safeCallbackUrl = getSafeDashboardCallbackPath(callbackUrl);
+  const safeCallbackUrl =
+    getSafeDashboardCallbackPath(
+      callbackUrl,
+    );
 
   if (callbackUrl === safeCallbackUrl) {
     return null;
   }
 
-  const signInUrl = new URL(SIGN_IN_PATH, request.url);
-  signInUrl.searchParams.set("callbackUrl", safeCallbackUrl);
+  const signInUrl = new URL(
+    SIGN_IN_PATH,
+    request.url,
+  );
+
+  signInUrl.searchParams.set(
+    "callbackUrl",
+    safeCallbackUrl,
+  );
 
   return redirectTo(signInUrl);
 }
 
-export async function proxy(request: NextRequest) {
-  const pathname = request.nextUrl.pathname;
+export default auth(
+  async function proxy(request) {
+    const pathname =
+      request.nextUrl.pathname;
 
-  if (pathname.startsWith("/api/auth")) {
-    return NextResponse.next();
-  }
-
-  const token = await getToken({
-    req: request,
-    secret: process.env.AUTH_SECRET,
-  });
-  const role = isAppRole(token?.role) ? token.role : null;
-
-  if (pathname === SIGN_IN_PATH) {
-    if (token && role) {
-      return redirectTo(new URL(getDashboardPathForRole(role), request.url));
+    if (
+      pathname.startsWith("/api/auth")
+    ) {
+      return NextResponse.next();
     }
 
-    return normalizeSignInRequest(request) ?? NextResponse.next();
-  }
+    const session = request.auth;
 
-  const isDashboardRoute =
-  pathname === DASHBOARD_ROOT_PATH ||
-  pathname.startsWith(`${DASHBOARD_ROOT_PATH}/`);
+    const role =
+      session?.user?.role ?? null;
 
-  if (isDashboardRoute && (!token || !role)) {
-    return createSignInRedirect(request);
-  }
+    if (pathname === SIGN_IN_PATH) {
+      if (role) {
+        return redirectTo(
+          new URL(
+            getDashboardPathForRole(role),
+            request.url,
+          ),
+        );
+      }
 
-  if (role && pathname === DASHBOARD_ROOT_PATH) {
-    return redirectTo(
-      new URL(getDashboardPathForRole(role), request.url),
-    );
-  }
+      return (
+        normalizeSignInRequest(
+          request,
+        ) ?? NextResponse.next()
+      );
+    }
 
-  const requiredRole = getRequiredRoleForPath(pathname);
+    const isDashboardRoute =
+      pathname ===
+        DASHBOARD_ROOT_PATH ||
+      pathname.startsWith(
+        `${DASHBOARD_ROOT_PATH}/`,
+      );
 
-  if (requiredRole && requiredRole !== role) {
-    const fallbackRole = role ?? "EMPLOYEE";
+    if (
+      isDashboardRoute &&
+      !role
+    ) {
+      return createSignInRedirect(
+        request,
+      );
+    }
 
-    return redirectTo(
-      new URL(
-        getDashboardPathForRole(fallbackRole),
-        request.url,
-      ),
-    );
-  }
+    if (
+      role &&
+      pathname ===
+        DASHBOARD_ROOT_PATH
+    ) {
+      return redirectTo(
+        new URL(
+          getDashboardPathForRole(role),
+          request.url,
+        ),
+      );
+    }
 
-  return NextResponse.next();
-}
+    const requiredRole =
+      getRequiredRoleForPath(
+        pathname,
+      );
+
+    if (
+      requiredRole &&
+      requiredRole !== role
+    ) {
+      const fallbackRole =
+        role ?? "EMPLOYEE";
+
+      return redirectTo(
+        new URL(
+          getDashboardPathForRole(
+            fallbackRole,
+          ),
+          request.url,
+        ),
+      );
+    }
+
+    return NextResponse.next();
+  },
+);
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/sign-in"],
+  matcher: [
+    "/dashboard/:path*",
+    "/sign-in",
+  ],
 };
