@@ -17,10 +17,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import type { ProgressTrendDatum } from "@/lib/analytics/dashboard-analytics";
+import type { ProgressTrendDatum } from "@/lib/analytics/types";
 
 type ProgressTrendChartProps = {
-  data: ProgressTrendDatum[];
+  data: readonly Readonly<ProgressTrendDatum>[];
 };
 
 function EmptyChart({ message }: { message: string }) {

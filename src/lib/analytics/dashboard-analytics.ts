@@ -1,135 +1,27 @@
+import "server-only";
+
 import {
   ApprovalDecision,
   GoalStatus,
   QuarterlyStatus,
   UserRole,
-  type GoalMeasurementType,
   type Prisma,
 } from "@prisma/client";
 
 import { calculateQuarterlyProgress } from "@/lib/goals/quarterly-progress";
 import { prisma } from "@/lib/prisma";
 
-export type AnalyticsScope = "admin" | "manager";
-
-export type AnalyticsReviewCycle = {
-  id: string;
-  name: string;
-  year: number;
-  quarter: number;
-  startDate: Date;
-  endDate: Date;
-  submissionDeadline: Date | null;
-  label: string;
-};
-
-export type StatusDistributionDatum = {
-  status: GoalStatus;
-  label: string;
-  count: number;
-  percentage: number;
-  fill: string;
-};
-
-export type ProgressTrendDatum = {
-  period: string;
-  sortKey: string;
-  averageProgress: number;
-  completedCount: number;
-  updateCount: number;
-};
-
-export type ProgressTrendSource = {
-  quarter: number;
-  progressValue?: Prisma.Decimal | number | string | null;
-  quarterlyStatus: QuarterlyStatus;
-  goal: {
-    measurementType: GoalMeasurementType;
-    startValue?: Prisma.Decimal | number | string | null;
-    targetValue?: Prisma.Decimal | number | string | null;
-    currentValue?: Prisma.Decimal | number | string | null;
-    timelineTarget?: Date | string | null;
-    createdAt: Date | string;
-    reviewCycle: {
-      name: string;
-      year: number;
-      quarter: number;
-    };
-  };
-};
-
-export type TeamPerformanceDatum = {
-  name: string;
-  goalCount: number;
-  averageProgress: number;
-  completionRate: number;
-  overdueCount: number;
-};
-
-export type CompletionStatus =
-  | "completed"
-  | "pending"
-  | "overdue"
-  | "reviewed"
-  | "awaiting_review";
-
-export type CompletionMonitoringSummary = {
-  completedQuarterlyUpdates: number;
-  pendingQuarterlyUpdates: number;
-  overdueQuarterlyUpdates: number;
-  noSubmissionEmployees: number;
-  reviewedSubmissions: number;
-  pendingReviews: number;
-  overdueReviews: number;
-  quarterlyCompletionPercentage: number;
-  managerReviewPercentage: number;
-};
-
-export type CompletionMonitoringRow = {
-  id: string;
-  employeeName: string;
-  employeeEmail: string;
-  managerName: string;
-  reviewCycleLabel: string;
-  quarterlySubmissionStatus: CompletionStatus;
-  quarterlySubmissionLabel: string;
-  managerReviewStatus: CompletionStatus;
-  managerReviewLabel: string;
-  lastUpdateTimestamp: string;
-  completionPercentage: number;
-  isOverdue: boolean;
-  overdueLabel: string;
-  completedQuarterlyUpdates: number;
-  pendingQuarterlyUpdates: number;
-  overdueQuarterlyUpdates: number;
-  reviewedSubmissions: number;
-  pendingReviews: number;
-  overdueReviews: number;
-};
-
-export type CompletionMonitoring = {
-  summary: CompletionMonitoringSummary;
-  rows: CompletionMonitoringRow[];
-};
-
-export type DashboardAnalytics = {
-  scope: AnalyticsScope;
-  reviewCycle: AnalyticsReviewCycle | null;
-  totalGoals: number;
-  approvedGoals: number;
-  submittedGoals: number;
-  reviewedGoals: number;
-  approvalRate: number;
-  completionPercentage: number;
-  overduePercentage: number;
-  overdueGoals: number;
-  activeEmployeeCount: number;
-  averageProgress: number;
-  statusDistribution: StatusDistributionDatum[];
-  progressTrend: ProgressTrendDatum[];
-  teamPerformance: TeamPerformanceDatum[];
-  completionMonitoring: CompletionMonitoring;
-};
+import type {
+  AnalyticsReviewCycle,
+  AnalyticsScope,
+  CompletionMonitoring,
+  CompletionMonitoringRow,
+  CompletionMonitoringSummary,
+  CompletionStatus,
+  DashboardAnalytics,
+  ProgressTrendDatum,
+  ProgressTrendSource,
+} from "@/lib/analytics/types";
 
 const analyticsGoalSelect = {
   id: true,
@@ -529,8 +421,12 @@ export function buildProgressTrendData(
     }));
 }
 
-function buildProgressTrend(updates: TrendUpdateRecord[]) {
-  return buildProgressTrendData(updates);
+function buildProgressTrend(
+  updates: TrendUpdateRecord[],
+): ProgressTrendDatum[] {
+  return buildProgressTrendData(
+    updates as ProgressTrendSource[],
+  );
 }
 
 function getCurrentQuarterUpdate(goal: CompletionGoalRecord, quarter: number) {
@@ -644,13 +540,19 @@ function getOverdueLabel(input: {
 function buildCompletionMonitoring(input: {
   employees: CompletionEmployeeRecord[];
   goals: CompletionGoalRecord[];
-  reviewCycle: Pick<
-    AnalyticsReviewCycle,
-    "endDate" | "label" | "quarter" | "submissionDeadline"
-  >;
+  reviewCycle: {
+    endDate: Date;
+    label: string;
+    quarter: number;
+    submissionDeadline: Date | null;
+  };
 }): CompletionMonitoring {
   const goalsByOwnerId = new Map<string, CompletionGoalRecord[]>();
-  const dueDate = input.reviewCycle.submissionDeadline ?? input.reviewCycle.endDate;
+  const dueDate =
+    input.reviewCycle.submissionDeadline ??
+    input.reviewCycle.endDate ??
+    new Date(8640000000000000);
+
   const isPastDue = dueDate < new Date();
 
   for (const goal of input.goals) {
@@ -730,14 +632,25 @@ function buildCompletionMonitoring(input: {
     } satisfies CompletionMonitoringRow;
   });
 
-  const summary = rows.reduce<CompletionMonitoringSummary>(
+  const summaryAccumulator = rows.reduce(
     (totals, row) => {
-      totals.completedQuarterlyUpdates += row.completedQuarterlyUpdates;
-      totals.pendingQuarterlyUpdates += row.pendingQuarterlyUpdates;
-      totals.overdueQuarterlyUpdates += row.overdueQuarterlyUpdates;
-      totals.reviewedSubmissions += row.reviewedSubmissions;
-      totals.pendingReviews += row.pendingReviews;
-      totals.overdueReviews += row.overdueReviews;
+      totals.completedQuarterlyUpdates +=
+        row.completedQuarterlyUpdates;
+
+      totals.pendingQuarterlyUpdates +=
+        row.pendingQuarterlyUpdates;
+
+      totals.overdueQuarterlyUpdates +=
+        row.overdueQuarterlyUpdates;
+
+      totals.reviewedSubmissions +=
+        row.reviewedSubmissions;
+
+      totals.pendingReviews +=
+        row.pendingReviews;
+
+      totals.overdueReviews +=
+        row.overdueReviews;
 
       if (
         row.completedQuarterlyUpdates === 0 &&
@@ -748,20 +661,42 @@ function buildCompletionMonitoring(input: {
 
       return totals;
     },
-    getEmptyCompletionMonitoring().summary,
+    {
+      completedQuarterlyUpdates: 0,
+      pendingQuarterlyUpdates: 0,
+      overdueQuarterlyUpdates: 0,
+      noSubmissionEmployees: 0,
+      reviewedSubmissions: 0,
+      pendingReviews: 0,
+      overdueReviews: 0,
+      quarterlyCompletionPercentage: 0,
+      managerReviewPercentage: 0,
+    },
   );
-  const totalQuarterlyUpdates =
-    summary.completedQuarterlyUpdates + summary.pendingQuarterlyUpdates;
-  const totalReviews = summary.reviewedSubmissions + summary.pendingReviews;
 
-  summary.quarterlyCompletionPercentage = toPercentage(
-    summary.completedQuarterlyUpdates,
-    totalQuarterlyUpdates,
-  );
-  summary.managerReviewPercentage = toPercentage(
-    summary.reviewedSubmissions,
-    totalReviews,
-  );
+  const totalQuarterlyUpdates =
+    summaryAccumulator.completedQuarterlyUpdates +
+    summaryAccumulator.pendingQuarterlyUpdates;
+
+  const totalReviews =
+    summaryAccumulator.reviewedSubmissions +
+    summaryAccumulator.pendingReviews;
+
+  const summary: CompletionMonitoringSummary = {
+    ...summaryAccumulator,
+
+    quarterlyCompletionPercentage:
+      toPercentage(
+        summaryAccumulator.completedQuarterlyUpdates,
+        totalQuarterlyUpdates,
+      ),
+
+    managerReviewPercentage:
+      toPercentage(
+        summaryAccumulator.reviewedSubmissions,
+        totalReviews,
+      ),
+  };
 
   return {
     summary,
@@ -793,19 +728,54 @@ function getGoalScopeWhere(input: {
   };
 }
 
-function getTrendScopeWhere(managerId?: string): Prisma.GoalUpdateWhereInput {
+function getTrendScopeWhere(input: {
+  managerId?: string;
+  reviewCycleId?: string;
+}): Prisma.GoalUpdateWhereInput {
   return {
     goal: {
       isArchived: false,
-      ...(managerId
+
+      ...(input.reviewCycleId
+        ? {
+            reviewCycleId: input.reviewCycleId,
+          }
+        : {}),
+
+      ...(input.managerId
         ? {
             owner: {
-              managerId,
+              managerId: input.managerId,
               isActive: true,
             },
           }
         : {}),
     },
+  };
+}
+
+function serializeReviewCycle(
+  reviewCycle: {
+    id: string;
+    name: string;
+    year: number;
+    quarter: number;
+    startDate: Date;
+    endDate: Date;
+    submissionDeadline: Date | null;
+  },
+): AnalyticsReviewCycle {
+  return {
+    id: reviewCycle.id,
+    name: reviewCycle.name,
+    year: reviewCycle.year,
+    quarter: reviewCycle.quarter,
+    startDate: reviewCycle.startDate.toISOString(),
+    endDate: reviewCycle.endDate.toISOString(),
+    submissionDeadline:
+      reviewCycle.submissionDeadline?.toISOString() ??
+      null,
+    label: formatReviewCycleLabel(reviewCycle),
   };
 }
 
@@ -882,7 +852,10 @@ async function getDashboardAnalytics(input: {
       select: analyticsGoalSelect,
     }),
     prisma.goalUpdate.findMany({
-      where: getTrendScopeWhere(input.managerId),
+      where: getTrendScopeWhere({
+        managerId: input.managerId,
+        reviewCycleId: activeReviewCycle.id,
+      }),
       orderBy: [
         { goal: { reviewCycle: { year: "asc" } } },
         { goal: { reviewCycle: { quarter: "asc" } } },
@@ -930,10 +903,9 @@ async function getDashboardAnalytics(input: {
 
   return {
     scope: input.scope,
-    reviewCycle: {
-      ...activeReviewCycle,
-      label: formatReviewCycleLabel(activeReviewCycle),
-    },
+    reviewCycle: serializeReviewCycle(
+      activeReviewCycle,
+    ),
     totalGoals,
     approvedGoals,
     submittedGoals,
@@ -951,17 +923,29 @@ async function getDashboardAnalytics(input: {
       employees: completionEmployees,
       goals: completionGoals,
       reviewCycle: {
-        ...activeReviewCycle,
-        label: formatReviewCycleLabel(activeReviewCycle),
+        endDate: activeReviewCycle.endDate,
+        submissionDeadline:
+          activeReviewCycle.submissionDeadline,
+        quarter: activeReviewCycle.quarter,
+        label: formatReviewCycleLabel(
+          activeReviewCycle,
+        ),
       },
     }),
   };
 }
 
-export function getAdminAnalytics() {
-  return getDashboardAnalytics({ scope: "admin" });
+export function getAdminAnalytics(): Promise<DashboardAnalytics> {
+  return getDashboardAnalytics({
+    scope: "admin",
+  });
 }
 
-export function getManagerAnalytics(managerId: string) {
-  return getDashboardAnalytics({ scope: "manager", managerId });
+export function getManagerAnalytics(
+  managerId: string,
+): Promise<DashboardAnalytics> {
+  return getDashboardAnalytics({
+    scope: "manager",
+    managerId,
+  });
 }

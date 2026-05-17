@@ -1,12 +1,11 @@
-import { UserRole, type Prisma } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 import { FileText, ShieldCheck, UserRound } from "lucide-react";
-import { redirect } from "next/navigation";
 
-import { auth } from "@/auth";
 import {
   AuditLogsTable,
   type AuditLogTableRow,
 } from "@/components/admin/audit-logs-table";
+import { DashboardAuthState } from "@/components/layout/dashboard-auth-state";
 import { ExportActions } from "@/components/reports/export-actions";
 import {
   Card,
@@ -14,7 +13,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { getDashboardPathForRole, SIGN_IN_PATH } from "@/lib/auth";
+import { getDashboardUser } from "@/lib/auth/session";
 import { prisma } from "@/lib/prisma";
 
 const auditLogExportActions = [
@@ -99,14 +98,10 @@ function mapAuditLogToRow(log: AuditLogRecord): AuditLogTableRow {
 }
 
 export default async function AdminAuditLogsPage() {
-  const session = await auth();
+  const user = await getDashboardUser();
 
-  if (!session?.user?.id) {
-    redirect(`${SIGN_IN_PATH}?callbackUrl=/dashboard/admin/audit-logs`);
-  }
-
-  if (session.user.role !== UserRole.ADMIN) {
-    redirect(getDashboardPathForRole(session.user.role));
+  if (!user || user.role !== "ADMIN") {
+    return <DashboardAuthState requiredRole="ADMIN" userRole={user?.role} />;
   }
 
   const [logs, totalLogCount, governanceLogCount, actorCount] =

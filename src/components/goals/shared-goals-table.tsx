@@ -30,7 +30,7 @@ import { cn } from "@/lib/utils";
 import type {
   SharedGoalPropagationStatus,
   SharedGoalTableRow,
-} from "@/lib/goals/shared-goals";
+} from "@/lib/goals/shared-goal-types";
 
 type SharedGoalsTableProps = {
   goals: SharedGoalTableRow[];

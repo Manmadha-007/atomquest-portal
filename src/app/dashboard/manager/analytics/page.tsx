@@ -1,12 +1,10 @@
 import { Activity } from "lucide-react";
-import { redirect } from "next/navigation";
-import { UserRole } from "@prisma/client";
 
-import { auth } from "@/auth";
 import { AnalyticsOverview } from "@/components/analytics/analytics-overview";
+import { DashboardAuthState } from "@/components/layout/dashboard-auth-state";
 import { ExportActions } from "@/components/reports/export-actions";
 import { getManagerAnalytics } from "@/lib/analytics/dashboard-analytics";
-import { getDashboardPathForRole, SIGN_IN_PATH } from "@/lib/auth";
+import { getDashboardUser } from "@/lib/auth/session";
 
 const managerExportActions = [
   { id: "goals", label: "Goals", href: "/api/exports/goals" },
@@ -17,30 +15,44 @@ const managerExportActions = [
   },
 ];
 
-function formatDate(value?: Date | null) {
+function formatDate(
+  value?: Date | string | null,
+) {
   if (!value) {
-    return "No date";
+    return "Not set";
   }
 
-  return new Intl.DateTimeFormat("en", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  }).format(value);
+  const parsedDate =
+    value instanceof Date
+      ? value
+      : new Date(value);
+
+  if (
+    Number.isNaN(
+      parsedDate.getTime(),
+    )
+  ) {
+    return "Invalid date";
+  }
+
+  return new Intl.DateTimeFormat(
+    "en",
+    {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    },
+  ).format(parsedDate);
 }
 
 export default async function ManagerAnalyticsPage() {
-  const session = await auth();
+  const user = await getDashboardUser();
 
-  if (!session?.user?.id) {
-    redirect(`${SIGN_IN_PATH}?callbackUrl=/dashboard/manager/analytics`);
+  if (!user || user.role !== "MANAGER") {
+    return <DashboardAuthState requiredRole="MANAGER" userRole={user?.role} />;
   }
 
-  if (session.user.role !== UserRole.MANAGER) {
-    redirect(getDashboardPathForRole(session.user.role));
-  }
-
-  const analytics = await getManagerAnalytics(session.user.id);
+  const analytics = await getManagerAnalytics(user.id);
 
   return (
     <div className="grid gap-6">

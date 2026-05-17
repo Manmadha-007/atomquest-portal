@@ -15,10 +15,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import type { StatusDistributionDatum } from "@/lib/analytics/dashboard-analytics";
+import type { StatusDistributionDatum } from "@/lib/analytics/types";
 
 type StatusDistributionChartProps = {
-  data: StatusDistributionDatum[];
+  data: readonly Readonly<StatusDistributionDatum>[];
 };
 
 function EmptyChart({ message }: { message: string }) {

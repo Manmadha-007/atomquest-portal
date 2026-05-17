@@ -1,22 +1,29 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { AuthError } from "next-auth";
-import { ArrowLeft, ArrowRight, LockKeyhole, ShieldCheck } from "lucide-react";
+import {
+  ArrowLeft,
+  LockKeyhole,
+  ShieldCheck,
+} from "lucide-react";
 import { redirect } from "next/navigation";
 
-import { auth, signIn } from "@/auth";
+import { signIn } from "@/auth";
 import { LoginShowcase } from "@/components/auth/login-showcase";
 import { SignInButton } from "@/components/auth/sign-in-button";
-import { InteractiveGrid } from "@/components/marketing/interactive-grid";
 import { AnimatedSection } from "@/components/marketing/animated-section";
+import { InteractiveGrid } from "@/components/marketing/interactive-grid";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
-  DASHBOARD_ROOT_PATH,
   SIGN_IN_PATH,
-  getDashboardPathForRole,
-  isAppRole,
+  getSafeDashboardCallbackPath,
 } from "@/lib/auth";
 
 export const metadata: Metadata = {
@@ -32,41 +39,58 @@ type SignInPageProps = {
   }>;
 };
 
-function getFirstSearchParam(value?: string | string[]) {
+function getFirstSearchParam(
+  value?: string | string[],
+): string | undefined {
   return Array.isArray(value) ? value[0] : value;
 }
 
-function getSafeCallbackUrl(value?: string) {
-  if (value?.startsWith("/") && !value.startsWith("//")) {
-    return value;
-  }
-
-  return DASHBOARD_ROOT_PATH;
-}
-
-function getAuthErrorMessage(error?: string) {
+function getAuthErrorMessage(
+  error?: string,
+): string | null {
   if (!error) {
     return null;
   }
 
-  if (error === "CredentialsSignin") {
-    return "The email or password did not match an active AtomQuest workspace account.";
-  }
+  switch (error) {
+    case "CredentialsSignin":
+      return "The email or password did not match an active AtomQuest workspace account.";
 
-  return "Authentication could not be completed. Please verify the account and try again.";
+    case "Configuration":
+      return "Authentication could not be completed due to a configuration issue.";
+
+    default:
+      return "Authentication could not be completed. Please verify the account and try again.";
+  }
 }
 
 async function authenticate(formData: FormData) {
   "use server";
 
-  const callbackUrl = getSafeCallbackUrl(
-    formData.get("callbackUrl")?.toString(),
-  );
+  const email = formData.get("email")?.toString().trim();
+
+  const password = formData
+    .get("password")
+    ?.toString();
+
+  const callbackUrl =
+    getSafeDashboardCallbackPath(
+      formData.get("callbackUrl")?.toString(),
+    );
+
+  if (!email || !password) {
+    const params = new URLSearchParams({
+      callbackUrl,
+      error: "CredentialsSignin",
+    });
+
+    redirect(`${SIGN_IN_PATH}?${params.toString()}`);
+  }
 
   try {
     await signIn("credentials", {
-      email: formData.get("email"),
-      password: formData.get("password"),
+      email,
+      password,
       redirectTo: callbackUrl,
     });
   } catch (error) {
@@ -79,25 +103,28 @@ async function authenticate(formData: FormData) {
             : "Configuration",
       });
 
-      redirect(`${SIGN_IN_PATH}?${params.toString()}`);
+      redirect(
+        `${SIGN_IN_PATH}?${params.toString()}`,
+      );
     }
 
     throw error;
   }
 }
 
-export default async function SignInPage({ searchParams }: SignInPageProps) {
-  const session = await auth();
-
-  if (session?.user && isAppRole(session.user.role)) {
-    redirect(getDashboardPathForRole(session.user.role));
-  }
-
+export default async function SignInPage({
+  searchParams,
+}: SignInPageProps) {
   const params = await searchParams;
-  const callbackUrl = getSafeCallbackUrl(
-    getFirstSearchParam(params.callbackUrl),
+
+  const callbackUrl =
+    getSafeDashboardCallbackPath(
+      getFirstSearchParam(params.callbackUrl),
+    );
+
+  const errorMessage = getAuthErrorMessage(
+    getFirstSearchParam(params.error),
   );
-  const errorMessage = getAuthErrorMessage(getFirstSearchParam(params.error));
 
   return (
     <main className="relative isolate min-h-svh overflow-hidden bg-[linear-gradient(180deg,#fafafa_0%,#ffffff_58%,#f8fafc_100%)] text-foreground">
@@ -105,21 +132,36 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
 
       <header className="fixed inset-x-0 top-0 z-50 border-b border-border/40 bg-background/60 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <Link href="/" className="flex items-center gap-3">
+          <Link
+            href="/"
+            className="flex items-center gap-3"
+          >
             <span className="flex size-9 items-center justify-center rounded-lg bg-foreground text-sm font-semibold text-background shadow-sm">
               AQ
             </span>
+
             <span className="grid">
-              <span className="text-sm font-semibold leading-5">AtomQuest</span>
+              <span className="text-sm font-semibold leading-5">
+                AtomQuest
+              </span>
+
               <span className="text-xs text-muted-foreground">
                 Goal Operations
               </span>
             </span>
           </Link>
 
-          <Button asChild variant="outline" size="sm" className="bg-background/80">
+          <Button
+            asChild
+            variant="outline"
+            size="sm"
+            className="bg-background/80"
+          >
             <Link href="/">
-              <ArrowLeft className="size-3.5" aria-hidden="true" />
+              <ArrowLeft
+                className="size-3.5"
+                aria-hidden="true"
+              />
               Platform
             </Link>
           </Button>
@@ -130,13 +172,20 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
         <div className="grid flex-1 gap-8 py-4 lg:grid-cols-[1.02fr_0.98fr] lg:items-center lg:gap-12 lg:py-6">
           <LoginShowcase />
 
-          <AnimatedSection delay={100} className="mx-auto flex w-full max-w-xl flex-col gap-4 lg:mx-0 lg:justify-self-end">
+          <AnimatedSection
+            delay={100}
+            className="mx-auto flex w-full max-w-xl flex-col gap-4 lg:mx-0 lg:justify-self-end"
+          >
             <Card className="rounded-lg bg-background/95 shadow-2xl shadow-slate-900/10">
               <CardHeader className="gap-5 border-b p-5 sm:p-6">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex size-11 items-center justify-center rounded-lg bg-slate-950 text-slate-50">
-                    <LockKeyhole className="size-5" aria-hidden="true" />
+                    <LockKeyhole
+                      className="size-5"
+                      aria-hidden="true"
+                    />
                   </div>
+
                   <div className="rounded-md border bg-muted/40 px-2.5 py-1 text-xs font-medium text-muted-foreground">
                     RBAC secured
                   </div>
@@ -146,16 +195,26 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
                   <CardTitle className="text-2xl tracking-tight sm:text-3xl">
                     Sign in to your enterprise workspace
                   </CardTitle>
+
                   <p className="text-sm leading-6 text-muted-foreground">
-                    Access role-aware execution dashboards, governed review
-                    workflows, completion monitoring, and audit-ready reporting.
+                    Access role-aware execution dashboards,
+                    governed review workflows,
+                    completion monitoring, and
+                    audit-ready reporting.
                   </p>
                 </div>
               </CardHeader>
 
               <CardContent className="p-5 sm:p-6">
-                <form action={authenticate} className="grid gap-5">
-                  <input type="hidden" name="callbackUrl" value={callbackUrl} />
+                <form
+                  action={authenticate}
+                  className="grid gap-5"
+                >
+                  <input
+                    type="hidden"
+                    name="callbackUrl"
+                    value={callbackUrl}
+                  />
 
                   {errorMessage ? (
                     <div
@@ -173,6 +232,7 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
                     >
                       Email
                     </label>
+
                     <Input
                       id="email"
                       name="email"
@@ -191,6 +251,7 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
                     >
                       Password
                     </label>
+
                     <Input
                       id="password"
                       name="password"
@@ -209,8 +270,11 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
                       className="mt-0.5 size-3.5 shrink-0 text-emerald-600"
                       aria-hidden="true"
                     />
-                    Credentials are evaluated against active workspace users and
-                    routed to the correct employee, manager, or admin workspace.
+
+                    Credentials are evaluated against
+                    active workspace users and routed to
+                    the correct employee, manager, or
+                    admin workspace.
                   </div>
                 </form>
               </CardContent>

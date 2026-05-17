@@ -27,7 +27,7 @@ import {
 import type {
   CompletionMonitoring,
   CompletionMonitoringRow,
-} from "@/lib/analytics/dashboard-analytics";
+} from "@/lib/analytics/types";
 import { cn } from "@/lib/utils";
 
 type CompletionMonitoringTableProps = {
@@ -232,7 +232,7 @@ export function CompletionMonitoringTable({
   isLoading = false,
   scopeLabel,
 }: CompletionMonitoringTableProps) {
-  const rows = completionMonitoring.rows;
+  const rows = [...completionMonitoring.rows];
   const summaryMetrics = buildSummaryMetrics(completionMonitoring);
 
   // TanStack Table owns internal function state; keep the required hook local.

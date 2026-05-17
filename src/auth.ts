@@ -1,30 +1,38 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
-import type { UserRole } from "@prisma/client";
 import { compare } from "bcryptjs";
-import NextAuth, { type DefaultSession, type NextAuthConfig } from "next-auth";
+import NextAuth, {
+  type DefaultSession,
+  type NextAuthConfig,
+} from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { z } from "zod";
 
-import { DASHBOARD_ROOT_PATH, SIGN_IN_PATH } from "@/lib/auth";
+import {
+  DASHBOARD_ROOT_PATH,
+  SIGN_IN_PATH,
+  getSafeDashboardCallbackPath,
+  isAppRole,
+  type AppRole,
+} from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 declare module "next-auth" {
   interface Session {
     user: {
       id: string;
-      role: UserRole;
+      role: AppRole;
     } & DefaultSession["user"];
   }
 
   interface User {
-    role: UserRole;
+    role: AppRole;
   }
 }
 
 declare module "next-auth/jwt" {
   interface JWT {
     id?: string;
-    role?: UserRole;
+    role?: AppRole;
   }
 }
 
@@ -35,26 +43,39 @@ const credentialsSchema = z.object({
 
 export const authConfig = {
   adapter: PrismaAdapter(prisma),
+
   session: {
     strategy: "jwt",
   },
+
   pages: {
     signIn: SIGN_IN_PATH,
   },
+
   providers: [
     Credentials({
       credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" },
+        email: {
+          label: "Email",
+          type: "email",
+        },
+        password: {
+          label: "Password",
+          type: "password",
+        },
       },
+
       async authorize(credentials) {
-        const parsedCredentials = credentialsSchema.safeParse(credentials);
+        const parsedCredentials =
+          credentialsSchema.safeParse(credentials);
 
         if (!parsedCredentials.success) {
           return null;
         }
 
-        const { email, password } = parsedCredentials.data;
+        const { email, password } =
+          parsedCredentials.data;
+
         const user = await prisma.user.findUnique({
           where: { email },
           select: {
@@ -69,11 +90,18 @@ export const authConfig = {
           },
         });
 
-        if (!user?.isActive || !user.passwordHash) {
+        if (
+          !user?.isActive ||
+          !user.passwordHash ||
+          !isAppRole(user.role)
+        ) {
           return null;
         }
 
-        const isPasswordValid = await compare(password, user.passwordHash);
+        const isPasswordValid = await compare(
+          password,
+          user.passwordHash,
+        );
 
         if (!isPasswordValid) {
           return null;
@@ -82,40 +110,61 @@ export const authConfig = {
         return {
           id: user.id,
           email: user.email,
-          name: user.name ?? `${user.firstName} ${user.lastName}`.trim(),
+          name:
+            user.name ??
+            `${user.firstName} ${user.lastName}`.trim(),
           role: user.role,
         };
       },
     }),
   ],
+
   callbacks: {
     async jwt({ token, user }) {
-      if (user) {
+      if (user?.id && isAppRole(user.role)) {
         token.id = user.id;
         token.role = user.role;
       }
 
       return token;
     },
+
     async session({ session, token }) {
-      if (session.user && token.id && token.role) {
-        session.user.id = token.id;
-        session.user.role = token.role;
+      if (
+        !session.user ||
+        typeof token.id !== "string" ||
+        !isAppRole(token.role)
+      ) {
+        return session;
       }
+
+      session.user.id = token.id;
+      session.user.role = token.role;
 
       return session;
     },
+
     async redirect({ url, baseUrl }) {
-      if (url === baseUrl || url === `${baseUrl}/`) {
+      if (
+        url === baseUrl ||
+        url === `${baseUrl}/`
+      ) {
         return `${baseUrl}${DASHBOARD_ROOT_PATH}`;
       }
 
       if (url.startsWith("/")) {
-        return `${baseUrl}${url}`;
+        const safePath =
+          getSafeDashboardCallbackPath(url);
+
+        return `${baseUrl}${safePath}`;
       }
 
-      if (new URL(url).origin === baseUrl) {
-        return url;
+      try {
+        if (new URL(url).origin === baseUrl) {
+          return url;
+        }
+      } catch {
+        return baseUrl;
       }
 
       return baseUrl;
@@ -123,5 +172,11 @@ export const authConfig = {
   },
 } satisfies NextAuthConfig;
 
-export const { handlers, auth, signIn, signOut } = NextAuth(authConfig);
+export const {
+  handlers,
+  auth,
+  signIn,
+  signOut,
+} = NextAuth(authConfig);
+
 export const { GET, POST } = handlers;

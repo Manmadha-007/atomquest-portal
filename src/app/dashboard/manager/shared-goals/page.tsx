@@ -1,10 +1,8 @@
 import { GitBranch, RadioTower, Share2, UsersRound } from "lucide-react";
-import { redirect } from "next/navigation";
-import { UserRole } from "@prisma/client";
 
-import { auth } from "@/auth";
 import { SharedGoalDialog } from "@/components/goals/shared-goal-dialog";
 import { SharedGoalsTable } from "@/components/goals/shared-goals-table";
+import { DashboardAuthState } from "@/components/layout/dashboard-auth-state";
 import {
   Card,
   CardContent,
@@ -12,23 +10,19 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { getDashboardPathForRole, SIGN_IN_PATH } from "@/lib/auth";
+import { getDashboardUser } from "@/lib/auth/session";
 import { getSharedGoalsDashboard } from "@/lib/goals/shared-goals";
 
 export default async function ManagerSharedGoalsPage() {
-  const session = await auth();
+  const user = await getDashboardUser();
 
-  if (!session?.user?.id) {
-    redirect(`${SIGN_IN_PATH}?callbackUrl=/dashboard/manager/shared-goals`);
-  }
-
-  if (session.user.role !== UserRole.MANAGER) {
-    redirect(getDashboardPathForRole(session.user.role));
+  if (!user || user.role !== "MANAGER") {
+    return <DashboardAuthState requiredRole="MANAGER" userRole={user?.role} />;
   }
 
   const dashboard = await getSharedGoalsDashboard({
-    actorId: session.user.id,
-    actorRole: session.user.role,
+    actorId: user.id,
+    actorRole: user.role,
   });
   const reviewCycleLabel =
     dashboard.reviewCycle?.label ?? "No active review cycle";

@@ -29,7 +29,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type { CompletionStatus } from "@/lib/analytics/dashboard-analytics";
+import type { CompletionStatus } from "@/lib/analytics/types";
 import { cn } from "@/lib/utils";
 
 export type EmployeeDirectoryTableRow = {

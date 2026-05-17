@@ -2,7 +2,6 @@ import {
   ApprovalDecision,
   GoalStatus,
   QuarterlyStatus,
-  UserRole,
   type Prisma,
 } from "@prisma/client";
 import {
@@ -12,9 +11,7 @@ import {
   ListChecks,
   TrendingUp,
 } from "lucide-react";
-import { redirect } from "next/navigation";
 
-import { auth } from "@/auth";
 import { ProgressTrendChart } from "@/components/analytics/progress-trend-chart";
 import {
   EmployeeActivityFeed,
@@ -36,11 +33,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { DashboardAuthState } from "@/components/layout/dashboard-auth-state";
 import {
   buildProgressTrendData,
-  type ProgressTrendSource,
 } from "@/lib/analytics/dashboard-analytics";
-import { getDashboardPathForRole, SIGN_IN_PATH } from "@/lib/auth";
+import type { ProgressTrendSource } from "@/lib/analytics/types";
+import { getDashboardUser } from "@/lib/auth/session";
 import { calculateQuarterlyProgress } from "@/lib/goals/quarterly-progress";
 import { prisma } from "@/lib/prisma";
 import { cn } from "@/lib/utils";
@@ -614,15 +612,13 @@ function ExecutionHealthInsights({ insights }: { insights: InsightItem[] }) {
 }
 
 export default async function EmployeeProgressTrackerPage() {
-  const session = await auth();
+  const user = await getDashboardUser();
 
-  if (!session?.user?.id) {
-    redirect(`${SIGN_IN_PATH}?callbackUrl=/dashboard/employee/progress-tracker`);
+  if (!user || user.role !== "EMPLOYEE") {
+    return <DashboardAuthState requiredRole="EMPLOYEE" userRole={user?.role} />;
   }
 
-  if (session.user.role !== UserRole.EMPLOYEE) {
-    redirect(getDashboardPathForRole(session.user.role));
-  }
+  const userId = user.id;
 
   const activeReviewCycle = await prisma.reviewCycle.findFirst({
     where: { isActive: true },
@@ -643,7 +639,7 @@ export default async function EmployeeProgressTrackerPage() {
       activeReviewCycle
         ? prisma.goal.findMany({
             where: {
-              ownerId: session.user.id,
+              ownerId: userId,
               reviewCycleId: activeReviewCycle.id,
               isArchived: false,
             },
@@ -656,11 +652,11 @@ export default async function EmployeeProgressTrackerPage() {
           goal: {
             isArchived: false,
             OR: [
-              { ownerId: session.user.id },
+              { ownerId: userId },
               {
                 sharedGoals: {
                   some: {
-                    ownerId: session.user.id,
+                    ownerId: userId,
                     isArchived: false,
                   },
                 },
@@ -679,10 +675,10 @@ export default async function EmployeeProgressTrackerPage() {
         where: {
           action: { in: [...activityActions] },
           OR: [
-            { actorId: session.user.id },
+            { actorId: userId },
             {
               goal: {
-                ownerId: session.user.id,
+                ownerId: userId,
                 isArchived: false,
               },
             },
@@ -696,7 +692,7 @@ export default async function EmployeeProgressTrackerPage() {
         where: {
           comments: { not: null },
           goal: {
-            ownerId: session.user.id,
+            ownerId: userId,
             isArchived: false,
           },
         },

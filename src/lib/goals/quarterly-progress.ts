@@ -1,79 +1,143 @@
-import { GoalMeasurementType, Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 
-import { calculateGoalProgress } from "@/lib/goals/goal-progress";
+import {
+  calculateGoalProgress,
+  type GoalMeasurementTypeValue,
+} from "@/lib/goals/goal-progress";
 
-type NullableNumeric = number | string | Prisma.Decimal | null | undefined;
+type NullableNumeric =
+  | number
+  | string
+  | {
+      toString(): string;
+    }
+  | null
+  | undefined;
 
-type QuarterlyProgressInput = {
-  measurementType: GoalMeasurementType;
-  startValue?: NullableNumeric;
-  targetValue?: NullableNumeric;
-  currentValue?: NullableNumeric;
-  achievementValue?: NullableNumeric;
-  dueDate?: Date | string | null;
-  createdAt?: Date | string | null;
-  now?: Date;
-};
+type QuarterlyProgressInput =
+  Readonly<{
+    measurementType: GoalMeasurementTypeValue;
+    startValue?: NullableNumeric;
+    targetValue?: NullableNumeric;
+    currentValue?: NullableNumeric;
+    achievementValue?: NullableNumeric;
+    dueDate?: Date | string | null;
+    createdAt?: Date | string | null;
+    now?: Date;
+  }>;
 
-type QuarterlyUpdateSummaryInput = {
-  accomplishmentSummary: string;
-  blockerCommentary: string;
-  notes?: string | null;
-};
+type QuarterlyUpdateSummaryInput =
+  Readonly<{
+    accomplishmentSummary: string;
+    blockerCommentary: string;
+    notes?: string | null;
+  }>;
 
 const DECIMAL_SCALE = 4;
+
+const COMMENTARY_PREFIX_PATTERN =
+  /^(Accomplishments|Blockers\/Risks|Notes):\s*/i;
 
 function clampPercentage(value: number) {
   if (!Number.isFinite(value)) {
     return 0;
   }
 
-  return Math.min(100, Math.max(0, Math.round(value)));
+  return Math.min(
+    100,
+    Math.max(0, Math.round(value)),
+  );
 }
 
-export function normalizeAchievementValue(value: NullableNumeric) {
-  if (value === null || value === undefined || value === "") {
+export function normalizeAchievementValue(
+  value: NullableNumeric,
+) {
+  if (
+    value === null ||
+    value === undefined ||
+    value === ""
+  ) {
     return null;
   }
 
-  const parsedValue = Number(value);
+  const parsedValue = Number(
+    typeof value === "object" &&
+      value !== null
+      ? value.toString()
+      : value,
+  );
 
   if (!Number.isFinite(parsedValue)) {
     return null;
   }
 
   const normalizedValue =
-    Math.round(parsedValue * 10 ** DECIMAL_SCALE) / 10 ** DECIMAL_SCALE;
+    Math.round(
+      parsedValue *
+        10 ** DECIMAL_SCALE,
+    ) /
+    10 ** DECIMAL_SCALE;
 
-  return Object.is(normalizedValue, -0) ? 0 : normalizedValue;
+  return Object.is(normalizedValue, -0)
+    ? 0
+    : normalizedValue;
 }
 
-export function toQuarterlyProgressDecimal(value: NullableNumeric) {
-  const normalizedValue = normalizeAchievementValue(value);
+export function toQuarterlyProgressDecimal(
+  value: NullableNumeric,
+) {
+  const normalizedValue =
+    normalizeAchievementValue(value);
 
   if (normalizedValue === null) {
     return null;
   }
 
-  return new Prisma.Decimal(normalizedValue.toFixed(DECIMAL_SCALE));
+  return new Prisma.Decimal(
+    normalizedValue.toFixed(
+      DECIMAL_SCALE,
+    ),
+  );
 }
 
-export function calculateQuarterlyProgress(input: QuarterlyProgressInput) {
-  const achievementValue = normalizeAchievementValue(input.achievementValue);
+export function calculateQuarterlyProgress(
+  input: QuarterlyProgressInput,
+) {
+  const achievementValue =
+    normalizeAchievementValue(
+      input.achievementValue,
+    );
 
   if (
-    input.measurementType === GoalMeasurementType.TIMELINE &&
+    input.measurementType ===
+      "TIMELINE" &&
     achievementValue !== null
   ) {
-    return clampPercentage(achievementValue);
+    return clampPercentage(
+      achievementValue,
+    );
   }
 
   return calculateGoalProgress({
-    measurementType: input.measurementType,
-    startValue: normalizeAchievementValue(input.startValue),
-    targetValue: normalizeAchievementValue(input.targetValue),
+    measurementType:
+      input.measurementType,
+
+    startValue:
+      normalizeAchievementValue(
+        input.startValue,
+      ),
+
+    targetValue:
+      normalizeAchievementValue(
+        input.targetValue,
+      ),
+
     currentValue:
-      achievementValue ?? normalizeAchievementValue(input.currentValue),
+      achievementValue ??
+      normalizeAchievementValue(
+        input.currentValue,
+      ),
+
     dueDate: input.dueDate,
     createdAt: input.createdAt,
     now: input.now,
@@ -84,17 +148,22 @@ export function formatAchievementValue(
   value: NullableNumeric,
   unit?: string | null,
 ) {
-  const normalizedValue = normalizeAchievementValue(value);
+  const normalizedValue =
+    normalizeAchievementValue(value);
 
   if (normalizedValue === null) {
     return "Not captured";
   }
 
-  const formattedValue = new Intl.NumberFormat("en", {
-    maximumFractionDigits: DECIMAL_SCALE,
-  }).format(normalizedValue);
+  const formattedValue =
+    new Intl.NumberFormat("en", {
+      maximumFractionDigits:
+        DECIMAL_SCALE,
+    }).format(normalizedValue);
 
-  return unit ? `${formattedValue} ${unit}` : formattedValue;
+  return unit
+    ? `${formattedValue} ${unit}`
+    : formattedValue;
 }
 
 export function buildQuarterlyUpdateSummary({
@@ -104,23 +173,37 @@ export function buildQuarterlyUpdateSummary({
 }: QuarterlyUpdateSummaryInput) {
   const sections = [
     `Accomplishments: ${accomplishmentSummary.trim()}`,
+
     `Blockers/Risks: ${blockerCommentary.trim()}`,
   ];
 
-  const normalizedNotes = notes?.trim();
+  const normalizedNotes =
+    notes?.trim();
 
   if (normalizedNotes) {
-    sections.push(`Notes: ${normalizedNotes}`);
+    sections.push(
+      `Notes: ${normalizedNotes}`,
+    );
   }
 
   return sections.join("\n\n");
 }
 
-export function getLatestCommentary(summary: string) {
-  return summary
-    .split(/\r?\n/)
-    .map((line) =>
-      line.replace(/^(Accomplishments|Blockers\/Risks|Notes):\s*/i, "").trim(),
-    )
-    .find(Boolean) ?? "No commentary provided";
+export function getLatestCommentary(
+  summary: string,
+) {
+  return (
+    summary
+      .split(/\r?\n/)
+      .map((line) =>
+        line
+          .replace(
+            COMMENTARY_PREFIX_PATTERN,
+            "",
+          )
+          .trim(),
+      )
+      .find(Boolean) ??
+    "No commentary provided"
+  );
 }

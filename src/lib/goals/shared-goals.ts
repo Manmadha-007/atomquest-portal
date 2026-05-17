@@ -2,7 +2,6 @@ import {
   GoalStatus,
   Prisma,
   UserRole,
-  type GoalMeasurementType,
   type PrismaClient,
 } from "@prisma/client";
 
@@ -11,84 +10,20 @@ import {
   formatAchievementValue,
 } from "@/lib/goals/quarterly-progress";
 import { prisma } from "@/lib/prisma";
+import type { AppRole } from "@/lib/auth";
+import type {
+  SharedGoalEmployeeOption,
+  SharedGoalPrimaryOption,
+  SharedGoalPropagationStatus,
+  SharedGoalsDashboardData,
+  SharedGoalTableRow,
+} from "@/lib/goals/shared-goal-types";
 import { MAX_TOTAL_GOAL_WEIGHTAGE } from "@/lib/validations/shared-goal";
 
 export type TransactionClient = Omit<
   PrismaClient,
   "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends"
 >;
-
-export type SharedGoalScope = "admin" | "manager";
-
-export type SharedGoalPropagationStatus =
-  | "SYNCED"
-  | "AWAITING_PRIMARY_UPDATE"
-  | "PRIMARY_LOCKED";
-
-export type SharedGoalPrimaryOption = {
-  id: string;
-  title: string;
-  ownerId: string;
-  ownerName: string;
-  ownerMeta: string;
-  department: string | null;
-  measurementType: GoalMeasurementType;
-  status: GoalStatus;
-  progressPercentage: number;
-  progressLabel: string;
-  assignedEmployeeIds: string[];
-};
-
-export type SharedGoalEmployeeOption = {
-  id: string;
-  name: string;
-  email: string;
-  title: string | null;
-  department: string | null;
-  currentWeightage: number;
-  remainingWeightage: number;
-};
-
-export type SharedGoalTableRow = {
-  id: string;
-  parentGoalId: string;
-  title: string;
-  description: string | null;
-  thrustArea: string;
-  measurementType: GoalMeasurementType;
-  weightage: number;
-  status: GoalStatus;
-  progressPercentage: number;
-  achievementValueLabel: string;
-  latestUpdateLabel: string;
-  propagationStatus: SharedGoalPropagationStatus;
-  primaryOwnerName: string;
-  primaryOwnerMeta: string;
-  linkedEmployeeName: string;
-  linkedEmployeeMeta: string;
-  department: string | null;
-  createdByName: string;
-  createdDateLabel: string;
-};
-
-export type SharedGoalsDashboardData = {
-  reviewCycle: {
-    id: string;
-    label: string;
-    startDateLabel: string;
-    endDateLabel: string;
-  } | null;
-  primaryGoalOptions: SharedGoalPrimaryOption[];
-  employeeOptions: SharedGoalEmployeeOption[];
-  rows: SharedGoalTableRow[];
-  metrics: {
-    linkedGoals: number;
-    primaryGoals: number;
-    linkedEmployees: number;
-    syncedGoals: number;
-    availableEmployees: number;
-  };
-};
 
 const personSelect = {
   id: true,
@@ -335,13 +270,13 @@ function mapSharedGoalRow(goal: SharedGoalRowRecord): SharedGoalTableRow | null 
   };
 }
 
-export function canManageSharedGoals(role?: UserRole | null) {
-  return role === UserRole.ADMIN || role === UserRole.MANAGER;
+export function canManageSharedGoals(role?: AppRole | null) {
+  return role === "ADMIN" || role === "MANAGER";
 }
 
 export function buildSharedGoalRecipientWhere(input: {
   actorId: string;
-  actorRole: UserRole;
+  actorRole: AppRole;
   employeeIds?: string[];
 }): Prisma.UserWhereInput {
   const baseWhere: Prisma.UserWhereInput = {
@@ -362,7 +297,7 @@ export function buildSharedGoalRecipientWhere(input: {
 
 export function buildPrimaryGoalWhere(input: {
   actorId: string;
-  actorRole: UserRole;
+  actorRole: AppRole;
   reviewCycleId: string;
 }): Prisma.GoalWhereInput {
   const baseWhere: Prisma.GoalWhereInput = {
@@ -468,7 +403,7 @@ export function getSharedGoalRevalidationPaths() {
 
 async function getSharedGoalRows(input: {
   actorId: string;
-  actorRole: UserRole;
+  actorRole: AppRole;
   reviewCycleId: string;
 }) {
   const where: Prisma.GoalWhereInput = {
@@ -504,7 +439,7 @@ async function getSharedGoalRows(input: {
 
 async function getEmployeeOptions(input: {
   actorId: string;
-  actorRole: UserRole;
+  actorRole: AppRole;
   reviewCycleId: string;
 }) {
   const employees = await prisma.user.findMany({
@@ -538,7 +473,7 @@ async function getEmployeeOptions(input: {
 
 async function getPrimaryGoalOptions(input: {
   actorId: string;
-  actorRole: UserRole;
+  actorRole: AppRole;
   reviewCycleId: string;
 }) {
   const goals = await prisma.goal.findMany({
@@ -552,7 +487,7 @@ async function getPrimaryGoalOptions(input: {
 
 export async function getSharedGoalsDashboard(input: {
   actorId: string;
-  actorRole: UserRole;
+  actorRole: AppRole;
 }): Promise<SharedGoalsDashboardData> {
   if (!canManageSharedGoals(input.actorRole)) {
     return {

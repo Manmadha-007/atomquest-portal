@@ -20,10 +20,10 @@ import {
 import type {
   AnalyticsScope,
   TeamPerformanceDatum,
-} from "@/lib/analytics/dashboard-analytics";
+} from "@/lib/analytics/types";
 
 type TeamPerformanceChartProps = {
-  data: TeamPerformanceDatum[];
+  data: readonly Readonly<TeamPerformanceDatum>[];
   scope: AnalyticsScope;
 };
 

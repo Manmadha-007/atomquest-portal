@@ -1,8 +1,6 @@
 import type { Prisma } from "@prisma/client";
 import { ClipboardList } from "lucide-react";
-import { redirect } from "next/navigation";
 
-import { auth } from "@/auth";
 import { CreateGoalForm } from "@/components/goals/create-goal-form";
 import { EmployeeGoalSummary } from "@/components/goals/employee-goal-summary";
 import {
@@ -16,7 +14,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { getDashboardPathForRole, SIGN_IN_PATH } from "@/lib/auth";
+import { DashboardAuthState } from "@/components/layout/dashboard-auth-state";
+import { getDashboardUser } from "@/lib/auth/session";
 import { calculateGoalProgress } from "@/lib/goals/goal-progress";
 import { prisma } from "@/lib/prisma";
 
@@ -152,13 +151,13 @@ function mapGoalToTableRow(goal: EmployeeGoalRecord): EmployeeGoalTableRow {
 }
 
 export default async function EmployeeDashboardPage() {
-  const session = await auth();
+  const user = await getDashboardUser();
 
-  const userId = session?.user?.id;
-
-  if (!userId) {
-    return null;
+  if (!user || user.role !== "EMPLOYEE") {
+    return <DashboardAuthState requiredRole="EMPLOYEE" userRole={user?.role} />;
   }
+
+  const userId = user.id;
   
   const activeReviewCycle = await prisma.reviewCycle.findFirst({
     where: { isActive: true },
@@ -177,7 +176,7 @@ export default async function EmployeeDashboardPage() {
   const goals = activeReviewCycle
     ? await prisma.goal.findMany({
         where: {
-          ownerId: session.user.id,
+          ownerId: userId,
           reviewCycleId: activeReviewCycle.id,
           isArchived: false,
         },

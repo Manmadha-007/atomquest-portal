@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
-import type { CompletionStatus } from "@/lib/analytics/dashboard-analytics";
+import type { CompletionStatus } from "@/lib/analytics/types";
 import { cn } from "@/lib/utils";
 
 type CompletionStatusBadgeProps = {

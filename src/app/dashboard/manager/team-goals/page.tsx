@@ -2,7 +2,6 @@ import {
   ApprovalDecision,
   GoalStatus,
   QuarterlyStatus,
-  UserRole,
   type Prisma,
 } from "@prisma/client";
 import {
@@ -13,9 +12,7 @@ import {
   GitBranch,
   UsersRound,
 } from "lucide-react";
-import { redirect } from "next/navigation";
 
-import { auth } from "@/auth";
 import {
   ManagerTeamGoalsTable,
   type ManagerTeamGoalApprovalState,
@@ -28,7 +25,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { getDashboardPathForRole, SIGN_IN_PATH } from "@/lib/auth";
+import { DashboardAuthState } from "@/components/layout/dashboard-auth-state";
+import { getDashboardUser } from "@/lib/auth/session";
 import { calculateQuarterlyProgress } from "@/lib/goals/quarterly-progress";
 import { prisma } from "@/lib/prisma";
 
@@ -318,15 +316,13 @@ function mapGoalToTableRow(goal: ManagerTeamGoalRecord): ManagerTeamGoalTableRow
 }
 
 export default async function ManagerTeamGoalsPage() {
-  const session = await auth();
+  const user = await getDashboardUser();
 
-  if (!session?.user?.id) {
-    redirect(`${SIGN_IN_PATH}?callbackUrl=/dashboard/manager/team-goals`);
+  if (!user || user.role !== "MANAGER") {
+    return <DashboardAuthState requiredRole="MANAGER" userRole={user?.role} />;
   }
 
-  if (session.user.role !== UserRole.MANAGER) {
-    redirect(getDashboardPathForRole(session.user.role));
-  }
+  const managerId = user.id;
 
   const activeReviewCycle = await prisma.reviewCycle.findFirst({
     where: { isActive: true },
@@ -347,7 +343,7 @@ export default async function ManagerTeamGoalsPage() {
   const [directReportCount, goals] = await Promise.all([
     prisma.user.count({
       where: {
-        managerId: session.user.id,
+        managerId,
         isActive: true,
       },
     }),
@@ -357,7 +353,7 @@ export default async function ManagerTeamGoalsPage() {
             reviewCycleId: activeReviewCycle.id,
             isArchived: false,
             owner: {
-              managerId: session.user.id,
+              managerId,
               isActive: true,
             },
           },

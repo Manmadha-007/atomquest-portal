@@ -7,13 +7,12 @@ import {
   UsersRound,
   type LucideIcon,
 } from "lucide-react";
-import { redirect } from "next/navigation";
 
-import { auth } from "@/auth";
 import {
   EmployeesTable,
   type EmployeeDirectoryTableRow,
 } from "@/components/admin/employees-table";
+import { DashboardAuthState } from "@/components/layout/dashboard-auth-state";
 import {
   Card,
   CardContent,
@@ -21,9 +20,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import type { CompletionStatus } from "@/lib/analytics/dashboard-analytics";
+import type { CompletionStatus } from "@/lib/analytics/types";
 import { getAdminAnalytics } from "@/lib/analytics/dashboard-analytics";
-import { getDashboardPathForRole, SIGN_IN_PATH } from "@/lib/auth";
+import { getDashboardUser } from "@/lib/auth/session";
 import { calculateGoalProgress } from "@/lib/goals/goal-progress";
 import { prisma } from "@/lib/prisma";
 
@@ -104,12 +103,34 @@ type DirectoryMetric = {
   value: number | string;
 };
 
-function formatDate(value: Date) {
-  return new Intl.DateTimeFormat("en", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  }).format(value);
+function formatDate(
+  value?: Date | string | null,
+) {
+  if (!value) {
+    return "Not set";
+  }
+
+  const parsedDate =
+    value instanceof Date
+      ? value
+      : new Date(value);
+
+  if (
+    Number.isNaN(
+      parsedDate.getTime(),
+    )
+  ) {
+    return "Invalid date";
+  }
+
+  return new Intl.DateTimeFormat(
+    "en",
+    {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    },
+  ).format(parsedDate);
 }
 
 function formatPersonName(person: {
@@ -280,14 +301,10 @@ function buildMetrics(rows: EmployeeDirectoryTableRow[]): DirectoryMetric[] {
 }
 
 export default async function AdminEmployeesPage() {
-  const session = await auth();
+  const user = await getDashboardUser();
 
-  if (!session?.user?.id) {
-    redirect(`${SIGN_IN_PATH}?callbackUrl=/dashboard/admin/employees`);
-  }
-
-  if (session.user.role !== UserRole.ADMIN) {
-    redirect(getDashboardPathForRole(session.user.role));
+  if (!user || user.role !== "ADMIN") {
+    return <DashboardAuthState requiredRole="ADMIN" userRole={user?.role} />;
   }
 
   const analytics = await getAdminAnalytics();

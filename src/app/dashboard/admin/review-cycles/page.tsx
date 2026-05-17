@@ -1,9 +1,8 @@
-import { GoalStatus, UserRole, type Prisma } from "@prisma/client";
+import { GoalStatus, type Prisma } from "@prisma/client";
 import { FileClock, Lock, ShieldCheck } from "lucide-react";
-import { redirect } from "next/navigation";
 
-import { auth } from "@/auth";
 import { GoalLockDialog } from "@/components/admin/goal-lock-dialog";
+import { DashboardAuthState } from "@/components/layout/dashboard-auth-state";
 import { ReviewCycleForm } from "@/components/admin/review-cycle-form";
 import {
   ReviewCyclesTable,
@@ -25,7 +24,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { getDashboardPathForRole, SIGN_IN_PATH } from "@/lib/auth";
+import { getDashboardUser } from "@/lib/auth/session";
 import { prisma } from "@/lib/prisma";
 
 const reviewCycleSelect = {
@@ -126,14 +125,10 @@ function getOwnerName(goal: GovernanceGoalRecord) {
 }
 
 export default async function AdminReviewCyclesPage() {
-  const session = await auth();
+  const user = await getDashboardUser();
 
-  if (!session?.user?.id) {
-    redirect(`${SIGN_IN_PATH}?callbackUrl=/dashboard/admin/review-cycles`);
-  }
-
-  if (session.user.role !== UserRole.ADMIN) {
-    redirect(getDashboardPathForRole(session.user.role));
+  if (!user || user.role !== "ADMIN") {
+    return <DashboardAuthState requiredRole="ADMIN" userRole={user?.role} />;
   }
 
   const [reviewCycles, governanceGoals, activeCycleCount, lockedGoalCount] =

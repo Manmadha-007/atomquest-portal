@@ -1,12 +1,10 @@
 import { BarChart3 } from "lucide-react";
-import { redirect } from "next/navigation";
-import { UserRole } from "@prisma/client";
 
-import { auth } from "@/auth";
 import { AnalyticsOverview } from "@/components/analytics/analytics-overview";
+import { DashboardAuthState } from "@/components/layout/dashboard-auth-state";
 import { ExportActions } from "@/components/reports/export-actions";
 import { getAdminAnalytics } from "@/lib/analytics/dashboard-analytics";
-import { getDashboardPathForRole, SIGN_IN_PATH } from "@/lib/auth";
+import { getDashboardUser } from "@/lib/auth/session";
 
 const adminExportActions = [
   { id: "goals", label: "Goals", href: "/api/exports/goals" },
@@ -18,27 +16,41 @@ const adminExportActions = [
   { id: "audit-logs", label: "Audit logs", href: "/api/exports/audit-logs" },
 ];
 
-function formatDate(value?: Date | null) {
+function formatDate(
+  value?: Date | string | null,
+) {
   if (!value) {
-    return "No date";
+    return "Not set";
   }
 
-  return new Intl.DateTimeFormat("en", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  }).format(value);
+  const parsedDate =
+    value instanceof Date
+      ? value
+      : new Date(value);
+
+  if (
+    Number.isNaN(
+      parsedDate.getTime(),
+    )
+  ) {
+    return "Invalid date";
+  }
+
+  return new Intl.DateTimeFormat(
+    "en",
+    {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    },
+  ).format(parsedDate);
 }
 
 export default async function AdminAnalyticsPage() {
-  const session = await auth();
+  const user = await getDashboardUser();
 
-  if (!session?.user?.id) {
-    redirect(`${SIGN_IN_PATH}?callbackUrl=/dashboard/admin/analytics`);
-  }
-
-  if (session.user.role !== UserRole.ADMIN) {
-    redirect(getDashboardPathForRole(session.user.role));
+  if (!user || user.role !== "ADMIN") {
+    return <DashboardAuthState requiredRole="ADMIN" userRole={user?.role} />;
   }
 
   const analytics = await getAdminAnalytics();

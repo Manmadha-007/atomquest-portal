@@ -30,7 +30,7 @@ import {
 import type {
   SharedGoalEmployeeOption,
   SharedGoalPrimaryOption,
-} from "@/lib/goals/shared-goals";
+} from "@/lib/goals/shared-goal-types";
 
 type SharedGoalDialogProps = {
   primaryGoals: SharedGoalPrimaryOption[];

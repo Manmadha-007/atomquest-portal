@@ -15,7 +15,7 @@ import { TeamPerformanceChart } from "@/components/analytics/team-performance-ch
 import type {
   AnalyticsScope,
   DashboardAnalytics,
-} from "@/lib/analytics/dashboard-analytics";
+} from "@/lib/analytics/types";
 
 type AnalyticsOverviewProps = {
   analytics: DashboardAnalytics;

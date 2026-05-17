@@ -2,7 +2,6 @@ import {
   ApprovalDecision,
   GoalStatus,
   QuarterlyStatus,
-  UserRole,
   type Prisma,
 } from "@prisma/client";
 import {
@@ -14,9 +13,7 @@ import {
   UsersRound,
   type LucideIcon,
 } from "lucide-react";
-import { redirect } from "next/navigation";
 
-import { auth } from "@/auth";
 import { CompletionMonitoringTable } from "@/components/analytics/completion-monitoring-table";
 import { ProgressTrendChart } from "@/components/analytics/progress-trend-chart";
 import {
@@ -41,8 +38,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { DashboardAuthState } from "@/components/layout/dashboard-auth-state";
 import { getManagerAnalytics } from "@/lib/analytics/dashboard-analytics";
-import { getDashboardPathForRole, SIGN_IN_PATH } from "@/lib/auth";
+import { getDashboardUser } from "@/lib/auth/session";
 import { calculateQuarterlyProgress } from "@/lib/goals/quarterly-progress";
 import { prisma } from "@/lib/prisma";
 import { cn } from "@/lib/utils";
@@ -192,16 +190,34 @@ type InsightItem = {
   tone: string;
 };
 
-function formatDate(value?: Date | null) {
+function formatDate(
+  value?: Date | string | null,
+) {
   if (!value) {
-    return "No due date";
+    return "Not set";
   }
 
-  return new Intl.DateTimeFormat("en", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  }).format(value);
+  const parsedDate =
+    value instanceof Date
+      ? value
+      : new Date(value);
+
+  if (
+    Number.isNaN(
+      parsedDate.getTime(),
+    )
+  ) {
+    return "Invalid date";
+  }
+
+  return new Intl.DateTimeFormat(
+    "en",
+    {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    },
+  ).format(parsedDate);
 }
 
 function formatDateTime(value?: Date | null) {
@@ -458,7 +474,11 @@ function isAtRisk(row: TeamProgressTableRow) {
   );
 }
 
-function getTrendMovement(trend: Array<{ averageProgress: number }>) {
+function getTrendMovement(
+  trend: readonly {
+    averageProgress: number;
+  }[],
+) {
   if (trend.length === 0) {
     return "No trend yet";
   }
@@ -687,17 +707,14 @@ function AtRiskInsights({ insights }: { insights: InsightItem[] }) {
 }
 
 export default async function ManagerTeamProgressPage() {
-  const session = await auth();
+  const user = await getDashboardUser();
 
-  if (!session?.user?.id) {
-    redirect(`${SIGN_IN_PATH}?callbackUrl=/dashboard/manager/team-progress`);
+  if (!user || user.role !== "MANAGER") {
+    return <DashboardAuthState requiredRole="MANAGER" userRole={user?.role} />;
   }
 
-  if (session.user.role !== UserRole.MANAGER) {
-    redirect(getDashboardPathForRole(session.user.role));
-  }
-
-  const analytics = await getManagerAnalytics(session.user.id);
+  const managerId = user.id;
+  const analytics = await getManagerAnalytics(managerId);
   const reviewCycle = analytics.reviewCycle;
   const reviewCycleLabel = reviewCycle?.label ?? "No active review cycle";
 
@@ -708,7 +725,7 @@ export default async function ManagerTeamProgressPage() {
             reviewCycleId: reviewCycle.id,
             isArchived: false,
             owner: {
-              managerId: session.user.id,
+              managerId,
               isActive: true,
             },
           },
@@ -727,7 +744,7 @@ export default async function ManagerTeamProgressPage() {
               reviewCycleId: reviewCycle.id,
               isArchived: false,
               owner: {
-                managerId: session.user.id,
+                managerId,
                 isActive: true,
               },
             },

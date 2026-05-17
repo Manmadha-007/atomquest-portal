@@ -1,8 +1,7 @@
-import { GoalStatus, UserRole, type Prisma } from "@prisma/client";
+import { GoalStatus, type Prisma } from "@prisma/client";
 import { Activity, CheckCircle2, ClipboardList, ListChecks } from "lucide-react";
-import { redirect } from "next/navigation";
 
-import { auth } from "@/auth";
+import { DashboardAuthState } from "@/components/layout/dashboard-auth-state";
 import {
   QuarterlyUpdateForm,
   type QuarterlyUpdateGoalOption,
@@ -18,7 +17,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { getDashboardPathForRole, SIGN_IN_PATH } from "@/lib/auth";
+import { getDashboardUser } from "@/lib/auth/session";
 import {
   calculateQuarterlyProgress,
   formatAchievementValue,
@@ -155,15 +154,13 @@ function mapUpdateToTableRow(
 }
 
 export default async function QuarterlyUpdatesPage() {
-  const session = await auth();
+  const user = await getDashboardUser();
 
-  if (!session?.user?.id) {
-    redirect(`${SIGN_IN_PATH}?callbackUrl=/dashboard/employee/quarterly-updates`);
+  if (!user || user.role !== "EMPLOYEE") {
+    return <DashboardAuthState requiredRole="EMPLOYEE" userRole={user?.role} />;
   }
 
-  if (session.user.role !== UserRole.EMPLOYEE) {
-    redirect(getDashboardPathForRole(session.user.role));
-  }
+  const userId = user.id;
 
   const activeReviewCycle = await prisma.reviewCycle.findFirst({
     where: { isActive: true },
@@ -183,7 +180,7 @@ export default async function QuarterlyUpdatesPage() {
     ? await Promise.all([
         prisma.goal.findMany({
           where: {
-            ownerId: session.user.id,
+            ownerId: userId,
             reviewCycleId: activeReviewCycle.id,
             status: GoalStatus.APPROVED,
             isArchived: false,
@@ -194,9 +191,9 @@ export default async function QuarterlyUpdatesPage() {
         }),
         prisma.goalUpdate.findMany({
           where: {
-            createdById: session.user.id,
+            createdById: userId,
             goal: {
-              ownerId: session.user.id,
+              ownerId: userId,
               reviewCycleId: activeReviewCycle.id,
               isArchived: false,
               parentGoalId: null,
