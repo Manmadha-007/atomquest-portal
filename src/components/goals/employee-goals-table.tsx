@@ -14,6 +14,10 @@ import { useTransition } from "react";
 import { toast } from "sonner";
 
 import { submitGoal } from "@/actions/goals/submit-goal";
+import {
+  EditGoalDialog,
+  type EditableGoalData,
+} from "@/components/goals/edit-goal-dialog";
 import { EmployeeGoalStatusBadge } from "@/components/goals/employee-goal-status-badge";
 import { SharedGoalBadge } from "@/components/goals/shared-goal-badge";
 import { Button } from "@/components/ui/button";
@@ -47,6 +51,9 @@ export type EmployeeGoalTableRow = {
   priority: number;
   isSharedGoal: boolean;
   primaryOwnerName: string | null;
+  rejectionComment: string | null;
+  /** Editable field data for the revision dialog */
+  editData: EditableGoalData | null;
 };
 
 type EmployeeGoalsTableProps = {
@@ -171,6 +178,13 @@ const columns: ColumnDef<EmployeeGoalTableRow>[] = [
               Progress synced from {goal.primaryOwnerName}
             </p>
           ) : null}
+          {goal.status === "REJECTED" && goal.rejectionComment ? (
+            <div className="mt-1.5 rounded-md border border-rose-200 bg-rose-50 px-2.5 py-1.5 dark:border-rose-900 dark:bg-rose-950/30">
+              <p className="text-xs font-medium text-rose-700 dark:text-rose-300">
+                Manager feedback: <span className="font-normal">{goal.rejectionComment}</span>
+              </p>
+            </div>
+          ) : null}
         </div>
       );
     },
@@ -266,15 +280,19 @@ const columns: ColumnDef<EmployeeGoalTableRow>[] = [
     header: "Actions",
     cell: ({ row }) => {
       const goal = row.original;
-      const canSubmit = goal.status === "DRAFT" && !goal.isSharedGoal;
+      const canSubmit = (goal.status === "DRAFT" || goal.status === "REJECTED") && !goal.isSharedGoal;
+      const canRevise = goal.editData !== null;
 
       return (
-        <div className="flex min-w-28 justify-end">
+        <div className="flex min-w-36 items-center justify-end gap-2">
+          {canRevise ? (
+            <EditGoalDialog goal={goal.editData!} />
+          ) : null}
           {canSubmit ? (
             <SubmitGoalButton goalId={goal.id} goalTitle={goal.title} />
-          ) : (
+          ) : !canRevise ? (
             <span className="text-xs text-muted-foreground">-</span>
-          )}
+          ) : null}
         </div>
       );
     },

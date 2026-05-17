@@ -70,6 +70,14 @@ const goalSelect = {
       createdAt: true,
     },
   },
+  approvals: {
+    where: { decision: "REJECTED" },
+    orderBy: { decidedAt: "desc" },
+    take: 1,
+    select: {
+      comments: true,
+    },
+  },
 } as const satisfies Prisma.GoalSelect;
 
 type EmployeeGoalRecord = Prisma.GoalGetPayload<{ select: typeof goalSelect }>;
@@ -134,6 +142,15 @@ function mapGoalToTableRow(goal: EmployeeGoalRecord): EmployeeGoalTableRow {
     ? `${goal.parentGoal.owner.firstName} ${goal.parentGoal.owner.lastName}`.trim()
     : null;
 
+  const isEditable =
+    (goal.status === "DRAFT" || goal.status === "REJECTED") &&
+    !goal.parentGoalId &&
+    goal.isPrimaryOwner;
+
+  const rejectionComment = goal.status === "REJECTED"
+    ? (goal.approvals[0]?.comments ?? null)
+    : null;
+
   return {
     id: goal.id,
     title: goal.title,
@@ -147,6 +164,24 @@ function mapGoalToTableRow(goal: EmployeeGoalRecord): EmployeeGoalTableRow {
     priority: goal.priority,
     isSharedGoal: Boolean(goal.parentGoalId) || !goal.isPrimaryOwner,
     primaryOwnerName,
+    rejectionComment,
+    editData: isEditable
+      ? {
+          id: goal.id,
+          title: goal.title,
+          description: goal.description,
+          thrustArea: goal.thrustArea,
+          measurementType: goal.measurementType,
+          startValue: goal.startValue?.toString() ?? "",
+          targetValue: goal.targetValue?.toString() ?? "",
+          weightage: goal.weight,
+          priority: goal.priority,
+          dueDate: goal.timelineTarget
+            ? goal.timelineTarget.toISOString().slice(0, 10)
+            : "",
+          rejectionComment,
+        }
+      : null,
   };
 }
 

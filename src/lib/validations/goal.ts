@@ -147,3 +147,12 @@ export type CreateGoalInput = z.infer<typeof createGoalSchema>;
 export type CreateGoalFieldErrors = Partial<
   Record<keyof CreateGoalInput, string[]>
 >;
+
+export const updateGoalSchema = createGoalSchema.extend({
+  goalId: z.string().uuid("A valid goal is required."),
+});
+
+export type UpdateGoalInput = z.infer<typeof updateGoalSchema>;
+export type UpdateGoalFieldErrors = Partial<
+  Record<keyof UpdateGoalInput, string[]>
+>;

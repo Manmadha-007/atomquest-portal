@@ -200,14 +200,14 @@ export async function submitGoal(
             };
           }
 
-          if (goal.status !== GoalStatus.DRAFT) {
+          if (goal.status !== GoalStatus.DRAFT && goal.status !== GoalStatus.REJECTED) {
             return {
               ok: false,
               message:
-                "Only draft goals can be submitted.",
+                "Only draft or rejected goals can be submitted.",
               fieldErrors: {
                 goalId: [
-                  "Only draft goals can be submitted.",
+                  "Only draft or rejected goals can be submitted.",
                 ],
               },
             };
@@ -291,7 +291,7 @@ export async function submitGoal(
                 reviewCycle:
                   `${activeReviewCycle.name} - Q${activeReviewCycle.quarter} ${activeReviewCycle.year}`,
                 version: goal.version,
-                previousStatus: GoalStatus.DRAFT,
+                previousStatus: goal.status,
                 nextStatus: GoalStatus.SUBMITTED,
                 submittedAt:
                   submittedAt.toISOString(),
