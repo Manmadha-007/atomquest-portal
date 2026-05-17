@@ -121,25 +121,38 @@ export const authConfig = {
 
   callbacks: {
     async jwt({ token, user }) {
-      if (user?.id && isAppRole(user.role)) {
-        token.id = user.id;
-        token.role = user.role;
+      if (user) {
+        token.id =
+          typeof user.id === "string"
+            ? user.id
+            : String(user.id);
+
+        if (
+          typeof user.role === "string" &&
+          isAppRole(user.role)
+        ) {
+          token.role = user.role;
+        }
       }
 
       return token;
     },
 
     async session({ session, token }) {
-      if (
-        !session.user ||
-        typeof token.id !== "string" ||
-        !isAppRole(token.role)
-      ) {
+      if (!session.user) {
         return session;
       }
 
-      session.user.id = token.id;
-      session.user.role = token.role;
+      if (typeof token.id === "string") {
+        session.user.id = token.id;
+      }
+
+      if (
+        typeof token.role === "string" &&
+        isAppRole(token.role)
+      ) {
+        session.user.role = token.role;
+      }
 
       return session;
     },
@@ -160,7 +173,9 @@ export const authConfig = {
       }
 
       try {
-        if (new URL(url).origin === baseUrl) {
+        const parsedUrl = new URL(url);
+
+        if (parsedUrl.origin === baseUrl) {
           return url;
         }
       } catch {
