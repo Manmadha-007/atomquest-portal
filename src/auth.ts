@@ -3,7 +3,7 @@ type AppJWT = JWT & {
   id?: string;
   role?: AppRole;
 };
-import { PrismaAdapter } from "@auth/prisma-adapter";
+
 import { compare } from "bcryptjs";
 import NextAuth, {
   type DefaultSession,
@@ -41,8 +41,6 @@ const credentialsSchema = z.object({
 });
 
 export const authConfig = {
-  adapter: PrismaAdapter(prisma),
-
   session: {
     strategy: "jwt",
   },
@@ -149,7 +147,7 @@ export const authConfig = {
 
       return true;
     },
-    
+
     async jwt({
       token,
       user,
