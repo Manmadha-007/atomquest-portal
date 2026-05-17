@@ -8,7 +8,7 @@ type QuarterlyStatus =
   | "DELAYED";
 import { Loader2, PlusCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useForm, type FieldPath, type Resolver } from "react-hook-form";
+import { useForm, Controller, type FieldPath, type Resolver } from "react-hook-form";
 import { toast } from "sonner";
 
 import { createReviewCycle } from "@/actions/admin/create-review-cycle";
@@ -22,6 +22,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import {
   reviewCycleSchema,
@@ -166,37 +173,63 @@ export function ReviewCycleForm() {
 
             <FieldShell>
               <FieldLabel htmlFor="quarter">Quarter</FieldLabel>
-              <select
-                id="quarter"
-                disabled={isSubmitting}
-                aria-invalid={Boolean(errors.quarter)}
-                className="h-8 w-full rounded-lg border border-input bg-background px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:bg-input/30"
-                {...register("quarter", { valueAsNumber: true })}
-              >
-                {[1, 2, 3, 4].map((quarter) => (
-                  <option key={quarter} value={quarter}>
-                    Q{quarter}
-                  </option>
-                ))}
-              </select>
+              <Controller
+                control={form.control}
+                name="quarter"
+                render={({ field }) => (
+                  <Select
+                    disabled={isSubmitting}
+                    onValueChange={(value) => field.onChange(parseInt(value, 10))}
+                    value={field.value?.toString() ?? ""}
+                  >
+                    <SelectTrigger
+                      id="quarter"
+                      aria-invalid={Boolean(errors.quarter)}
+                      className={errors.quarter ? "border-destructive ring-3 ring-destructive/20" : ""}
+                    >
+                      <SelectValue placeholder="Select quarter" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {[1, 2, 3, 4].map((quarter) => (
+                        <SelectItem key={quarter} value={quarter.toString()}>
+                          Q{quarter}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
               <FieldError message={errors.quarter?.message} />
             </FieldShell>
 
             <FieldShell>
               <FieldLabel htmlFor="status">Status</FieldLabel>
-              <select
-                id="status"
-                disabled={isSubmitting}
-                aria-invalid={Boolean(errors.status)}
-                className="h-8 w-full rounded-lg border border-input bg-background px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:bg-input/30"
-                {...register("status")}
-              >
-                {reviewCycleStatusOptions.map((status) => (
-                  <option key={status} value={status}>
-                    {statusLabels[status]}
-                  </option>
-                ))}
-              </select>
+              <Controller
+                control={form.control}
+                name="status"
+                render={({ field }) => (
+                  <Select
+                    disabled={isSubmitting}
+                    onValueChange={field.onChange}
+                    value={field.value}
+                  >
+                    <SelectTrigger
+                      id="status"
+                      aria-invalid={Boolean(errors.status)}
+                      className={errors.status ? "border-destructive ring-3 ring-destructive/20" : ""}
+                    >
+                      <SelectValue placeholder="Select status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {reviewCycleStatusOptions.map((status) => (
+                        <SelectItem key={status} value={status}>
+                          {statusLabels[status]}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
               <FieldError message={errors.status?.message} />
             </FieldShell>
 

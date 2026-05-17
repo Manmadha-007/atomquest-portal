@@ -5,7 +5,7 @@ import { GitBranch, Loader2, Send, UsersRound } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
-import { useForm, type FieldPath } from "react-hook-form";
+import { useForm, Controller, type FieldPath } from "react-hook-form";
 import { toast } from "sonner";
 
 import { createSharedGoal } from "@/actions/goals/create-shared-goal";
@@ -21,6 +21,13 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import {
   createSharedGoalSchema,
@@ -197,20 +204,32 @@ export function SharedGoalDialog({
 
             <section className="grid gap-3">
               <FieldLabel htmlFor="parentGoalId">Primary KPI</FieldLabel>
-              <select
-                id="parentGoalId"
-                disabled={isSubmitting || !hasPrimaryGoals}
-                aria-invalid={Boolean(errors.parentGoalId)}
-                className="h-8 w-full rounded-lg border border-input bg-background px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:bg-input/30"
-                {...register("parentGoalId")}
-              >
-                <option value="">Select approved primary KPI</option>
-                {primaryGoals.map((goal) => (
-                  <option key={goal.id} value={goal.id}>
-                    {goal.title} - {goal.ownerName}
-                  </option>
-                ))}
-              </select>
+              <Controller
+                control={form.control}
+                name="parentGoalId"
+                render={({ field }) => (
+                  <Select
+                    disabled={isSubmitting || !hasPrimaryGoals}
+                    onValueChange={field.onChange}
+                    value={field.value}
+                  >
+                    <SelectTrigger
+                      id="parentGoalId"
+                      aria-invalid={Boolean(errors.parentGoalId)}
+                      className={errors.parentGoalId ? "border-destructive ring-3 ring-destructive/20" : ""}
+                    >
+                      <SelectValue placeholder="Select approved primary KPI" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {primaryGoals.map((goal) => (
+                        <SelectItem key={goal.id} value={goal.id}>
+                          {goal.title} - {goal.ownerName}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
               <FieldError message={errors.parentGoalId?.message} />
 
               {selectedPrimaryGoal ? (

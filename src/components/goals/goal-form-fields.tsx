@@ -1,9 +1,16 @@
 "use client";
 
 type GoalMeasurementType = "MIN" | "MAX" | "TIMELINE" | "ZERO";
-import { useFormContext } from "react-hook-form";
+import { useFormContext, Controller } from "react-hook-form";
 
 import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -70,6 +77,7 @@ export function GoalFormFields({ disabled = false }: GoalFormFieldsProps) {
   const {
     register,
     watch,
+    control,
     formState: { errors },
   } = useFormContext<CreateGoalInput>();
   const measurementType = watch("measurementType");
@@ -153,21 +161,32 @@ export function GoalFormFields({ disabled = false }: GoalFormFieldsProps) {
         <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
           <FieldShell>
             <FieldLabel htmlFor="measurementType">Measurement type</FieldLabel>
-            <select
-              id="measurementType"
-              disabled={disabled}
-              aria-invalid={Boolean(errors.measurementType)}
-              className="h-8 w-full rounded-lg border border-input bg-background px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:bg-input/30"
-              {...register("measurementType")}
-            >
-              <option value="">Select measurement type</option>
-
-              {goalMeasurementTypeOptions.map((option) => (
-                <option key={option} value={option}>
-                  {measurementLabels[option]}
-                </option>
-              ))}
-            </select>
+            <Controller
+              control={control}
+              name="measurementType"
+              render={({ field }) => (
+                <Select
+                  disabled={disabled}
+                  onValueChange={field.onChange}
+                  value={field.value}
+                >
+                  <SelectTrigger
+                    id="measurementType"
+                    aria-invalid={Boolean(errors.measurementType)}
+                    className={errors.measurementType ? "border-destructive ring-3 ring-destructive/20" : ""}
+                  >
+                    <SelectValue placeholder="Select measurement type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {goalMeasurementTypeOptions.map((option) => (
+                      <SelectItem key={option} value={option}>
+                        {measurementLabels[option]}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
             <p className="text-xs text-muted-foreground">
               {measurementHints[measurementType]}
             </p>
@@ -259,21 +278,32 @@ export function GoalFormFields({ disabled = false }: GoalFormFieldsProps) {
 
           <FieldShell>
             <FieldLabel htmlFor="priority">Priority</FieldLabel>
-            <select
-              id="priority"
-              disabled={disabled}
-              aria-invalid={Boolean(errors.priority)}
-              className="h-8 w-full rounded-lg border border-input bg-background px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:bg-input/30"
-              {...register("priority", { valueAsNumber: true })}
-            >
-              <option value="">Select priority</option>
-
-              {goalPriorityOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.value} - {option.label}
-                </option>
-              ))}
-            </select>
+            <Controller
+              control={control}
+              name="priority"
+              render={({ field }) => (
+                <Select
+                  disabled={disabled}
+                  onValueChange={(value) => field.onChange(parseInt(value, 10))}
+                  value={field.value?.toString() ?? ""}
+                >
+                  <SelectTrigger
+                    id="priority"
+                    aria-invalid={Boolean(errors.priority)}
+                    className={errors.priority ? "border-destructive ring-3 ring-destructive/20" : ""}
+                  >
+                    <SelectValue placeholder="Select priority" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {goalPriorityOptions.map((option) => (
+                      <SelectItem key={option.value} value={option.value.toString()}>
+                        {option.value} - {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
             <FieldError message={errors.priority?.message} />
           </FieldShell>
         </div>

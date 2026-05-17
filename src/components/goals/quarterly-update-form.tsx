@@ -6,7 +6,7 @@ type QuarterlyStatus = "NOT_STARTED" | "ON_TRACK" | "COMPLETED" | "DELAYED";
 import { ClipboardList, Loader2, Save } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useMemo } from "react";
-import { useForm, type FieldPath } from "react-hook-form";
+import { useForm, Controller, type FieldPath } from "react-hook-form";
 import { toast } from "sonner";
 
 import { createQuarterlyUpdate } from "@/actions/goals/create-quarterly-update";
@@ -20,6 +20,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import {
   quarterlyStatusOptions,
@@ -193,25 +200,37 @@ export function QuarterlyUpdateForm({
           <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
             <FieldShell>
               <FieldLabel htmlFor="goalId">Approved goal</FieldLabel>
-              <select
-                id="goalId"
-                disabled={isSubmitting || !hasAvailableGoals}
-                aria-invalid={Boolean(errors.goalId)}
-                className="h-8 w-full rounded-lg border border-input bg-background px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:bg-input/30"
-                {...register("goalId")}
-              >
-                <option value="">Select approved goal</option>
-                {goals.map((goal) => (
-                  <option
-                    key={goal.id}
-                    value={goal.id}
-                    disabled={goal.hasCurrentQuarterUpdate}
+              <Controller
+                control={form.control}
+                name="goalId"
+                render={({ field }) => (
+                  <Select
+                    disabled={isSubmitting || !hasAvailableGoals}
+                    onValueChange={field.onChange}
+                    value={field.value}
                   >
-                    {goal.title}
-                    {goal.hasCurrentQuarterUpdate ? " (updated)" : ""}
-                  </option>
-                ))}
-              </select>
+                    <SelectTrigger
+                      id="goalId"
+                      aria-invalid={Boolean(errors.goalId)}
+                      className={errors.goalId ? "border-destructive ring-3 ring-destructive/20" : ""}
+                    >
+                      <SelectValue placeholder="Select approved goal" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {goals.map((goal) => (
+                        <SelectItem
+                          key={goal.id}
+                          value={goal.id}
+                          disabled={goal.hasCurrentQuarterUpdate}
+                        >
+                          {goal.title}
+                          {goal.hasCurrentQuarterUpdate ? " (updated)" : ""}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
               <FieldError message={errors.goalId?.message} />
             </FieldShell>
 
@@ -255,19 +274,32 @@ export function QuarterlyUpdateForm({
               <FieldLabel htmlFor="quarterlyStatus">
                 Quarterly status
               </FieldLabel>
-              <select
-                id="quarterlyStatus"
-                disabled={isSubmitting || !hasAvailableGoals}
-                aria-invalid={Boolean(errors.quarterlyStatus)}
-                className="h-8 w-full rounded-lg border border-input bg-background px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:bg-input/30"
-                {...register("quarterlyStatus")}
-              >
-                {quarterlyStatusOptions.map((status) => (
-                  <option key={status} value={status}>
-                    {quarterlyStatusLabels[status]}
-                  </option>
-                ))}
-              </select>
+              <Controller
+                control={form.control}
+                name="quarterlyStatus"
+                render={({ field }) => (
+                  <Select
+                    disabled={isSubmitting || !hasAvailableGoals}
+                    onValueChange={field.onChange}
+                    value={field.value}
+                  >
+                    <SelectTrigger
+                      id="quarterlyStatus"
+                      aria-invalid={Boolean(errors.quarterlyStatus)}
+                      className={errors.quarterlyStatus ? "border-destructive ring-3 ring-destructive/20" : ""}
+                    >
+                      <SelectValue placeholder="Select status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {quarterlyStatusOptions.map((status) => (
+                        <SelectItem key={status} value={status}>
+                          {quarterlyStatusLabels[status]}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
               <FieldError message={errors.quarterlyStatus?.message} />
             </FieldShell>
           </div>
