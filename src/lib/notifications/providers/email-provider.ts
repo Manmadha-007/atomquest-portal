@@ -4,10 +4,12 @@ import { resend } from '../email/resend-client';
 import { generateGoalSubmittedEmail } from '../email/templates/goal-submitted';
 import { generateCheckinReminderEmail } from '../email/templates/checkin-reminder';
 import { generateGoalApprovedEmail } from '../email/templates/goal-approved';
+import { generateGoalRejectedEmail } from '../email/templates/goal-rejected';
 
 const SUPPORTED_EVENTS = new Set([
   NotificationEvent.GOAL_SUBMITTED,
   NotificationEvent.GOAL_APPROVED,
+  NotificationEvent.GOAL_REJECTED,
   NotificationEvent.CHECKIN_REMINDER,
 ]);
 
@@ -66,6 +68,15 @@ export class EmailProvider implements NotificationProvider {
           const employeeName = payload.recipient.name || 'Team Member';
           const approverName = payload.actor.name || 'Your manager';
           const generated = generateGoalApprovedEmail({ employeeName, goalTitle, goalId, approverName });
+          subject = generated.subject;
+          html = generated.html;
+          break;
+        }
+        case NotificationEvent.GOAL_REJECTED: {
+          const employeeName = payload.recipient.name || 'Team Member';
+          const reviewerName = payload.actor.name || 'Your manager';
+          const comments = payload.metadata?.comments ? String(payload.metadata.comments) : 'No comments provided.';
+          const generated = generateGoalRejectedEmail({ employeeName, goalTitle, goalId, reviewerName, comments });
           subject = generated.subject;
           html = generated.html;
           break;

@@ -3,10 +3,12 @@ import { NotificationPayload, NotificationEvent } from '../types';
 import { sendTeamsWebhook } from '../teams/teams-client';
 import { generateGoalSubmittedCard } from '../teams/cards/goal-submitted-card';
 import { generateGoalApprovedCard } from '../teams/cards/goal-approved-card';
+import { generateGoalRejectedCard } from '../teams/cards/goal-rejected-card';
 
 const SUPPORTED_EVENTS = new Set([
   NotificationEvent.GOAL_SUBMITTED,
   NotificationEvent.GOAL_APPROVED,
+  NotificationEvent.GOAL_REJECTED,
 ]);
 
 export class TeamsProvider implements NotificationProvider {
@@ -67,6 +69,13 @@ export class TeamsProvider implements NotificationProvider {
           const employeeName = payload.recipient.name || 'Team Member';
           const approverName = payload.actor.name || 'A manager';
           card = generateGoalApprovedCard({ employeeName, goalTitle, goalId, approverName });
+          break;
+        }
+        case NotificationEvent.GOAL_REJECTED: {
+          const employeeName = payload.recipient.name || 'Team Member';
+          const reviewerName = payload.actor.name || 'A manager';
+          const comments = payload.metadata?.comments ? String(payload.metadata.comments) : 'No comments provided.';
+          card = generateGoalRejectedCard({ employeeName, goalTitle, goalId, reviewerName, comments });
           break;
         }
         default:

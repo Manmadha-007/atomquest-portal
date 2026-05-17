@@ -74,7 +74,7 @@ export async function decideGoalApproval(input: {
   goalId: string;
   decision: ApprovalDecisionKind;
   comments: string | null;
-}): Promise<GoalApprovalActionResult & { ownerId?: string; ownerName?: string; ownerEmail?: string; goalId?: string; goalTitle?: string }> {
+}): Promise<GoalApprovalActionResult & { ownerId?: string; ownerName?: string; ownerEmail?: string; goalId?: string; goalTitle?: string; comments?: string | null }> {
   const { tx, managerId, managerRole, goalId, decision, comments } = input;
 
   if (managerRole !== UserRole.MANAGER) {
@@ -193,5 +193,6 @@ export async function decideGoalApproval(input: {
     ownerEmail: goal.owner.email || undefined,
     goalId: goal.id,
     goalTitle: goal.title,
+    comments,
   };
 }
