@@ -1,3 +1,6 @@
+import { buildGoalUrl } from "../../routing";
+import { NotificationEvent } from "../../types";
+
 export interface GoalApprovedCardData {
   employeeName: string;
   goalTitle: string;
@@ -9,8 +12,7 @@ export interface GoalApprovedCardData {
  * Generates a Microsoft Adaptive Card (v1.2) payload for a GOAL_APPROVED event.
  */
 export function generateGoalApprovedCard(data: GoalApprovedCardData): Record<string, unknown> {
-  const appBaseUrl = process.env.APP_BASE_URL || 'http://localhost:3000';
-  const goalUrl = `${appBaseUrl}/dashboard/goals/${data.goalId}`;
+  const goalUrl = buildGoalUrl(data.goalId, NotificationEvent.GOAL_APPROVED);
 
   return {
     type: 'AdaptiveCard',

@@ -1,3 +1,6 @@
+import { buildGoalUrl } from "../../routing";
+import { NotificationEvent } from "../../types";
+
 export interface GoalApprovedTemplateData {
   employeeName: string;
   goalTitle: string;
@@ -6,8 +9,7 @@ export interface GoalApprovedTemplateData {
 }
 
 export function generateGoalApprovedEmail(data: GoalApprovedTemplateData) {
-  const appBaseUrl = process.env.APP_BASE_URL || 'http://localhost:3000';
-  const goalUrl = `${appBaseUrl}/dashboard/goals/${data.goalId}`;
+  const goalUrl = buildGoalUrl(data.goalId, NotificationEvent.GOAL_APPROVED);
 
   const subject = `Your Goal Has Been Approved: "${data.goalTitle}"`;
 

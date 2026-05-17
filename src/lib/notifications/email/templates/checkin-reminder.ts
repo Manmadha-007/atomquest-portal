@@ -1,3 +1,6 @@
+import { buildGoalUrl } from "../../routing";
+import { NotificationEvent } from "../../types";
+
 export interface CheckinReminderTemplateData {
   actorName: string;
   goalTitle: string;
@@ -6,8 +9,7 @@ export interface CheckinReminderTemplateData {
 }
 
 export function generateCheckinReminderEmail(data: CheckinReminderTemplateData) {
-  const appBaseUrl = process.env.APP_BASE_URL || 'http://localhost:3000';
-  const goalUrl = `${appBaseUrl}/dashboard/goals/${data.goalId}`;
+  const goalUrl = buildGoalUrl(data.goalId, NotificationEvent.CHECKIN_REMINDER);
 
   const subject = `Reminder: Quarterly Check-in due for "${data.goalTitle}"`;
 

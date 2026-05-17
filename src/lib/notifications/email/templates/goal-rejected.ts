@@ -1,3 +1,6 @@
+import { buildGoalUrl } from "../../routing";
+import { NotificationEvent } from "../../types";
+
 export interface GoalRejectedTemplateData {
   employeeName: string;
   goalTitle: string;
@@ -7,8 +10,7 @@ export interface GoalRejectedTemplateData {
 }
 
 export function generateGoalRejectedEmail(data: GoalRejectedTemplateData) {
-  const appBaseUrl = process.env.APP_BASE_URL || 'http://localhost:3000';
-  const goalUrl = `${appBaseUrl}/dashboard/goals/${data.goalId}`;
+  const goalUrl = buildGoalUrl(data.goalId, NotificationEvent.GOAL_REJECTED);
 
   const subject = `Action Required: Your Goal Was Returned — "${data.goalTitle}"`;
 

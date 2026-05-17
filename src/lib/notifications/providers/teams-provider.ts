@@ -4,11 +4,13 @@ import { sendTeamsWebhook } from '../teams/teams-client';
 import { generateGoalSubmittedCard } from '../teams/cards/goal-submitted-card';
 import { generateGoalApprovedCard } from '../teams/cards/goal-approved-card';
 import { generateGoalRejectedCard } from '../teams/cards/goal-rejected-card';
+import { generateCheckinReminderCard } from '../teams/cards/checkin-reminder-card';
 
 const SUPPORTED_EVENTS = new Set([
   NotificationEvent.GOAL_SUBMITTED,
   NotificationEvent.GOAL_APPROVED,
   NotificationEvent.GOAL_REJECTED,
+  NotificationEvent.CHECKIN_REMINDER,
 ]);
 
 export class TeamsProvider implements NotificationProvider {
@@ -76,6 +78,11 @@ export class TeamsProvider implements NotificationProvider {
           const reviewerName = payload.actor.name || 'A manager';
           const comments = payload.metadata?.comments ? String(payload.metadata.comments) : 'No comments provided.';
           card = generateGoalRejectedCard({ employeeName, goalTitle, goalId, reviewerName, comments });
+          break;
+        }
+        case NotificationEvent.CHECKIN_REMINDER: {
+          const employeeName = payload.recipient.name || 'Team Member';
+          card = generateCheckinReminderCard({ employeeName, goalTitle, goalId });
           break;
         }
         default:

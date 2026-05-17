@@ -1,3 +1,6 @@
+import { buildGoalUrl } from "../../routing";
+import { NotificationEvent } from "../../types";
+
 export interface GoalSubmittedCardData {
   actorName: string;
   goalTitle: string;
@@ -12,8 +15,7 @@ export interface GoalSubmittedCardData {
  * Adaptive Card Designer tool and some webhook endpoints reject it.
  */
 export function generateGoalSubmittedCard(data: GoalSubmittedCardData): Record<string, unknown> {
-  const appBaseUrl = process.env.APP_BASE_URL || 'http://localhost:3000';
-  const goalUrl = `${appBaseUrl}/dashboard/goals/${data.goalId}`;
+  const goalUrl = buildGoalUrl(data.goalId, NotificationEvent.GOAL_SUBMITTED);
 
   return {
     type: 'AdaptiveCard',

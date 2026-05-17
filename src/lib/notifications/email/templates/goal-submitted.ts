@@ -1,3 +1,6 @@
+import { buildGoalUrl } from "../../routing";
+import { NotificationEvent } from "../../types";
+
 export interface GoalSubmittedTemplateData {
   actorName: string;
   goalTitle: string;
@@ -5,8 +8,7 @@ export interface GoalSubmittedTemplateData {
 }
 
 export function generateGoalSubmittedEmail(data: GoalSubmittedTemplateData) {
-  const appBaseUrl = process.env.APP_BASE_URL || 'http://localhost:3000';
-  const goalUrl = `${appBaseUrl}/dashboard/goals/${data.goalId}`;
+  const goalUrl = buildGoalUrl(data.goalId, NotificationEvent.GOAL_SUBMITTED);
 
   const subject = `Action Required: New Goal Submitted by ${data.actorName}`;
 

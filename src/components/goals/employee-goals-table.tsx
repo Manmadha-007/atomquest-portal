@@ -378,7 +378,11 @@ export function EmployeeGoalsTable({
               </TableHeader>
               <TableBody>
                 {table.getRowModel().rows.map((row) => (
-                  <TableRow key={row.id} className="hover:bg-muted/30">
+                  <TableRow
+                    key={row.id}
+                    id={`goal-${row.original.id}`}
+                    className="hover:bg-muted/30"
+                  >
                     {row.getVisibleCells().map((cell) => {
                       const meta = getColumnMeta(cell.column.columnDef);
 
