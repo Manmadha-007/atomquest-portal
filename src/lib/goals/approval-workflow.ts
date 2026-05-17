@@ -74,7 +74,7 @@ export async function decideGoalApproval(input: {
   goalId: string;
   decision: ApprovalDecisionKind;
   comments: string | null;
-}): Promise<GoalApprovalActionResult & { ownerId?: string }> {
+}): Promise<GoalApprovalActionResult & { ownerId?: string; ownerName?: string; ownerEmail?: string; goalId?: string; goalTitle?: string }> {
   const { tx, managerId, managerRole, goalId, decision, comments } = input;
 
   if (managerRole !== UserRole.MANAGER) {
@@ -99,6 +99,7 @@ export async function decideGoalApproval(input: {
           id: true,
           firstName: true,
           lastName: true,
+          email: true,
           managerId: true,
           isActive: true,
         },
@@ -188,5 +189,9 @@ export async function decideGoalApproval(input: {
     message: getSuccessMessage(decision),
     approvalId: approval.id,
     ownerId: goal.ownerId,
+    ownerName: `${goal.owner.firstName} ${goal.owner.lastName}`.trim(),
+    ownerEmail: goal.owner.email || undefined,
+    goalId: goal.id,
+    goalTitle: goal.title,
   };
 }

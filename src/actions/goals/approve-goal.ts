@@ -15,6 +15,7 @@ import {
   getApprovalRevalidationPaths,
 } from "@/lib/goals/approval-workflow";
 import { prisma } from "@/lib/prisma";
+import { notify, NotificationEvent } from "@/lib/notifications";
 
 export async function approveGoal(
   input: ApprovalCommentInput,
@@ -57,6 +58,33 @@ export async function approveGoal(
     if (result.ok && result.ownerId) {
       for (const path of getApprovalRevalidationPaths(result.ownerId)) {
         revalidatePath(path);
+      }
+
+      // Send GOAL_APPROVED notification to the employee
+      if (result.ownerEmail) {
+        try {
+          await notify({
+            event: NotificationEvent.GOAL_APPROVED,
+            actor: {
+              id: session.user.id,
+              name: session.user.name || undefined,
+              email: session.user.email || undefined,
+            },
+            recipient: {
+              id: result.ownerId,
+              name: result.ownerName,
+              email: result.ownerEmail,
+            },
+            metadata: {
+              goalId: result.goalId,
+              goalTitle: result.goalTitle,
+            },
+          });
+        } catch (err) {
+          console.error("Failed to send GOAL_APPROVED notification:", err);
+        }
+      } else {
+        console.warn("Skipping GOAL_APPROVED notification: employee email is missing.");
       }
     }
 

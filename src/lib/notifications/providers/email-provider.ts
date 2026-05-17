@@ -3,6 +3,13 @@ import { NotificationPayload, NotificationEvent } from '../types';
 import { resend } from '../email/resend-client';
 import { generateGoalSubmittedEmail } from '../email/templates/goal-submitted';
 import { generateCheckinReminderEmail } from '../email/templates/checkin-reminder';
+import { generateGoalApprovedEmail } from '../email/templates/goal-approved';
+
+const SUPPORTED_EVENTS = new Set([
+  NotificationEvent.GOAL_SUBMITTED,
+  NotificationEvent.GOAL_APPROVED,
+  NotificationEvent.CHECKIN_REMINDER,
+]);
 
 export class EmailProvider implements NotificationProvider {
   name = 'Email';
@@ -23,10 +30,7 @@ export class EmailProvider implements NotificationProvider {
     });
 
     try {
-      if (
-        payload.event !== NotificationEvent.GOAL_SUBMITTED &&
-        payload.event !== NotificationEvent.CHECKIN_REMINDER
-      ) {
+      if (!SUPPORTED_EVENTS.has(payload.event)) {
         return createResult('skipped', 'Unsupported event');
       }
 
@@ -50,22 +54,46 @@ export class EmailProvider implements NotificationProvider {
       let subject: string;
       let html: string;
 
-      if (payload.event === NotificationEvent.GOAL_SUBMITTED) {
-        const actorName = payload.actor.name || 'A team member';
-        const generated = generateGoalSubmittedEmail({ actorName, goalTitle, goalId });
-        subject = generated.subject;
-        html = generated.html;
-      } else {
-        const actorName = payload.recipient.name || 'Team Member';
-        const message = payload.metadata?.message ? String(payload.metadata.message) : undefined;
-        const generated = generateCheckinReminderEmail({ actorName, goalTitle, goalId, message });
-        subject = generated.subject;
-        html = generated.html;
+      switch (payload.event) {
+        case NotificationEvent.GOAL_SUBMITTED: {
+          const actorName = payload.actor.name || 'A team member';
+          const generated = generateGoalSubmittedEmail({ actorName, goalTitle, goalId });
+          subject = generated.subject;
+          html = generated.html;
+          break;
+        }
+        case NotificationEvent.GOAL_APPROVED: {
+          const employeeName = payload.recipient.name || 'Team Member';
+          const approverName = payload.actor.name || 'Your manager';
+          const generated = generateGoalApprovedEmail({ employeeName, goalTitle, goalId, approverName });
+          subject = generated.subject;
+          html = generated.html;
+          break;
+        }
+        case NotificationEvent.CHECKIN_REMINDER: {
+          const actorName = payload.recipient.name || 'Team Member';
+          const message = payload.metadata?.message ? String(payload.metadata.message) : undefined;
+          const generated = generateCheckinReminderEmail({ actorName, goalTitle, goalId, message });
+          subject = generated.subject;
+          html = generated.html;
+          break;
+        }
+        default:
+          return createResult('skipped', 'Unsupported event');
+      }
+
+      // Demo/sandbox override: route all outbound emails to a single verified inbox
+      // while preserving the logical recipient identity in templates and logs.
+      const emailOverride = process.env.NOTIFICATION_EMAIL_OVERRIDE;
+      const transportDestination = emailOverride || recipientEmail;
+
+      if (emailOverride) {
+        console.log(`[Provider: Email] Override active — logical recipient: ${recipientEmail}, transport destination: ${emailOverride}`);
       }
 
       const { error } = await resend.emails.send({
         from: emailFrom,
-        to: [recipientEmail],
+        to: [transportDestination],
         subject,
         html,
       });
@@ -74,7 +102,7 @@ export class EmailProvider implements NotificationProvider {
         return createResult('failed', error.message || 'Resend API error', recipientEmail);
       }
 
-      return createResult('success', undefined, recipientEmail);
+      return createResult('success', undefined, `${recipientEmail}${emailOverride ? ` → ${emailOverride}` : ''}`);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
       return createResult('failed', errorMessage, payload.recipient.email);
