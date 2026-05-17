@@ -127,6 +127,29 @@ export const authConfig = {
   ],
 
   callbacks: {
+    async signIn({ user, account }) {
+      if (account?.provider === "microsoft-entra-id") {
+        if (!user.email) {
+          return false;
+        }
+
+        const existingUser =
+          await prisma.user.findUnique({
+            where: {
+              email: user.email.toLowerCase(),
+            },
+            select: {
+              id: true,
+              isActive: true,
+            },
+          });
+
+        return !!existingUser?.isActive;
+      }
+
+      return true;
+    },
+    
     async jwt({
       token,
       user,
