@@ -137,10 +137,10 @@ export default async function SignInPage({
         <div className="absolute left-4 top-4 z-10 sm:left-6 lg:left-8">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 rounded-md px-2 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
+            className="inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-border/40 bg-background/95 px-3 text-sm font-medium text-muted-foreground shadow-md shadow-slate-900/5 backdrop-blur-sm transition-colors hover:bg-muted/80 hover:text-foreground"
           >
             <ArrowLeft className="size-4" aria-hidden="true" />
-            Back to Platform
+            <span>Back to Platform</span>
           </Link>
         </div>
 
