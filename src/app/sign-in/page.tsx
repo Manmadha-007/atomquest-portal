@@ -133,45 +133,17 @@ export default async function SignInPage({
     <main className="relative isolate min-h-svh overflow-hidden bg-[linear-gradient(180deg,#fafafa_0%,#ffffff_58%,#f8fafc_100%)] text-foreground">
       <InteractiveGrid />
 
-      <header className="fixed inset-x-0 top-0 z-50 border-b border-border/40 bg-background/60 backdrop-blur-md">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto flex min-h-svh w-full max-w-7xl flex-col px-4 py-6 sm:px-6 lg:px-8">
+        <div className="flex justify-start">
           <Link
             href="/"
-            className="flex items-center gap-3"
+            className="inline-flex items-center gap-2 rounded-md px-2 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
           >
-            <span className="flex size-9 items-center justify-center rounded-lg bg-foreground text-sm font-semibold text-background shadow-sm">
-              AQ
-            </span>
-
-            <span className="grid">
-              <span className="text-sm font-semibold leading-5">
-                AtomQuest
-              </span>
-
-              <span className="text-xs text-muted-foreground">
-                Goal Operations
-              </span>
-            </span>
+            <ArrowLeft className="size-4" aria-hidden="true" />
+            Back to Platform
           </Link>
-
-          <Button
-            asChild
-            variant="outline"
-            size="sm"
-            className="bg-background/80"
-          >
-            <Link href="/">
-              <ArrowLeft
-                className="size-3.5"
-                aria-hidden="true"
-              />
-              Platform
-            </Link>
-          </Button>
         </div>
-      </header>
 
-      <div className="mx-auto flex min-h-svh w-full max-w-7xl flex-col px-4 pt-20 sm:px-6 lg:px-8">
         <div className="grid flex-1 gap-8 py-4 lg:grid-cols-[1.02fr_0.98fr] lg:items-center lg:gap-12 lg:py-6">
           <LoginShowcase />
 
