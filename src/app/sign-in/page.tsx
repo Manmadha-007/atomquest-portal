@@ -134,7 +134,7 @@ export default async function SignInPage({
       <InteractiveGrid />
 
       <div className="mx-auto flex min-h-svh w-full max-w-7xl flex-col px-4 py-6 sm:px-6 lg:px-8">
-        <div className="flex justify-start">
+        <div className="absolute left-4 top-6 z-10 sm:left-6 lg:left-8">
           <Link
             href="/"
             className="inline-flex items-center gap-2 rounded-md px-2 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
