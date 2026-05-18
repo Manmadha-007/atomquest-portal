@@ -1,4 +1,4 @@
-# atomquest-portal
+# AtomQuest Portal
 
 <p align="center">
   <img
@@ -8,20 +8,282 @@
   />
 </p>
 
-## Overview
+<p align="center">
 
-AtomQuest Portal is a role-based goal operations platform for quarterly planning, execution tracking, governance, and review-cycle management. Employees create and track goals, managers review team execution and approvals, and administrators oversee governance workflows, reporting, shared goals, audit visibility, and operational readiness.
+![Next.js](https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js)
+![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react)
+![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue?style=for-the-badge&logo=typescript)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-336791?style=for-the-badge&logo=postgresql)
+![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748?style=for-the-badge&logo=prisma)
+![Auth.js](https://img.shields.io/badge/Auth.js-v5-black?style=for-the-badge)
+![License](https://img.shields.io/badge/License-MIT-purple?style=for-the-badge)
 
-The platform is built with Next.js App Router, Auth.js, Prisma, PostgreSQL, and feature-scoped workflow modules supporting notifications, exports, analytics, and escalation evaluation.
+</p>
 
 ---
 
-## Quick Start
+# Overview
+
+AtomQuest Portal is a role-based enterprise goal operations and governance platform designed for quarterly planning, execution tracking, accountability workflows, escalation lifecycle management, and operational visibility.
+
+The platform enables:
+
+- employees to create and track goals,
+- managers to review execution and approvals,
+- administrators to oversee governance workflows, escalations, analytics, and operational health.
+
+AtomQuest combines deterministic governance workflows, audit visibility, notification orchestration, review-cycle management, and escalation lifecycle tracking into a single operational platform.
+
+Built with:
+
+- Next.js App Router
+- Auth.js
+- Prisma ORM
+- PostgreSQL
+- TypeScript
+- Tailwind CSS
+- Feature-scoped governance modules
+
+---
+
+# Feature Highlights
+
+## Core Platform Features
+
+- Role-based enterprise dashboards
+- Goal lifecycle management
+- Quarterly review cycles
+- Manager approval workflows
+- Governance escalation engine
+- Deterministic rule evaluation
+- Notification orchestration
+- Governance analytics dashboards
+- Operational execution tracking
+- Lifecycle auditability
+- Microsoft Teams integration
+- Email reminder infrastructure
+- Execution duplicate suppression
+- Governance operations console
+
+---
+
+# Why AtomQuest Exists
+
+Traditional performance management platforms often struggle with:
+
+- weak operational accountability,
+- delayed approvals,
+- missing quarterly check-ins,
+- fragmented reporting,
+- poor governance visibility,
+- shallow auditability.
+
+AtomQuest was built to solve those operational gaps through:
+
+- structured goal lifecycle workflows,
+- deterministic escalation evaluation,
+- governance execution tracking,
+- lifecycle auditability,
+- analytics-driven visibility,
+- operationally realistic accountability systems.
+
+The platform is intentionally designed to behave like enterprise governance middleware rather than a simple dashboard application.
+
+---
+
+# Governance Design Principles
+
+AtomQuest follows several core architectural principles.
+
+---
+
+## Deterministic Governance
+
+Governance behavior should remain predictable and explainable.
+
+Escalation evaluation uses:
+
+- strongly typed rules,
+- deterministic evaluators,
+- explicit lifecycle transitions,
+- idempotent execution behavior.
+
+---
+
+## Auditability
+
+Operationally important actions should remain traceable.
+
+The platform preserves:
+
+- escalation execution history,
+- lifecycle ownership,
+- notification delivery tracking,
+- governance analytics,
+- workflow audit visibility.
+
+---
+
+## Operational Realism
+
+The platform models how enterprise organizations actually manage:
+
+- quarterly planning,
+- approvals,
+- accountability,
+- escalations,
+- governance reporting.
+
+---
+
+## Separation of Concerns
+
+Evaluation, orchestration, delivery, lifecycle management, and analytics remain isolated layers.
+
+This avoids:
+
+- workflow-engine complexity,
+- tightly coupled automation,
+- governance instability.
+
+---
+
+## Duplicate Suppression
+
+Repeated governance execution must not generate:
+
+- duplicate escalations,
+- duplicate notifications,
+- duplicate lifecycle artifacts.
+
+AtomQuest includes deterministic duplicate suppression throughout governance execution.
+
+---
+
+# Governance Escalation Lifecycle
+
+AtomQuest includes a complete escalation governance lifecycle:
+
+```text
+Violation
+→ Rule Evaluation
+→ Escalation Creation
+→ Notification Delivery
+→ Execution Tracking
+→ Resolution Workflow
+→ Analytics Visibility
+```
+
+The governance flow is intentionally:
+
+- deterministic,
+- auditable,
+- operationally realistic,
+- role-aware.
+
+---
+
+# Governance Execution Flow
+
+## 1. Rule Evaluation
+
+Governance evaluators inspect operational workflow state.
+
+Examples include:
+
+- goals not submitted,
+- approvals pending too long,
+- missed quarterly check-ins.
+
+---
+
+## 2. Escalation Creation
+
+Detected governance violations generate:
+
+- escalation logs,
+- lifecycle metadata,
+- escalation ownership,
+- audit-ready governance records.
+
+---
+
+## 3. Notification Orchestration
+
+Escalation notifications are delivered through:
+
+- email,
+- Microsoft Teams.
+
+Delivery tracking and duplicate suppression remain preserved.
+
+---
+
+## 4. Execution Tracking
+
+Governance runs generate execution history including:
+
+- trigger source,
+- execution status,
+- notification metrics,
+- duplicate metrics,
+- lifecycle statistics.
+
+---
+
+## 5. Lifecycle Resolution
+
+Escalations can be:
+
+- resolved,
+- dismissed,
+- reviewed operationally.
+
+Lifecycle ownership and timestamps remain auditable.
+
+---
+
+## 6. Governance Analytics
+
+Governance analytics provide visibility into:
+
+- open escalations,
+- lifecycle health,
+- execution reliability,
+- accountability metrics,
+- governance workload trends.
+
+---
+
+# Quick Start
+
+## Install Dependencies
 
 ```bash
 npm install
+```
+
+---
+
+## Apply Prisma Migrations
+
+```bash
 npx prisma migrate dev
+```
+
+---
+
+## Seed Demo Data
+
+```bash
 npx prisma db seed
+```
+
+---
+
+## Start Development Server
+
+```bash
 npm run dev
 ```
 
@@ -33,20 +295,20 @@ http://localhost:3000
 
 ---
 
-## Demo Credentials
+# Demo Credentials
 
-After running:
+After seeding:
 
 ```bash
 npx prisma db seed
 ```
 
-Use the following seeded demo accounts:
+Use the following demo accounts:
 
-| Role | Email |
-| --- | --- |
-| Admin | `atomquest.admin.demo@gmail.com` |
-| Manager | `atomquest.manager.demo@gmail.com` |
+| Role     | Email                              |
+|----------|------------------------------------|
+| Admin    | `atomquest.admin.demo@gmail.com` |
+| Manager  | `atomquest.manager.demo@gmail.com` |
 | Employee | `atomquest.employee.demo@gmail.com` |
 
 Password:
@@ -57,231 +319,324 @@ Password@123
 
 ---
 
-## Key Features
+# Key Features
 
-### Role-Aware Authentication & Access Control
+# Authentication & RBAC
 
-- Auth.js / NextAuth v5 authentication.
-- Credentials login and Microsoft Entra ID provider support.
-- Role-based dashboard routing using `src/proxy.ts`.
-- Dashboard isolation for:
-  - `ADMIN`
-  - `MANAGER`
-  - `EMPLOYEE`
-- Existing Microsoft accounts must match active local database users.
+- Auth.js / NextAuth v5 authentication
+- Microsoft Entra ID integration
+- Credentials authentication
+- Role-aware routing
+- Session-based access control
+- Protected dashboard isolation
 
-### Employee Workflows
+Supported roles:
 
-- Create and edit draft goals.
-- Submit goals for manager approval.
-- Track:
-  - approval state
-  - progress
-  - overdue status
-  - shared-goal participation
-  - activity history
-  - manager feedback
-- Submit quarterly updates for approved goals.
-
-### Manager Workflows
-
-- Review direct-report goals.
-- Approve or reject submissions with comments.
-- Monitor:
-  - team progress
-  - overdue exposure
-  - approval readiness
-  - quarterly update recency
-- Propagate approved goals to direct reports as shared goals.
-- Export direct-report reports and update summaries.
-
-### Administrative Governance
-
-- Manage quarterly review cycles.
-- Lock and unlock approved goals.
-- Monitor workforce visibility and role coverage.
-- Review audit logs and shared-goal activity.
-- Export:
-  - goals
-  - quarterly updates
-  - audit logs
-  - governance reports
-
-### Notifications & Reminder Support
-
-- Notification orchestrator with:
-  - Resend email delivery
-  - Microsoft Teams webhook delivery
-- Supported notification events:
-  - goal submitted
-  - goal approved
-  - goal rejected
-  - check-in reminder
-- Scheduled reminder endpoint:
-
-```text
-GET /api/cron/reminders/checkin
-```
-
-### Escalation Evaluation Framework
-
-- Feature-scoped escalation evaluator modules.
-- Rule-based operational governance checks.
-- Tracks unresolved workflow conditions and escalation states.
-- Current implementation provides deterministic evaluation modules without automated scheduler orchestration.
+- ADMIN
+- MANAGER
+- EMPLOYEE
 
 ---
 
-## Tech Stack
+# Goal Lifecycle Workflows
 
-### Frontend
+Employees can:
 
-- Next.js 16.2.6 App Router
+- create draft goals,
+- edit goals,
+- submit goals,
+- track progress,
+- submit quarterly updates,
+- monitor approval state.
+
+Managers can:
+
+- review direct-report goals,
+- approve or reject submissions,
+- monitor operational execution,
+- track overdue goals,
+- manage shared goals.
+
+Administrators can:
+
+- manage review cycles,
+- oversee governance visibility,
+- review operational analytics,
+- export governance data,
+- manage platform operations.
+
+---
+
+# Review Cycle Management
+
+The platform supports:
+
+- active review cycles,
+- quarterly governance windows,
+- operational planning periods,
+- approval enforcement,
+- review-cycle analytics.
+
+---
+
+# Notifications & Reminder Orchestration
+
+Notification infrastructure supports:
+
+- email delivery,
+- Microsoft Teams delivery,
+- deep-link navigation,
+- governance escalation notifications,
+- quarterly reminder workflows.
+
+Supported notification events:
+
+- goal submitted,
+- goal approved,
+- goal rejected,
+- check-in reminder,
+- escalation opened.
+
+---
+
+# Escalation Governance Engine
+
+AtomQuest includes a feature-scoped governance escalation platform.
+
+Capabilities include:
+
+- rule-based evaluation,
+- deterministic escalation generation,
+- duplicate suppression,
+- lifecycle tracking,
+- execution orchestration,
+- delivery tracking,
+- scheduler execution,
+- governance analytics,
+- role-aware governance operations.
+
+---
+
+# Governance Operations Console
+
+The governance console provides:
+
+- escalation visibility,
+- execution history,
+- lifecycle management,
+- scheduler controls,
+- analytics dashboards,
+- governance metrics,
+- operational monitoring.
+
+Role-aware governance routes:
+
+- `/dashboard/admin/governance`
+- `/dashboard/manager/governance`
+
+---
+
+# Tech Stack
+
+## Frontend
+
+- Next.js 16 App Router
 - React 19
-- TypeScript 5
-- Tailwind CSS 4
-- shadcn/ui + Radix UI
-- lucide-react
-- Sonner
+- TypeScript
+- Tailwind CSS
+- shadcn/ui
+- Radix UI
 - Recharts
-- @tanstack/react-table
 - React Hook Form
 - Zod
 
-### Backend
+---
 
-- Next.js Server Components
+## Backend
+
+- Next.js Route Handlers
 - Server Actions
-- Route Handlers
-- Proxy middleware
 - Auth.js / NextAuth v5
-- JWT sessions
-- ExcelJS
+- JWT Sessions
 
-### Database
+---
+
+## Database
 
 - PostgreSQL
 - Prisma ORM
-- `@prisma/adapter-pg`
-- `pg`
+- Prisma Adapter PG
 
-### Authentication
+---
 
-- Credentials provider
-- bcryptjs password verification
-- Microsoft Entra ID provider
+## Integrations
 
-### Integrations
+- Microsoft Entra ID
+- Resend Email
+- Microsoft Teams Webhooks
 
-- Resend email provider
-- Microsoft Teams incoming webhooks
+---
 
-### Tooling
+## Tooling
 
-- npm
-- ESLint 9
+- ESLint
 - Prisma CLI
 - tsx
+- npm
 
 ---
 
-## Architecture
+# Architecture
 
-![AtomQuest High-Level Architecture](docs/architecture/atomquest-high-level-architecture.png)
-
-### System Overview
-
-- Next.js App Router powers role-specific dashboard experiences for employees, managers, and administrators.
-- Auth.js and `src/proxy.ts` enforce authentication, authorization, and dashboard routing.
-- Prisma and PostgreSQL manage workflow entities including goals, review cycles, approvals, updates, audit logs, and escalation records.
-- Notification orchestration supports Resend email delivery and Microsoft Teams webhook integrations.
-- Feature-scoped escalation evaluators provide rule-based operational governance checks for overdue workflow conditions.
-
-### Core Runtime Layers
-
-| Layer | Responsibility |
-| --- | --- |
-| Presentation Layer | App Router pages, dashboards, UI components |
-| Authentication Layer | Auth.js sessions, route protection, role routing |
-| Workflow Layer | Goal lifecycle, approvals, updates, governance |
-| Escalation Layer | Rule-based evaluation and escalation logic |
-| Notification Layer | Email and Teams notification dispatch |
-| Persistence Layer | Prisma ORM + PostgreSQL |
+<p align="center">
+  <img
+    src="docs/architecture/atomquest-high-level-architecture.png"
+    alt="AtomQuest High-Level Architecture"
+    width="100%"
+  />
+</p>
 
 ---
 
-## Repository Structure
+# System Overview
+
+## Presentation Layer
+
+- Next.js App Router dashboards
+- Governance console
+- Analytics visualizations
+- Role-aware operational UI
+
+---
+
+## Authentication Layer
+
+- Auth.js session management
+- RBAC enforcement
+- Dashboard route isolation
+- Microsoft Entra integration
+
+---
+
+## Workflow Layer
+
+- goal lifecycle workflows,
+- approvals,
+- quarterly updates,
+- review cycles,
+- shared goals,
+- audit logging.
+
+---
+
+## Governance Layer
+
+- escalation evaluators,
+- orchestration services,
+- execution tracking,
+- lifecycle resolution,
+- duplicate suppression,
+- scheduler execution.
+
+---
+
+## Notification Layer
+
+- email delivery,
+- Teams delivery,
+- delivery tracking,
+- deep-link routing.
+
+---
+
+## Analytics Layer
+
+- governance metrics,
+- escalation visibility,
+- execution health,
+- accountability reporting.
+
+---
+
+## Persistence Layer
+
+- PostgreSQL database,
+- Prisma ORM,
+- governance audit storage,
+- execution persistence.
+
+---
+
+# Repository Structure
 
 ```text
 .
 |-- docs/
-|   `-- architecture/                # Architecture assets and diagrams
+|   `-- architecture/
 |
 |-- prisma/
-|   |-- migrations/                  # Prisma migration history
-|   |-- seed-data/                   # Seed modules
-|   |-- schema.prisma                # PostgreSQL data model
-|   `-- seed.ts                      # Demo seed entry point
+|   |-- migrations/
+|   |-- seed-data/
+|   |-- schema.prisma
+|   `-- seed.ts
 |
-|-- public/                          # Static assets
+|-- public/
 |
 |-- src/
-|   |-- actions/                     # Server actions by workflow area
-|   |-- app/                         # Next.js App Router routes
-|   |-- components/                  # Shared UI and dashboard components
-|   |-- features/                    # Feature-scoped modules
-|   |-- hooks/                       # Shared hooks
-|   |-- lib/                         # Core domain logic and utilities
-|   |-- auth.ts                      # Auth.js configuration
-|   `-- proxy.ts                     # Role-aware dashboard proxy
+|   |-- actions/
+|   |-- app/
+|   |-- components/
+|   |-- features/
+|   |-- hooks/
+|   |-- lib/
+|   |-- auth.ts
+|   `-- proxy.ts
 |
-|-- AGENTS.md                        # Repository instructions
-|-- components.json                  # shadcn configuration
-|-- next.config.ts                   # Next.js configuration
-|-- package.json                     # Dependencies and scripts
-|-- prisma.config.ts                 # Prisma CLI configuration
-`-- tsconfig.json                    # TypeScript configuration
+|-- AGENTS.md
+|-- components.json
+|-- next.config.ts
+|-- package.json
+|-- prisma.config.ts
+`-- tsconfig.json
 ```
 
 ---
 
-## Prerequisites
+# Prerequisites
 
-- Node.js 20.9 or newer
+- Node.js 20+
 - npm
 - PostgreSQL database
-- Microsoft Entra ID credentials (optional for Microsoft login)
-- Optional notification provider credentials:
-  - Resend API key
-  - Microsoft Teams webhook URL
+
+Optional:
+
+- Microsoft Entra credentials
+- Resend API key
+- Microsoft Teams webhook URL
 
 ---
 
-## Local Development Setup
+# Local Development Setup
 
-### 1. Install Dependencies
+## Install Dependencies
 
 ```bash
 npm install
 ```
 
-`postinstall` automatically runs:
+---
 
-```bash
-prisma generate
+## Configure Environment Variables
+
+Create:
+
+```text
+.env
 ```
 
 ---
 
-### 2. Configure Environment Variables
-
-Create a root `.env` file.
-
-See the Environment Variables section below.
-
----
-
-### 3. Apply Prisma Migrations
+## Run Migrations
 
 ```bash
 npx prisma migrate dev
@@ -289,186 +644,148 @@ npx prisma migrate dev
 
 ---
 
-### 4. Seed Demo Data (Optional)
+## Seed Demo Data
 
 ```bash
 npx prisma db seed
 ```
 
-The seed includes:
-- demo users
-- review cycles
-- goals
-- approvals
-- quarterly updates
-- shared-goal groups
-- escalation governance records
-- audit logs
-
 ---
 
-### 5. Start Development Server
+## Start Application
 
 ```bash
 npm run dev
 ```
 
-Application URL:
+---
 
-```text
-http://localhost:3000
-```
+# Environment Variables
+
+| Variable | Purpose |
+|---|---|
+| `DATABASE_URL` | PostgreSQL runtime connection |
+| `DIRECT_URL` | Prisma direct database connection |
+| `AUTH_URL` | Auth.js application URL |
+| `AUTH_SECRET` | Auth.js secret |
+| `AUTH_TRUST_HOST` | Host trust configuration |
+| `AUTH_MICROSOFT_ENTRA_ID_ID` | Entra client ID |
+| `AUTH_MICROSOFT_ENTRA_ID_SECRET` | Entra client secret |
+| `AUTH_MICROSOFT_ENTRA_ID_ISSUER` | Entra issuer |
+| `APP_BASE_URL` | Deep-link base URL |
+| `RESEND_API_KEY` | Email provider |
+| `EMAIL_FROM` | Sender email |
+| `TEAMS_WEBHOOK_URL` | Teams webhook |
+| `CRON_SECRET` | Cron route security |
 
 ---
 
-## Environment Variables
-
-| Variable | Required | Purpose |
-| --- | --- | --- |
-| `DATABASE_URL` | Yes | Prisma runtime PostgreSQL connection |
-| `DIRECT_URL` | Yes for Prisma CLI | Direct PostgreSQL connection |
-| `AUTH_URL` | Yes | Auth.js application URL |
-| `AUTH_SECRET` | Yes | Auth.js secret |
-| `AUTH_TRUST_HOST` | Environment-specific | Host trust configuration |
-| `AUTH_MICROSOFT_ENTRA_ID_ID` | Optional | Microsoft Entra ID client ID |
-| `AUTH_MICROSOFT_ENTRA_ID_SECRET` | Optional | Microsoft Entra ID client secret |
-| `AUTH_MICROSOFT_ENTRA_ID_ISSUER` | Optional | Microsoft Entra ID issuer |
-| `APP_BASE_URL` | Optional | Notification deep-link base URL |
-| `RESEND_API_KEY` | Optional | Enables Resend email delivery |
-| `EMAIL_FROM` | Optional | Sender email address |
-| `NOTIFICATION_EMAIL_OVERRIDE` | Optional | Redirects outbound email |
-| `TEAMS_WEBHOOK_URL` | Optional | Enables Teams notifications |
-| `CRON_SECRET` | Recommended | Secures cron reminder endpoint |
-
-No `NEXT_PUBLIC_` variables were detected in the implementation.
-
----
-
-## Available Scripts / Commands
+# Available Scripts
 
 | Command | Description |
-| --- | --- |
+|---|---|
 | `npm run dev` | Start development server |
 | `npm run build` | Production build |
 | `npm run start` | Start production server |
 | `npm run lint` | Run ESLint |
 | `npx prisma validate` | Validate Prisma schema |
-| `npx prisma migrate dev` | Apply development migrations |
+| `npx prisma migrate dev` | Run migrations |
 | `npx prisma db seed` | Seed demo data |
 
 ---
 
-## Testing / Linting / Formatting
+# Validation Status
 
-### Validation Commands
+The platform currently validates successfully with:
 
 ```bash
-npm run lint
 npm run build
+npm run lint
 npx prisma validate
 ```
 
-### Current Status
-
-- ESLint completes successfully with warnings only.
-- `next build` completes successfully using Next.js 16.2.6.
-- Prisma schema validation passes.
-
-### To Be Confirmed
-
-- Automated test framework
-- Dedicated formatting workflow
-- CI/CD pipeline configuration
+Governance execution, lifecycle workflows, orchestration, analytics, and dashboard operations are operationally stable.
 
 ---
 
-## Deployment / Production Notes
+# Governance APIs
 
-- No hosting-provider deployment configuration is currently committed.
-- Production runtime requires:
-  - PostgreSQL database
-  - Prisma client generation
-  - configured environment variables
-- Reminder route:
+Governance APIs support:
 
-```text
-/api/cron/reminders/checkin
-```
+- escalation retrieval,
+- execution triggering,
+- lifecycle actions,
+- analytics access,
+- scheduler controls.
 
-exists, but no scheduler/orchestrator configuration is currently committed.
+Examples:
 
-### Recommended Production Hardening
-
-- Configure `CRON_SECRET`
-- Enforce HTTPS-only deployment
-- Use managed PostgreSQL backups
-- Rotate authentication and provider secrets
-- Add centralized scheduler orchestration for escalation evaluation and reminders
+- `/api/governance/escalations`
+- `/api/governance/executions/run`
+- `/api/governance/analytics/overview`
+- `/api/governance/scheduler/start`
 
 ---
 
-## Usage Overview
+# Usage Overview
 
-### Public Routes
-
-| Route | Purpose |
-| --- | --- |
-| `/` | Landing page |
-| `/sign-in` | Credentials and Microsoft login |
-
-### Dashboard Routes
-
-| Role | Route |
-| --- | --- |
-| Admin | `/dashboard/admin` |
-| Manager | `/dashboard/manager/team-goals` |
-| Employee | `/dashboard/employee` |
-
-### Typical Workflow
+## Typical Operational Flow
 
 1. Administrator activates a review cycle.
 2. Employees create and submit goals.
-3. Managers review and approve or reject goals.
+3. Managers approve or reject goals.
 4. Employees submit quarterly updates.
-5. Managers and administrators monitor execution, analytics, exports, shared goals, and audit activity.
+5. Governance evaluators inspect workflow state.
+6. Escalations are generated for operational violations.
+7. Notifications are delivered.
+8. Governance analytics update.
+9. Managers and administrators resolve escalations.
 
 ---
 
-## Contribution Notes
+# Recommended Production Hardening
 
-- Follow repository guidance in `AGENTS.md`.
-- Keep role authorization aligned across:
-  - `src/proxy.ts`
-  - server actions
-  - dashboard routes
-  - export handlers
-- Update Prisma migrations and seed data together when changing the schema.
-- Preserve auditability for workflow mutations.
-- Run validation commands before submitting changes.
+Recommended production practices:
 
----
-
-## License
-
-License not specified in repository.
+- secure cron routes,
+- HTTPS-only deployment,
+- managed PostgreSQL backups,
+- provider secret rotation,
+- controlled governance execution,
+- operational monitoring.
 
 ---
 
-## Troubleshooting / Known Limitations
+# Contribution Notes
 
-### Common Issues
+- Preserve RBAC consistency.
+- Preserve governance auditability.
+- Preserve deterministic escalation behavior.
+- Keep orchestration layers separated.
+- Update migrations and seed data together.
 
-- Missing `DATABASE_URL` causes Prisma runtime initialization failures.
-- Missing `DIRECT_URL` prevents Prisma CLI operations.
-- Microsoft sign-in requires:
-  - valid Entra ID credentials
-  - matching active local user
-- Notification providers skip delivery when credentials are missing.
+---
 
-### Current Implementation Limitations
+# License
 
-- No automated test suite is configured.
-- No formatting workflow is configured.
-- Escalation evaluators exist without automated scheduler orchestration.
-- Reminder route authorization is optional when `CRON_SECRET` is not configured.
-- Deployment infrastructure configuration is not yet committed.
+MIT License
+
+---
+
+# Final Notes
+
+AtomQuest is intentionally designed as:
+
+- a deterministic governance platform,
+- an operational accountability system,
+- an enterprise workflow orchestration layer.
+
+The platform prioritizes:
+
+- auditability,
+- operational realism,
+- lifecycle traceability,
+- governance visibility,
+- execution reliability,
+
+over unnecessary infrastructure complexity.
