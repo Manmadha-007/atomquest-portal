@@ -8,7 +8,6 @@
 <img src="https://img.shields.io/badge/PostgreSQL-Database-336791?style=flat-square&logo=postgresql" />
 <img src="https://img.shields.io/badge/Prisma-ORM-2D3748?style=flat-square&logo=prisma" />
 <img src="https://img.shields.io/badge/Auth.js-v5-black?style=flat-square" />
-<img src="https://img.shields.io/badge/License-MIT-purple?style=flat-square" />
 
 </p>
 
@@ -759,12 +758,6 @@ Recommended production practices:
 - Preserve deterministic escalation behavior.
 - Keep orchestration layers separated.
 - Update migrations and seed data together.
-
----
-
-# License
-
-MIT License
 
 ---
 
