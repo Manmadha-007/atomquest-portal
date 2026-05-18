@@ -6,6 +6,7 @@ import { generateGoalApprovedCard } from '../teams/cards/goal-approved-card';
 import { generateGoalRejectedCard } from '../teams/cards/goal-rejected-card';
 import { generateCheckinReminderCard } from '../teams/cards/checkin-reminder-card';
 import { generateEscalationOpenedCard } from '../teams/cards/escalation-opened-card';
+import { createAppUrl } from '@/lib/url';
 
 const SUPPORTED_EVENTS = new Set([
   NotificationEvent.GOAL_SUBMITTED,
@@ -96,7 +97,7 @@ export class TeamsProvider implements NotificationProvider {
             escalationType: String(payload.metadata?.escalationType || 'Escalation'),
             escalationLevel: String(payload.metadata?.escalationLevel || 'Escalation level'),
             goalTitle: payload.metadata?.goalTitle ? String(payload.metadata.goalTitle) : null,
-            actionUrl: String(payload.metadata?.deepLinkUrl || process.env.APP_BASE_URL || 'http://localhost:3000/dashboard'),
+            actionUrl: String(payload.metadata?.deepLinkUrl || createAppUrl('/dashboard')),
             actionLabel: String(payload.metadata?.actionLabel || 'Review Escalation'),
           });
           break;

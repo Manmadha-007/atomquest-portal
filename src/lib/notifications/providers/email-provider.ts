@@ -6,6 +6,7 @@ import { generateCheckinReminderEmail } from '../email/templates/checkin-reminde
 import { generateGoalApprovedEmail } from '../email/templates/goal-approved';
 import { generateGoalRejectedEmail } from '../email/templates/goal-rejected';
 import { generateEscalationOpenedEmail } from '../email/templates/escalation-opened';
+import { createAppUrl } from '@/lib/url';
 
 const SUPPORTED_EVENTS = new Set([
   NotificationEvent.GOAL_SUBMITTED,
@@ -100,7 +101,7 @@ export class EmailProvider implements NotificationProvider {
             escalationType: String(payload.metadata?.escalationType || 'Escalation'),
             escalationLevel: String(payload.metadata?.escalationLevel || 'Escalation level'),
             goalTitle: payload.metadata?.goalTitle ? String(payload.metadata.goalTitle) : null,
-            actionUrl: String(payload.metadata?.deepLinkUrl || process.env.APP_BASE_URL || 'http://localhost:3000/dashboard'),
+            actionUrl: String(payload.metadata?.deepLinkUrl || createAppUrl('/dashboard')),
             actionLabel: String(payload.metadata?.actionLabel || 'Review Escalation'),
           });
           subject = generated.subject;

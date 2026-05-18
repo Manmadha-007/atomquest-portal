@@ -1,27 +1,17 @@
 import { NotificationEvent } from "./types";
 import type { EscalationType } from "@prisma/client";
+import { createAppUrl } from "@/lib/url";
 
 /**
  * Centralized deep-link generator for all outbound notifications.
  * Ensures URLs are stable, survive authentication redirects, and point to the correct workflow context.
  */
 export function buildGoalUrl(goalId: string, event: NotificationEvent): string {
-  const appBaseUrl = process.env.APP_BASE_URL || "http://localhost:3000";
-
-  // Gracefully validate the base URL for observability
-  try {
-    new URL(appBaseUrl);
-  } catch {
-    console.warn(
-      `[Routing] Invalid APP_BASE_URL: "${appBaseUrl}". Deep links may be malformed.`,
-    );
-  }
-
   if (!goalId) {
     console.warn(
       `[Routing] Missing goalId for event ${event}, defaulting to dashboard root.`,
     );
-    return `${appBaseUrl}/dashboard`;
+    return createAppUrl("/dashboard");
   }
 
   let path = "/dashboard";
@@ -48,7 +38,7 @@ export function buildGoalUrl(goalId: string, event: NotificationEvent): string {
       break;
   }
 
-  const url = `${appBaseUrl}${path}`;
+  const url = createAppUrl(path);
 
   // Log for observability
   console.log(`[Routing] Generated deep-link URL for ${event}: ${url}`);
@@ -61,16 +51,6 @@ export function buildEscalationUrl(input: {
   escalationLogId: string;
   goalId?: string | null;
 }): string {
-  const appBaseUrl = process.env.APP_BASE_URL || "http://localhost:3000";
-
-  try {
-    new URL(appBaseUrl);
-  } catch {
-    console.warn(
-      `[Routing] Invalid APP_BASE_URL: "${appBaseUrl}". Deep links may be malformed.`,
-    );
-  }
-
   let path = "/dashboard";
 
   switch (input.escalationType) {
@@ -90,7 +70,9 @@ export function buildEscalationUrl(input: {
   }
 
   const separator = path.includes("#") ? "&" : "#";
-  const url = `${appBaseUrl}${path}${separator}escalation-${input.escalationLogId}`;
+  const url = createAppUrl(
+    `${path}${separator}escalation-${input.escalationLogId}`,
+  );
 
   console.log(
     `[Routing] Generated deep-link URL for escalation ${input.escalationLogId}: ${url}`,
