@@ -2,6 +2,10 @@ import { BarChart3 } from "lucide-react";
 
 import { AnalyticsOverview } from "@/components/analytics/analytics-overview";
 import { DashboardAuthState } from "@/components/layout/dashboard-auth-state";
+import {
+  DashboardHero,
+  DashboardPage,
+} from "@/components/layout/dashboard-page";
 import { ExportActions } from "@/components/reports/export-actions";
 import { getAdminAnalytics } from "@/lib/analytics/dashboard-analytics";
 import { getDashboardUser } from "@/lib/auth/session";
@@ -56,28 +60,14 @@ export default async function AdminAnalyticsPage() {
   const analytics = await getAdminAnalytics();
 
   return (
-    <div className="grid gap-6">
-      <section className="overflow-hidden rounded-2xl border bg-card">
-        <div className="relative isolate p-6 sm:p-8">
-          <div className="absolute inset-y-0 right-0 -z-10 hidden w-1/2 bg-gradient-to-l from-sky-500/10 via-emerald-500/5 to-transparent lg:block" />
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <div className="max-w-3xl space-y-3">
-              <div className="inline-flex items-center gap-2 rounded-full border bg-background px-3 py-1 text-xs font-medium text-muted-foreground">
-                <BarChart3 className="size-3.5" aria-hidden="true" />
-                Executive analytics
-              </div>
-              <div className="space-y-2">
-                <h1 className="font-heading text-3xl font-semibold tracking-tight sm:text-4xl">
-                  Enterprise goal analytics
-                </h1>
-                <p className="text-sm leading-6 text-muted-foreground sm:text-base">
-                  Track active-cycle goal health, approval throughput,
-                  completion, overdue exposure, and department performance from
-                  one executive dashboard.
-                </p>
-              </div>
-            </div>
-            <div className="rounded-xl border bg-background/80 p-4 shadow-sm">
+    <DashboardPage>
+      <DashboardHero
+        eyebrow="Executive analytics"
+        gradientClassName="from-sky-500/10 via-emerald-500/5 to-transparent"
+        icon={BarChart3}
+        title="Enterprise goal analytics"
+        description="Track active-cycle goal health, approval throughput, completion, overdue exposure, and department performance from one executive dashboard."
+      >
               <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 Active cycle
               </p>
@@ -90,10 +80,7 @@ export default async function AdminAnalyticsPage() {
                   {formatDate(analytics.reviewCycle.endDate)}
                 </p>
               ) : null}
-            </div>
-          </div>
-        </div>
-      </section>
+      </DashboardHero>
 
       <ExportActions
         actions={adminExportActions}
@@ -101,6 +88,6 @@ export default async function AdminAnalyticsPage() {
       />
 
       <AnalyticsOverview analytics={analytics} scope="admin" />
-    </div>
+    </DashboardPage>
   );
 }

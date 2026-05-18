@@ -13,6 +13,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { DashboardMetricGrid } from "@/components/layout/dashboard-page";
 import { cn } from "@/lib/utils";
 
 type EmployeeGoalSummaryMetrics = {
@@ -68,16 +69,16 @@ const summaryItems = [
 
 export function EmployeeGoalSummary({ metrics }: EmployeeGoalSummaryProps) {
   return (
-    <section
-      aria-label="Employee goal summary"
-      className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5"
+    <DashboardMetricGrid
+      ariaLabel="Employee goal summary"
+      className="xl:grid-cols-5"
     >
       {summaryItems.map((item) => {
         const Icon = item.icon;
         const value = metrics[item.key];
 
         return (
-          <Card key={item.key} className="rounded-lg">
+          <Card key={item.key} className="h-full rounded-lg">
             <CardHeader className="grid-cols-[1fr_auto] items-start gap-3">
               <div className="space-y-1">
                 <CardDescription>{item.label}</CardDescription>
@@ -98,6 +99,6 @@ export function EmployeeGoalSummary({ metrics }: EmployeeGoalSummaryProps) {
           </Card>
         );
       })}
-    </section>
+    </DashboardMetricGrid>
   );
 }

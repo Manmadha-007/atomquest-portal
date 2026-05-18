@@ -1,5 +1,6 @@
 import { Clock, ThumbsUp, Hourglass, CheckSquare } from "lucide-react";
 import { KpiCard } from "@/components/analytics/kpi-card";
+import { DashboardMetricGrid } from "@/components/layout/dashboard-page";
 import type { ManagerEffectivenessMetrics } from "@/lib/analytics/types";
 
 export function ManagerEffectivenessCards({
@@ -13,9 +14,9 @@ export function ManagerEffectivenessCards({
       : `${metrics.averageTurnaroundTimeHours.toFixed(1)} hours`;
 
   return (
-    <section
-      aria-label="Manager effectiveness summary"
-      className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"
+    <DashboardMetricGrid
+      ariaLabel="Manager effectiveness summary"
+      className="xl:grid-cols-4"
     >
       <KpiCard
         label="Avg turnaround time"
@@ -45,6 +46,6 @@ export function ManagerEffectivenessCards({
         icon={CheckSquare}
         tone="bg-slate-50 text-slate-700 ring-slate-200 dark:bg-slate-950/50 dark:text-slate-300 dark:ring-slate-900"
       />
-    </section>
+    </DashboardMetricGrid>
   );
 }

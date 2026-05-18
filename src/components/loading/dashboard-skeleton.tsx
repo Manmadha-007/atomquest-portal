@@ -3,11 +3,11 @@ import { TableSkeleton } from "@/components/loading/table-skeleton";
 
 export function DashboardSkeleton() {
   return (
-    <div className="grid gap-6">
+    <div className="grid gap-5 lg:gap-6">
       {/* Top Hero Section */}
-      <section className="overflow-hidden rounded-2xl border bg-card">
-        <div className="relative isolate p-6 sm:p-8">
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+      <section className="overflow-hidden rounded-xl border bg-card shadow-sm">
+        <div className="relative isolate p-4 sm:p-5 lg:p-6">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <SkeletonHeader />
             {/* Right side Active Cycle block */}
             <Skeleton className="h-[80px] w-full lg:w-[250px] rounded-xl" />

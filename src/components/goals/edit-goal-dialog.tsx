@@ -145,7 +145,7 @@ export function EditGoalDialog({ goal }: EditGoalDialogProps) {
           </div>
         ) : null}
         <FormProvider {...form}>
-          <form onSubmit={onSubmit} className="grid gap-6">
+          <form onSubmit={onSubmit} className="grid gap-5">
             <GoalFormFields disabled={isSubmitting} />
             <DialogFooter>
               <Button

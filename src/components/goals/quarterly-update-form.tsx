@@ -189,7 +189,7 @@ export function QuarterlyUpdateForm({
             </div>
           </div>
         </CardHeader>
-        <CardContent className="grid gap-6 pt-5">
+        <CardContent className="grid gap-5 pt-4">
           {!hasAvailableGoals ? (
             <div className="rounded-lg border bg-muted/30 p-4 text-sm text-muted-foreground">
               All approved goals already have an update recorded for the active
@@ -197,7 +197,7 @@ export function QuarterlyUpdateForm({
             </div>
           ) : null}
 
-          <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
+          <div className="grid gap-3 lg:grid-cols-[1.2fr_0.8fr] lg:gap-4">
             <FieldShell>
               <FieldLabel htmlFor="goalId">Approved goal</FieldLabel>
               <Controller
@@ -249,7 +249,7 @@ export function QuarterlyUpdateForm({
             </div>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-3 md:grid-cols-2 lg:gap-4">
             <FieldShell>
               <FieldLabel htmlFor="achievementValue">
                 Current achievement value
@@ -304,7 +304,7 @@ export function QuarterlyUpdateForm({
             </FieldShell>
           </div>
 
-          <div className="grid gap-4">
+          <div className="grid gap-3 lg:gap-4">
             <FieldShell>
               <FieldLabel htmlFor="accomplishmentSummary">
                 Accomplishment summary

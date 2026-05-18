@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 
 import { KpiCard } from "@/components/analytics/kpi-card";
+import { DashboardMetricGrid } from "@/components/layout/dashboard-page";
 
 export type EmployeeProgressOverviewMetrics = {
   activeGoals: number;
@@ -63,9 +64,9 @@ export function EmployeeProgressOverview({
   metrics,
 }: EmployeeProgressOverviewProps) {
   return (
-    <section
-      aria-label="Personal progress overview"
-      className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5"
+    <DashboardMetricGrid
+      ariaLabel="Personal progress overview"
+      className="xl:grid-cols-5"
     >
       {overviewItems.map((item) => (
         <KpiCard
@@ -77,6 +78,6 @@ export function EmployeeProgressOverview({
           tone={item.tone}
         />
       ))}
-    </section>
+    </DashboardMetricGrid>
   );
 }

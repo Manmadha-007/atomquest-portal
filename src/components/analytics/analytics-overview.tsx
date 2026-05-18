@@ -14,6 +14,7 @@ import { StatusDistributionChart } from "@/components/analytics/status-distribut
 import { TeamPerformanceChart } from "@/components/analytics/team-performance-chart";
 import { DistributionChart } from "@/components/analytics/extended-distribution-charts";
 import { ManagerEffectivenessCards } from "@/components/analytics/manager-effectiveness-cards";
+import { DashboardMetricGrid } from "@/components/layout/dashboard-page";
 import type {
   AnalyticsScope,
   DashboardAnalytics,
@@ -113,10 +114,10 @@ export function AnalyticsOverview({
     scope === "admin" ? "the organization" : "direct reports";
 
   return (
-    <div className="grid gap-6">
-      <section
-        aria-label="Analytics KPI summary"
-        className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5"
+    <div className="grid gap-5 lg:gap-6">
+      <DashboardMetricGrid
+        ariaLabel="Analytics KPI summary"
+        className="xl:grid-cols-5"
       >
         {kpis.map((kpi) => (
           <KpiCard
@@ -128,40 +129,52 @@ export function AnalyticsOverview({
             tone={kpi.tone}
           />
         ))}
-      </section>
+      </DashboardMetricGrid>
 
-      <div className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
+      <div className="grid gap-5 xl:grid-cols-[0.9fr_1.1fr] lg:gap-6">
         <StatusDistributionChart data={analytics.statusDistribution} />
         <ProgressTrendChart data={analytics.progressTrend} />
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-3">
-        <DistributionChart
-          title="Thrust areas"
-          description="Goals broken down by strategic thrust area."
-          data={analytics.thrustAreaDistribution}
-          emptyMessage="No goals available for thrust area analysis."
-        />
-        <DistributionChart
-          title="Measurement types"
-          description="Distribution of goal measurement strategies."
-          data={analytics.measurementDistribution}
-          emptyMessage="No goals available for measurement analysis."
-        />
-        <DistributionChart
-          title="Priority distribution"
-          description="Goals categorized by priority level."
-          data={analytics.priorityDistribution}
-          emptyMessage="No goals available for priority analysis."
-        />
+      <div className="grid gap-5 xl:grid-cols-[0.38fr_0.62fr] lg:gap-6">
+        <div className="relative w-full min-h-[500px] xl:min-h-0 xl:h-full">
+          <div className="xl:absolute xl:inset-0 w-full h-full">
+            <DistributionChart
+              title="Thrust areas"
+              description="Goals broken down by strategic thrust area."
+              data={analytics.thrustAreaDistribution}
+              emptyMessage="No goals available for thrust area analysis."
+              variant="bar"
+              dynamicMaxItems={true}
+              viewAllTitle="View all thrust areas"
+            />
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-5 lg:gap-6">
+          <div className="grid gap-5 sm:grid-cols-2 lg:gap-6">
+            <DistributionChart
+              title="Measurement types"
+              description="Distribution of goal measurement strategies."
+              data={analytics.measurementDistribution}
+              emptyMessage="No goals available for measurement analysis."
+            />
+            <DistributionChart
+              title="Priority distribution"
+              description="Goals categorized by priority level."
+              data={analytics.priorityDistribution}
+              emptyMessage="No goals available for priority analysis."
+            />
+          </div>
+
+          <TeamPerformanceChart data={analytics.teamPerformance} scope={scope} />
+        </div>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-3">
         <h3 className="text-xl font-semibold tracking-tight">Manager Effectiveness</h3>
         <ManagerEffectivenessCards metrics={analytics.managerEffectiveness} />
       </div>
-
-      <TeamPerformanceChart data={analytics.teamPerformance} scope={scope} />
 
       <CompletionMonitoringTable
         completionMonitoring={analytics.completionMonitoring}

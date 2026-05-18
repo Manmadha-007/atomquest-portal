@@ -2,13 +2,13 @@ import { Skeleton, SkeletonCard, SkeletonMetricsGrid } from "@/components/loadin
 
 export function AnalyticsSkeleton() {
   return (
-    <div className="grid gap-6">
+    <div className="grid gap-5 lg:gap-6">
       {/* Top metrics strip */}
       <SkeletonMetricsGrid count={4} />
 
       {/* Main charting area */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
-        <SkeletonCard className="col-span-4 p-6 flex flex-col gap-4">
+      <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-7 lg:gap-6">
+        <SkeletonCard className="col-span-4 p-4 flex flex-col gap-4">
           <Skeleton className="h-6 w-[150px]" />
           <Skeleton className="h-4 w-[250px]" />
           {/* Main Chart Placeholder */}
@@ -16,7 +16,7 @@ export function AnalyticsSkeleton() {
         </SkeletonCard>
         
         {/* Secondary breakdown area */}
-        <SkeletonCard className="col-span-3 p-6 flex flex-col gap-4">
+        <SkeletonCard className="col-span-3 p-4 flex flex-col gap-4">
           <Skeleton className="h-6 w-[150px]" />
           <Skeleton className="h-4 w-[200px]" />
           {/* List items / smaller charts placeholder */}

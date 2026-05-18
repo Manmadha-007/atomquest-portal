@@ -215,7 +215,7 @@ function LoadingRows() {
             return (
               <TableCell
                 key={`${index}-${columnIndex}`}
-                className={cn("px-4 py-4", meta?.cellClassName)}
+                className={cn("px-4 py-3", meta?.cellClassName)}
               >
                 <div className="h-4 w-full max-w-36 animate-pulse rounded bg-muted" />
               </TableCell>
@@ -273,8 +273,8 @@ export function CompletionMonitoringTable({
       </CardHeader>
       <CardContent className="p-0">
         {rows.length === 0 && !isLoading ? (
-          <div className="flex min-h-72 flex-col items-center justify-center gap-3 px-6 text-center">
-            <div className="rounded-2xl bg-muted p-3 text-muted-foreground">
+          <div className="flex min-h-56 flex-col items-center justify-center gap-3 px-6 text-center">
+            <div className="rounded-xl bg-muted p-3 text-muted-foreground">
               <ClipboardCheck className="size-6" aria-hidden="true" />
             </div>
             <div className="space-y-1">
@@ -300,7 +300,7 @@ export function CompletionMonitoringTable({
                         <TableHead
                           key={header.id}
                           className={cn(
-                            "h-11 px-4 text-xs uppercase tracking-wide text-muted-foreground",
+                            "h-10 px-4 text-xs uppercase tracking-wide text-muted-foreground",
                             meta?.headerClassName,
                           )}
                         >
@@ -328,7 +328,7 @@ export function CompletionMonitoringTable({
                         return (
                           <TableCell
                             key={cell.id}
-                            className={cn("px-4 py-4", meta?.cellClassName)}
+                            className={cn("px-4 py-3", meta?.cellClassName)}
                           >
                             {flexRender(
                               cell.column.columnDef.cell,

@@ -20,9 +20,9 @@ export function SkeletonHeader({ className }: { className?: string }) {
 
 export function SkeletonMetricsGrid({ className, count = 4 }: { className?: string; count?: number }) {
   return (
-    <div className={cn("grid gap-4 sm:grid-cols-2 lg:grid-cols-4", className)}>
+    <div className={cn("grid gap-3 sm:grid-cols-2 lg:grid-cols-4 lg:gap-4", className)}>
       {Array.from({ length: count }).map((_, i) => (
-        <SkeletonCard key={i} className="p-6">
+        <SkeletonCard key={i} className="p-4">
           <BaseSkeleton className="h-4 w-[100px] mb-3" />
           <BaseSkeleton className="h-8 w-[60px]" />
         </SkeletonCard>

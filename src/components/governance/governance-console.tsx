@@ -88,7 +88,7 @@ type LifecycleDialogState =
 
 function LoadingState() {
   return (
-    <div className="grid gap-4">
+    <div className="grid gap-5 lg:gap-6">
       <div className="h-40 animate-pulse rounded-lg border bg-muted/40" />
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {Array.from({ length: 6 }, (_, index) => (
@@ -124,7 +124,7 @@ function ConsoleHero({
   const capabilities = getGovernanceCapabilities(role);
 
   return (
-    <section className="rounded-lg border bg-card p-5 shadow-sm sm:p-6">
+    <section className="rounded-xl border bg-card p-4 shadow-sm sm:p-5 lg:p-6">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div className="max-w-3xl space-y-3">
           <div className="inline-flex items-center gap-2 rounded-md border bg-background px-2.5 py-1 text-xs font-medium text-muted-foreground">
@@ -185,14 +185,14 @@ function OverviewPanel({
   const metricCards = buildGovernanceMetricCards(data);
 
   return (
-    <div className="grid gap-4">
+    <div className="grid gap-5 lg:gap-6">
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {metricCards.map((metric) => (
           <GovernanceMetricCard key={metric.id} metric={metric} />
         ))}
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
+      <div className="grid gap-5 lg:grid-cols-[1.1fr_0.9fr] lg:gap-6">
         <Card className="rounded-lg">
           <CardHeader className="border-b">
             <CardTitle>Escalation distribution</CardTitle>
@@ -403,7 +403,7 @@ function ExecutionsPanel({
   const executions = data.executionHealth.recentExecutions;
 
   return (
-    <div className="grid gap-4">
+    <div className="grid gap-5 lg:gap-6">
       <div className="grid gap-3 sm:grid-cols-3">
         <div className="rounded-lg border bg-card p-4">
           <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
@@ -568,7 +568,7 @@ function AnalyticsPanel({
   data: NonNullable<ReturnType<typeof useRoleAwareGovernanceConsoleData>["data"]>;
 }) {
   return (
-    <div className="grid gap-4 lg:grid-cols-2">
+    <div className="grid gap-5 lg:grid-cols-2 lg:gap-6">
       <Card className="rounded-lg">
         <CardHeader className="border-b">
           <CardTitle>Department accountability</CardTitle>
@@ -793,7 +793,7 @@ export function GovernanceConsole({ role }: GovernanceConsoleProps) {
 
   if (consoleState.error || !consoleState.data) {
     return (
-      <div className="grid gap-4">
+      <div className="grid gap-5 lg:gap-6">
         <ConsoleHero
           role={role}
           onRefresh={() => void consoleState.reload()}
@@ -810,7 +810,7 @@ export function GovernanceConsole({ role }: GovernanceConsoleProps) {
   const data = consoleState.data;
 
   return (
-    <div className="grid gap-5">
+    <div className="grid gap-5 lg:gap-6">
       <ConsoleHero
         role={role}
         onRefresh={() => void consoleState.reload()}

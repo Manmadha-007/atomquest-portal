@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 
 import { KpiCard } from "@/components/analytics/kpi-card";
+import { DashboardMetricGrid } from "@/components/layout/dashboard-page";
 
 export type TeamProgressOverviewMetrics = {
   teamCompletionPercentage: number;
@@ -71,9 +72,9 @@ const overviewItems = [
 
 export function TeamProgressOverview({ metrics }: TeamProgressOverviewProps) {
   return (
-    <section
-      aria-label="Team progress overview"
-      className="grid gap-4 sm:grid-cols-2 xl:grid-cols-6"
+    <DashboardMetricGrid
+      ariaLabel="Team progress overview"
+      className="xl:grid-cols-6"
     >
       {overviewItems.map((item) => (
         <KpiCard
@@ -85,6 +86,6 @@ export function TeamProgressOverview({ metrics }: TeamProgressOverviewProps) {
           tone={item.tone}
         />
       ))}
-    </section>
+    </DashboardMetricGrid>
   );
 }

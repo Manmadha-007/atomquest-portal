@@ -32,6 +32,11 @@ import {
   type TeamProgressUpdateRecency,
 } from "@/components/analytics/team-progress-table";
 import {
+  DashboardHero,
+  DashboardMetricGrid,
+  DashboardPage,
+} from "@/components/layout/dashboard-page";
+import {
   Card,
   CardContent,
   CardDescription,
@@ -675,12 +680,15 @@ function AtRiskInsights({ insights }: { insights: InsightItem[] }) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+        <DashboardMetricGrid className="xl:grid-cols-5">
           {insights.map((insight) => {
             const Icon = insight.icon;
 
             return (
-              <div key={insight.label} className="rounded-lg border bg-background p-4">
+              <div
+                key={insight.label}
+                className="h-full rounded-lg border bg-background p-4"
+              >
                 <div className="flex items-start justify-between gap-3">
                   <div className="space-y-1">
                     <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
@@ -700,7 +708,7 @@ function AtRiskInsights({ insights }: { insights: InsightItem[] }) {
               </div>
             );
           })}
-        </div>
+        </DashboardMetricGrid>
       </CardContent>
     </Card>
   );
@@ -770,28 +778,14 @@ export default async function ManagerTeamProgressPage() {
   const activityItems = activityLogs.map(mapActivityLog);
 
   return (
-    <div className="grid gap-6">
-      <section className="overflow-hidden rounded-2xl border bg-card">
-        <div className="relative isolate p-6 sm:p-8">
-          <div className="absolute inset-y-0 right-0 -z-10 hidden w-1/2 bg-gradient-to-l from-emerald-500/10 via-sky-500/5 to-transparent lg:block" />
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <div className="max-w-3xl space-y-3">
-              <div className="inline-flex items-center gap-2 rounded-full border bg-background px-3 py-1 text-xs font-medium text-muted-foreground">
-                <UsersRound className="size-3.5" aria-hidden="true" />
-                Manager execution oversight
-              </div>
-              <div className="space-y-2">
-                <h1 className="font-heading text-3xl font-semibold tracking-tight sm:text-4xl">
-                  Team progress
-                </h1>
-                <p className="text-sm leading-6 text-muted-foreground sm:text-base">
-                  Identify execution drift, overdue exposure, quarterly momentum,
-                  pending submissions, stagnant goals, and team completion health
-                  across direct reports.
-                </p>
-              </div>
-            </div>
-            <div className="rounded-xl border bg-background/80 p-4 shadow-sm">
+    <DashboardPage>
+      <DashboardHero
+        eyebrow="Manager execution oversight"
+        gradientClassName="from-emerald-500/10 via-sky-500/5 to-transparent"
+        icon={UsersRound}
+        title="Team progress"
+        description="Identify execution drift, overdue exposure, quarterly momentum, pending submissions, stagnant goals, and team completion health across direct reports."
+      >
               <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 Active cycle
               </p>
@@ -808,10 +802,7 @@ export default async function ManagerTeamProgressPage() {
                   </p>
                 </div>
               ) : null}
-            </div>
-          </div>
-        </div>
-      </section>
+      </DashboardHero>
 
       <TeamProgressOverview metrics={overviewMetrics} />
 
@@ -834,7 +825,7 @@ export default async function ManagerTeamProgressPage() {
       ) : (
         <>
           <AtRiskInsights insights={insights} />
-          <div className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
+          <div className="grid gap-5 xl:grid-cols-[0.95fr_1.05fr] lg:gap-6">
             <ProgressTrendChart data={analytics.progressTrend} />
             <TeamActivityFeed items={activityItems} />
           </div>
@@ -845,6 +836,6 @@ export default async function ManagerTeamProgressPage() {
           />
         </>
       )}
-    </div>
+    </DashboardPage>
   );
 }

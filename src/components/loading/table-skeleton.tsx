@@ -23,7 +23,7 @@ export function TableSkeleton() {
       {/* Data rows placeholder */}
       <div className="divide-y">
         {Array.from({ length: 5 }).map((_, i) => (
-          <div key={i} className="flex items-center gap-4 px-4 py-4">
+          <div key={i} className="flex items-center gap-4 px-4 py-3">
             {/* Primary column (e.g. Title + description) */}
             <div className="space-y-2 w-full max-w-[250px]">
               <Skeleton className="h-4 w-full" />

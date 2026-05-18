@@ -87,7 +87,7 @@ export function CreateGoalForm() {
               Draft a measurable quarterly goal for the active review cycle.
             </CardDescription>
           </CardHeader>
-          <CardContent className="pt-5">
+          <CardContent className="pt-4">
             <GoalFormFields disabled={isSubmitting} />
           </CardContent>
           <CardFooter className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between">

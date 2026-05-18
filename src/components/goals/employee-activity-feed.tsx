@@ -87,8 +87,8 @@ export function EmployeeActivityFeed({ items }: EmployeeActivityFeedProps) {
       </CardHeader>
       <CardContent className="p-0">
         {items.length === 0 ? (
-          <div className="flex min-h-72 flex-col items-center justify-center gap-3 px-6 text-center">
-            <div className="rounded-2xl bg-muted p-3 text-muted-foreground">
+          <div className="flex min-h-56 flex-col items-center justify-center gap-3 px-6 text-center">
+            <div className="rounded-xl bg-muted p-3 text-muted-foreground">
               <ClipboardCheck className="size-6" aria-hidden="true" />
             </div>
             <div className="space-y-1">
@@ -110,7 +110,7 @@ export function EmployeeActivityFeed({ items }: EmployeeActivityFeedProps) {
               return (
                 <div
                   key={item.id}
-                  className="grid gap-3 px-4 py-4 sm:grid-cols-[auto_1fr_auto] sm:items-start"
+                  className="grid gap-3 px-4 py-3 sm:grid-cols-[auto_1fr_auto] sm:items-start"
                 >
                   <div className={cn("rounded-lg p-2 ring-1", config.tone)}>
                     <Icon className="size-4" aria-hidden="true" />

@@ -3,6 +3,11 @@ import { Activity, CheckCircle2, ClipboardList, ListChecks } from "lucide-react"
 
 import { DashboardAuthState } from "@/components/layout/dashboard-auth-state";
 import {
+  DashboardHero,
+  DashboardMetricGrid,
+  DashboardPage,
+} from "@/components/layout/dashboard-page";
+import {
   QuarterlyUpdateForm,
   type QuarterlyUpdateGoalOption,
 } from "@/components/goals/quarterly-update-form";
@@ -226,27 +231,14 @@ export default async function QuarterlyUpdatesPage() {
   ).length;
 
   return (
-    <div className="grid gap-6">
-      <section className="overflow-hidden rounded-2xl border bg-card">
-        <div className="relative isolate p-6 sm:p-8">
-          <div className="absolute inset-y-0 right-0 -z-10 hidden w-1/2 bg-gradient-to-l from-sky-500/10 via-primary/5 to-transparent lg:block" />
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <div className="max-w-3xl space-y-3">
-              <div className="inline-flex items-center gap-2 rounded-full border bg-background px-3 py-1 text-xs font-medium text-muted-foreground">
-                <ListChecks className="size-3.5" aria-hidden="true" />
-                Quarterly check-in workflow
-              </div>
-              <div className="space-y-2">
-                <h1 className="font-heading text-3xl font-semibold tracking-tight sm:text-4xl">
-                  Quarterly updates
-                </h1>
-                <p className="text-sm leading-6 text-muted-foreground sm:text-base">
-                  Submit progress snapshots for approved goals, capture risks,
-                  and preserve an auditable execution history.
-                </p>
-              </div>
-            </div>
-            <div className="rounded-xl border bg-background/80 p-4 shadow-sm">
+    <DashboardPage>
+      <DashboardHero
+        eyebrow="Quarterly check-in workflow"
+        gradientClassName="from-sky-500/10 via-primary/5 to-transparent"
+        icon={ListChecks}
+        title="Quarterly updates"
+        description="Submit progress snapshots for approved goals, capture risks, and preserve an auditable execution history."
+      >
               <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 Active cycle
               </p>
@@ -257,13 +249,13 @@ export default async function QuarterlyUpdatesPage() {
                   {formatDate(activeReviewCycle.endDate)}
                 </p>
               ) : null}
-            </div>
-          </div>
-        </div>
-      </section>
+      </DashboardHero>
 
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card className="rounded-lg">
+      <DashboardMetricGrid
+        ariaLabel="Quarterly update summary"
+        className="md:grid-cols-4"
+      >
+        <Card className="h-full rounded-lg">
           <CardHeader className="pb-2">
             <CardDescription>Approved goals</CardDescription>
             <CardTitle className="flex items-center gap-2 text-2xl">
@@ -272,13 +264,13 @@ export default async function QuarterlyUpdatesPage() {
             </CardTitle>
           </CardHeader>
         </Card>
-        <Card className="rounded-lg">
+        <Card className="h-full rounded-lg">
           <CardHeader className="pb-2">
             <CardDescription>Open updates</CardDescription>
             <CardTitle className="text-2xl">{openApprovedGoals}</CardTitle>
           </CardHeader>
         </Card>
-        <Card className="rounded-lg">
+        <Card className="h-full rounded-lg">
           <CardHeader className="pb-2">
             <CardDescription>This quarter</CardDescription>
             <CardTitle className="flex items-center gap-2 text-2xl">
@@ -287,7 +279,7 @@ export default async function QuarterlyUpdatesPage() {
             </CardTitle>
           </CardHeader>
         </Card>
-        <Card className="rounded-lg">
+        <Card className="h-full rounded-lg">
           <CardHeader className="pb-2">
             <CardDescription>Average progress</CardDescription>
             <CardTitle className="flex items-center gap-2 text-2xl">
@@ -296,7 +288,7 @@ export default async function QuarterlyUpdatesPage() {
             </CardTitle>
           </CardHeader>
         </Card>
-      </div>
+      </DashboardMetricGrid>
 
       {!activeReviewCycle ? (
         <Card className="rounded-lg">
@@ -327,6 +319,6 @@ export default async function QuarterlyUpdatesPage() {
           />
         </>
       )}
-    </div>
+    </DashboardPage>
   );
 }

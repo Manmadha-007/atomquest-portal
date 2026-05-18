@@ -22,7 +22,7 @@ export async function DashboardShell({
 
   if (!user) {
     return (
-      <main className="min-h-svh bg-muted/30 p-4 sm:p-6 lg:p-8">
+      <main className="min-h-svh bg-muted/30 p-4 sm:p-5 lg:p-6">
         <DashboardAuthState />
       </main>
     );
@@ -35,8 +35,8 @@ export async function DashboardShell({
       <SidebarInset className="min-h-svh bg-muted/30">
         <DashboardHeader user={user} />
 
-        <main className="flex-1 p-4 sm:p-6 lg:p-8">
-          <div className="mx-auto flex w-full max-w-7xl flex-col gap-6">
+        <main className="flex-1 p-4 sm:p-5 lg:p-6">
+          <div className="mx-auto flex w-full max-w-7xl flex-col gap-5 lg:gap-6">
             {children}
           </div>
         </main>

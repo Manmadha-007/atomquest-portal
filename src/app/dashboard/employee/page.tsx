@@ -15,6 +15,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { DashboardAuthState } from "@/components/layout/dashboard-auth-state";
+import {
+  DashboardHero,
+  DashboardPage,
+} from "@/components/layout/dashboard-page";
 import { getDashboardUser } from "@/lib/auth/session";
 import { calculateGoalProgress } from "@/lib/goals/goal-progress";
 import { prisma } from "@/lib/prisma";
@@ -235,27 +239,14 @@ export default async function EmployeeDashboardPage() {
   const reviewCycleLabel = formatReviewCycleLabel(activeReviewCycle);
 
   return (
-    <div className="grid gap-6">
-      <section className="overflow-hidden rounded-2xl border bg-card">
-        <div className="relative isolate p-6 sm:p-8">
-          <div className="absolute inset-y-0 right-0 -z-10 hidden w-1/2 bg-gradient-to-l from-primary/10 via-primary/5 to-transparent lg:block" />
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <div className="max-w-3xl space-y-3">
-              <div className="inline-flex items-center gap-2 rounded-full border bg-background px-3 py-1 text-xs font-medium text-muted-foreground">
-                <ClipboardList className="size-3.5" aria-hidden="true" />
-                Employee goal workspace
-              </div>
-              <div className="space-y-2">
-                <h1 className="font-heading text-3xl font-semibold tracking-tight sm:text-4xl">
-                  My quarterly goals
-                </h1>
-                <p className="text-sm leading-6 text-muted-foreground sm:text-base">
-                  Track active cycle commitments, goal weightage, approval
-                  readiness, and KPI progress from one focused workspace.
-                </p>
-              </div>
-            </div>
-            <div className="rounded-xl border bg-background/80 p-4 shadow-sm">
+    <DashboardPage>
+      <DashboardHero
+        eyebrow="Employee goal workspace"
+        gradientClassName="from-primary/10 via-primary/5 to-transparent"
+        icon={ClipboardList}
+        title="My quarterly goals"
+        description="Track active cycle commitments, goal weightage, approval readiness, and KPI progress from one focused workspace."
+      >
               <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 Active cycle
               </p>
@@ -266,10 +257,7 @@ export default async function EmployeeDashboardPage() {
                   {formatDate(activeReviewCycle.endDate)}
                 </p>
               ) : null}
-            </div>
-          </div>
-        </div>
-      </section>
+      </DashboardHero>
 
       <EmployeeGoalSummary metrics={metrics} />
 
@@ -298,6 +286,6 @@ export default async function EmployeeDashboardPage() {
           <CreateGoalForm />
         </>
       )}
-    </div>
+    </DashboardPage>
   );
 }

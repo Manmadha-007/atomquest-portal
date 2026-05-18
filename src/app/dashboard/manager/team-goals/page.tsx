@@ -19,6 +19,11 @@ import {
   type ManagerTeamGoalTableRow,
 } from "@/components/goals/manager-team-goals-table";
 import {
+  DashboardHero,
+  DashboardMetricGrid,
+  DashboardPage,
+} from "@/components/layout/dashboard-page";
+import {
   Card,
   CardContent,
   CardDescription,
@@ -384,28 +389,14 @@ export default async function ManagerTeamGoalsPage() {
       : 0;
 
   return (
-    <div className="grid gap-6">
-      <section className="overflow-hidden rounded-2xl border bg-card">
-        <div className="relative isolate p-6 sm:p-8">
-          <div className="absolute inset-y-0 right-0 -z-10 hidden w-1/2 bg-gradient-to-l from-emerald-500/10 via-sky-500/5 to-transparent lg:block" />
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <div className="max-w-3xl space-y-3">
-              <div className="inline-flex items-center gap-2 rounded-full border bg-background px-3 py-1 text-xs font-medium text-muted-foreground">
-                <ClipboardList className="size-3.5" aria-hidden="true" />
-                Manager operating workspace
-              </div>
-              <div className="space-y-2">
-                <h1 className="font-heading text-3xl font-semibold tracking-tight sm:text-4xl">
-                  Team goals
-                </h1>
-                <p className="text-sm leading-6 text-muted-foreground sm:text-base">
-                  Monitor direct-report goals, propagated shared KPIs, progress
-                  health, overdue exposure, and approval state in the active
-                  review cycle.
-                </p>
-              </div>
-            </div>
-            <div className="rounded-xl border bg-background/80 p-4 shadow-sm">
+    <DashboardPage>
+      <DashboardHero
+        eyebrow="Manager operating workspace"
+        gradientClassName="from-emerald-500/10 via-sky-500/5 to-transparent"
+        icon={ClipboardList}
+        title="Team goals"
+        description="Monitor direct-report goals, propagated shared KPIs, progress health, overdue exposure, and approval state in the active review cycle."
+      >
               <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 Active cycle
               </p>
@@ -422,13 +413,13 @@ export default async function ManagerTeamGoalsPage() {
                   <p>Lock date: {formatDate(activeReviewCycle.lockDate)}</p>
                 </div>
               ) : null}
-            </div>
-          </div>
-        </div>
-      </section>
+      </DashboardHero>
 
-      <div className="grid gap-4 md:grid-cols-5">
-        <Card className="rounded-lg">
+      <DashboardMetricGrid
+        ariaLabel="Team goal portfolio summary"
+        className="md:grid-cols-3 xl:grid-cols-5"
+      >
+        <Card className="h-full rounded-lg">
           <CardHeader className="pb-2">
             <CardDescription>Direct reports</CardDescription>
             <CardTitle className="flex items-center gap-2 text-2xl">
@@ -437,7 +428,7 @@ export default async function ManagerTeamGoalsPage() {
             </CardTitle>
           </CardHeader>
         </Card>
-        <Card className="rounded-lg">
+        <Card className="h-full rounded-lg">
           <CardHeader className="pb-2">
             <CardDescription>Active goals</CardDescription>
             <CardTitle className="flex items-center gap-2 text-2xl">
@@ -446,7 +437,7 @@ export default async function ManagerTeamGoalsPage() {
             </CardTitle>
           </CardHeader>
         </Card>
-        <Card className="rounded-lg">
+        <Card className="h-full rounded-lg">
           <CardHeader className="pb-2">
             <CardDescription>Shared goals</CardDescription>
             <CardTitle className="flex items-center gap-2 text-2xl">
@@ -455,7 +446,7 @@ export default async function ManagerTeamGoalsPage() {
             </CardTitle>
           </CardHeader>
         </Card>
-        <Card className="rounded-lg">
+        <Card className="h-full rounded-lg">
           <CardHeader className="pb-2">
             <CardDescription>Overdue goals</CardDescription>
             <CardTitle className="flex items-center gap-2 text-2xl">
@@ -464,22 +455,25 @@ export default async function ManagerTeamGoalsPage() {
             </CardTitle>
           </CardHeader>
         </Card>
-        <Card className="rounded-lg">
+        <Card className="h-full rounded-lg">
           <CardHeader className="pb-2">
             <CardDescription>Average progress</CardDescription>
             <CardTitle className="text-2xl">{averageProgress}%</CardTitle>
           </CardHeader>
         </Card>
-      </div>
+      </DashboardMetricGrid>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card className="rounded-lg">
+      <DashboardMetricGrid
+        ariaLabel="Team goal governance summary"
+        className="md:grid-cols-2"
+      >
+        <Card className="h-full rounded-lg">
           <CardHeader className="pb-2">
             <CardDescription>Pending approvals</CardDescription>
             <CardTitle className="text-2xl">{pendingApprovalCount}</CardTitle>
           </CardHeader>
         </Card>
-        <Card className="rounded-lg">
+        <Card className="h-full rounded-lg">
           <CardHeader className="pb-2">
             <CardDescription>Governance state</CardDescription>
             <CardTitle className="flex items-center gap-2 text-base">
@@ -488,7 +482,7 @@ export default async function ManagerTeamGoalsPage() {
             </CardTitle>
           </CardHeader>
         </Card>
-      </div>
+      </DashboardMetricGrid>
 
       {!activeReviewCycle ? (
         <Card className="rounded-lg">
@@ -512,6 +506,6 @@ export default async function ManagerTeamGoalsPage() {
           reviewCycleLabel={reviewCycleLabel}
         />
       )}
-    </div>
+    </DashboardPage>
   );
 }

@@ -143,8 +143,8 @@ export function ReviewCycleForm() {
             updates.
           </CardDescription>
         </CardHeader>
-        <CardContent className="grid gap-5 pt-5">
-          <div className="grid gap-4 md:grid-cols-2">
+        <CardContent className="grid gap-5 pt-4">
+          <div className="grid gap-3 md:grid-cols-2 lg:gap-4">
             <FieldShell className="md:col-span-2">
               <FieldLabel htmlFor="name">Cycle name</FieldLabel>
               <Input
@@ -247,7 +247,7 @@ export function ReviewCycleForm() {
             </div>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-3 md:grid-cols-2 lg:gap-4">
             <FieldShell>
               <FieldLabel htmlFor="startDate">Start date</FieldLabel>
               <Input

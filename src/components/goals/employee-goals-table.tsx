@@ -284,7 +284,7 @@ const columns: ColumnDef<EmployeeGoalTableRow>[] = [
       const canRevise = goal.editData !== null;
 
       return (
-        <div className="flex min-w-36 items-center justify-end gap-2">
+        <div className="flex min-w-36 items-center justify-center gap-2">
           {canRevise ? (
             <EditGoalDialog goal={goal.editData!} />
           ) : null}
@@ -296,6 +296,9 @@ const columns: ColumnDef<EmployeeGoalTableRow>[] = [
         </div>
       );
     },
+    meta: {
+      headerClassName: "text-center",
+    } satisfies ColumnMeta,
   },
 ];
 
@@ -333,8 +336,8 @@ export function EmployeeGoalsTable({
       </CardHeader>
       <CardContent className="p-0">
         {goals.length === 0 ? (
-          <div className="flex min-h-72 flex-col items-center justify-center gap-3 px-6 text-center">
-            <div className="rounded-2xl bg-muted p-3 text-muted-foreground">
+          <div className="flex min-h-56 flex-col items-center justify-center gap-3 px-6 text-center">
+            <div className="rounded-xl bg-muted p-3 text-muted-foreground">
               <ListChecks className="size-6" aria-hidden="true" />
             </div>
             <div className="space-y-1">
@@ -360,7 +363,7 @@ export function EmployeeGoalsTable({
                         <TableHead
                           key={header.id}
                           className={cn(
-                            "h-11 px-4 text-xs uppercase tracking-wide text-muted-foreground",
+                            "h-10 px-4 text-xs uppercase tracking-wide text-muted-foreground",
                             meta?.headerClassName,
                           )}
                         >
@@ -389,7 +392,7 @@ export function EmployeeGoalsTable({
                       return (
                         <TableCell
                           key={cell.id}
-                          className={cn("px-4 py-4", meta?.cellClassName)}
+                          className={cn("px-4 py-3", meta?.cellClassName)}
                         >
                           {flexRender(
                             cell.column.columnDef.cell,

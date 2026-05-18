@@ -4,6 +4,11 @@ import { SharedGoalDialog } from "@/components/goals/shared-goal-dialog";
 import { SharedGoalsTable } from "@/components/goals/shared-goals-table";
 import { DashboardAuthState } from "@/components/layout/dashboard-auth-state";
 import {
+  DashboardHero,
+  DashboardMetricGrid,
+  DashboardPage,
+} from "@/components/layout/dashboard-page";
+import {
   Card,
   CardContent,
   CardDescription,
@@ -28,28 +33,14 @@ export default async function ManagerSharedGoalsPage() {
     dashboard.reviewCycle?.label ?? "No active review cycle";
 
   return (
-    <div className="grid gap-6">
-      <section className="overflow-hidden rounded-2xl border bg-card">
-        <div className="relative isolate p-6 sm:p-8">
-          <div className="absolute inset-y-0 right-0 -z-10 hidden w-1/2 bg-gradient-to-l from-emerald-500/10 via-sky-500/5 to-transparent lg:block" />
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <div className="max-w-3xl space-y-3">
-              <div className="inline-flex items-center gap-2 rounded-full border bg-background px-3 py-1 text-xs font-medium text-muted-foreground">
-                <Share2 className="size-3.5" aria-hidden="true" />
-                Manager KPI propagation
-              </div>
-              <div className="space-y-2">
-                <h1 className="font-heading text-3xl font-semibold tracking-tight sm:text-4xl">
-                  Shared goals
-                </h1>
-                <p className="text-sm leading-6 text-muted-foreground sm:text-base">
-                  Assign approved team KPIs to direct reports, keep each linked
-                  goal weightage accountable, and sync progress from the primary
-                  owner.
-                </p>
-              </div>
-            </div>
-            <div className="rounded-xl border bg-background/80 p-4 shadow-sm">
+    <DashboardPage>
+      <DashboardHero
+        eyebrow="Manager KPI propagation"
+        gradientClassName="from-emerald-500/10 via-sky-500/5 to-transparent"
+        icon={Share2}
+        title="Shared goals"
+        description="Assign approved team KPIs to direct reports, keep each linked goal weightage accountable, and sync progress from the primary owner."
+      >
               <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 Active cycle
               </p>
@@ -60,13 +51,13 @@ export default async function ManagerSharedGoalsPage() {
                   {dashboard.reviewCycle.endDateLabel}
                 </p>
               ) : null}
-            </div>
-          </div>
-        </div>
-      </section>
+      </DashboardHero>
 
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card className="rounded-lg">
+      <DashboardMetricGrid
+        ariaLabel="Manager shared goal summary"
+        className="md:grid-cols-4"
+      >
+        <Card className="h-full rounded-lg">
           <CardHeader className="pb-2">
             <CardDescription>Linked goals</CardDescription>
             <CardTitle className="flex items-center gap-2 text-2xl">
@@ -75,7 +66,7 @@ export default async function ManagerSharedGoalsPage() {
             </CardTitle>
           </CardHeader>
         </Card>
-        <Card className="rounded-lg">
+        <Card className="h-full rounded-lg">
           <CardHeader className="pb-2">
             <CardDescription>Primary KPIs</CardDescription>
             <CardTitle className="text-2xl">
@@ -83,7 +74,7 @@ export default async function ManagerSharedGoalsPage() {
             </CardTitle>
           </CardHeader>
         </Card>
-        <Card className="rounded-lg">
+        <Card className="h-full rounded-lg">
           <CardHeader className="pb-2">
             <CardDescription>Direct reports linked</CardDescription>
             <CardTitle className="flex items-center gap-2 text-2xl">
@@ -92,7 +83,7 @@ export default async function ManagerSharedGoalsPage() {
             </CardTitle>
           </CardHeader>
         </Card>
-        <Card className="rounded-lg">
+        <Card className="h-full rounded-lg">
           <CardHeader className="pb-2">
             <CardDescription>Synced from primary</CardDescription>
             <CardTitle className="flex items-center gap-2 text-2xl">
@@ -101,7 +92,7 @@ export default async function ManagerSharedGoalsPage() {
             </CardTitle>
           </CardHeader>
         </Card>
-      </div>
+      </DashboardMetricGrid>
 
       {!dashboard.reviewCycle ? (
         <Card className="rounded-lg">
@@ -121,7 +112,7 @@ export default async function ManagerSharedGoalsPage() {
         </Card>
       ) : (
         <>
-          <div className="flex flex-col gap-3 rounded-lg border bg-card p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-3 rounded-lg border bg-card p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h2 className="font-heading text-base font-semibold">
                 Direct-report propagation
@@ -146,6 +137,6 @@ export default async function ManagerSharedGoalsPage() {
           />
         </>
       )}
-    </div>
+    </DashboardPage>
   );
 }

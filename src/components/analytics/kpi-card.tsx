@@ -25,7 +25,7 @@ export function KpiCard({
   tone = "bg-sky-50 text-sky-700 ring-sky-200 dark:bg-sky-950/50 dark:text-sky-300 dark:ring-sky-900",
 }: KpiCardProps) {
   return (
-    <Card className="rounded-lg">
+    <Card className="h-full rounded-lg">
       <CardHeader className="grid-cols-[1fr_auto] items-start gap-3 pb-2">
         <div className="space-y-1">
           <CardDescription>{label}</CardDescription>
@@ -36,7 +36,9 @@ export function KpiCard({
         </div>
       </CardHeader>
       <CardContent>
-        <p className="text-xs leading-5 text-muted-foreground">{description}</p>
+        <p className="text-xs leading-5 text-muted-foreground">
+          {description}
+        </p>
       </CardContent>
     </Card>
   );

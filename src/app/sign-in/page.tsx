@@ -133,18 +133,19 @@ export default async function SignInPage({
     <main className="relative isolate min-h-svh overflow-hidden bg-[linear-gradient(180deg,#fafafa_0%,#ffffff_58%,#f8fafc_100%)] text-foreground">
       <InteractiveGrid />
 
-      <div className="mx-auto flex min-h-svh w-full max-w-7xl flex-col px-4 py-4 sm:px-6 lg:px-8">
-        <div className="absolute left-4 top-4 z-10 sm:left-6 lg:left-8">
+      <div className="mx-auto flex min-h-svh w-full max-w-7xl flex-col px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-4">
+        <div className="absolute left-4 top-4 z-10 sm:left-6 lg:left-8 lg:top-8">
           <Link
             href="/"
-            className="inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-border/40 bg-background/95 px-3 text-sm font-medium text-muted-foreground shadow-md shadow-slate-900/5 backdrop-blur-sm transition-colors duration-300 ease-out hover:bg-muted/80 hover:text-foreground"
+            className="inline-flex h-9 w-9 lg:w-auto items-center justify-center gap-2 rounded-lg border border-border/40 bg-background/95 px-0 lg:px-3 text-sm font-medium text-muted-foreground shadow-md shadow-slate-900/5 backdrop-blur-sm transition-colors duration-300 ease-out hover:bg-muted/80 hover:text-foreground"
+            aria-label="Back to Platform"
           >
-            <ArrowLeft className="size-4" aria-hidden="true" />
-            <span>Back to Platform</span>
+            <ArrowLeft className="size-4 shrink-0" aria-hidden="true" />
+            <span className="hidden lg:inline">Back to Platform</span>
           </Link>
         </div>
 
-        <div className="grid flex-1 gap-6 py-2 lg:grid-cols-[1.02fr_0.98fr] lg:items-center lg:gap-8 lg:py-2">
+        <div className="grid flex-1 gap-12 py-2 sm:gap-16 lg:grid-cols-[1.02fr_0.98fr] lg:items-center lg:gap-8">
           <LoginShowcase />
 
           <AnimatedSection

@@ -3,6 +3,11 @@ import { FileClock, Lock, ShieldCheck } from "lucide-react";
 
 import { GoalLockDialog } from "@/components/admin/goal-lock-dialog";
 import { DashboardAuthState } from "@/components/layout/dashboard-auth-state";
+import {
+  DashboardHero,
+  DashboardMetricGrid,
+  DashboardPage,
+} from "@/components/layout/dashboard-page";
 import { ReviewCycleForm } from "@/components/admin/review-cycle-form";
 import {
   ReviewCyclesTable,
@@ -156,27 +161,14 @@ export default async function AdminReviewCyclesPage() {
   const cycleRows = reviewCycles.map(mapReviewCycleToRow);
 
   return (
-    <div className="grid gap-6">
-      <section className="overflow-hidden rounded-2xl border bg-card">
-        <div className="relative isolate p-6 sm:p-8">
-          <div className="absolute inset-y-0 right-0 -z-10 hidden w-1/2 bg-gradient-to-l from-blue-500/10 via-emerald-500/5 to-transparent lg:block" />
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <div className="max-w-3xl space-y-3">
-              <div className="inline-flex items-center gap-2 rounded-full border bg-background px-3 py-1 text-xs font-medium text-muted-foreground">
-                <ShieldCheck className="size-3.5" aria-hidden="true" />
-                Admin governance
-              </div>
-              <div className="space-y-2">
-                <h1 className="font-heading text-3xl font-semibold tracking-tight sm:text-4xl">
-                  Review cycle governance
-                </h1>
-                <p className="text-sm leading-6 text-muted-foreground sm:text-base">
-                  Govern quarterly cycle windows, activation state, goal locks,
-                  and audit-ready administrative controls.
-                </p>
-              </div>
-            </div>
-            <div className="rounded-xl border bg-background/80 p-4 shadow-sm">
+    <DashboardPage>
+      <DashboardHero
+        eyebrow="Admin governance"
+        gradientClassName="from-blue-500/10 via-emerald-500/5 to-transparent"
+        icon={ShieldCheck}
+        title="Review cycle governance"
+        description="Govern quarterly cycle windows, activation state, goal locks, and audit-ready administrative controls."
+      >
               <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 Active cycles
               </p>
@@ -184,13 +176,13 @@ export default async function AdminReviewCyclesPage() {
               <p className="mt-1 text-xs text-muted-foreground">
                 Only one cycle should remain active.
               </p>
-            </div>
-          </div>
-        </div>
-      </section>
+      </DashboardHero>
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card className="rounded-lg">
+      <DashboardMetricGrid
+        ariaLabel="Review cycle governance summary"
+        className="md:grid-cols-3"
+      >
+        <Card className="h-full rounded-lg">
           <CardHeader className="pb-2">
             <CardDescription>Total cycles</CardDescription>
             <CardTitle className="flex items-center gap-2 text-2xl">
@@ -199,13 +191,13 @@ export default async function AdminReviewCyclesPage() {
             </CardTitle>
           </CardHeader>
         </Card>
-        <Card className="rounded-lg">
+        <Card className="h-full rounded-lg">
           <CardHeader className="pb-2">
             <CardDescription>Active cycle count</CardDescription>
             <CardTitle className="text-2xl">{activeCycleCount}</CardTitle>
           </CardHeader>
         </Card>
-        <Card className="rounded-lg">
+        <Card className="h-full rounded-lg">
           <CardHeader className="pb-2">
             <CardDescription>Locked goals</CardDescription>
             <CardTitle className="flex items-center gap-2 text-2xl">
@@ -214,7 +206,7 @@ export default async function AdminReviewCyclesPage() {
             </CardTitle>
           </CardHeader>
         </Card>
-      </div>
+      </DashboardMetricGrid>
 
       <ReviewCycleForm />
       <ReviewCyclesTable cycles={cycleRows} />
@@ -236,19 +228,19 @@ export default async function AdminReviewCyclesPage() {
               <Table>
                 <TableHeader>
                   <TableRow className="bg-muted/40">
-                    <TableHead className="h-11 px-4 text-xs uppercase tracking-wide text-muted-foreground">
+                    <TableHead className="h-10 px-4 text-xs uppercase tracking-wide text-muted-foreground">
                       Goal
                     </TableHead>
-                    <TableHead className="h-11 px-4 text-xs uppercase tracking-wide text-muted-foreground">
+                    <TableHead className="h-10 px-4 text-xs uppercase tracking-wide text-muted-foreground">
                       Owner
                     </TableHead>
-                    <TableHead className="h-11 px-4 text-xs uppercase tracking-wide text-muted-foreground">
+                    <TableHead className="h-10 px-4 text-xs uppercase tracking-wide text-muted-foreground">
                       Cycle
                     </TableHead>
-                    <TableHead className="h-11 px-4 text-xs uppercase tracking-wide text-muted-foreground">
+                    <TableHead className="h-10 px-4 text-xs uppercase tracking-wide text-muted-foreground">
                       Status
                     </TableHead>
-                    <TableHead className="h-11 px-4 text-xs uppercase tracking-wide text-muted-foreground" />
+                    <TableHead className="h-10 px-4 text-xs uppercase tracking-wide text-muted-foreground" />
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -257,7 +249,7 @@ export default async function AdminReviewCyclesPage() {
 
                     return (
                       <TableRow key={goal.id} className="hover:bg-muted/30">
-                        <TableCell className="min-w-72 px-4 py-4">
+                        <TableCell className="min-w-72 px-4 py-3">
                           <p className="line-clamp-2 font-medium">
                             {goal.title}
                           </p>
@@ -267,19 +259,19 @@ export default async function AdminReviewCyclesPage() {
                               : "Available for lock governance"}
                           </p>
                         </TableCell>
-                        <TableCell className="min-w-44 px-4 py-4">
+                        <TableCell className="min-w-44 px-4 py-3">
                           <p className="font-medium">{ownerName}</p>
                           <p className="mt-1 text-xs text-muted-foreground">
                             {goal.owner.department ?? "No department"}
                           </p>
                         </TableCell>
-                        <TableCell className="px-4 py-4 text-muted-foreground">
+                        <TableCell className="px-4 py-3 text-muted-foreground">
                           Q{goal.reviewCycle.quarter} {goal.reviewCycle.year}
                         </TableCell>
-                        <TableCell className="px-4 py-4">
+                        <TableCell className="px-4 py-3">
                           <EmployeeGoalStatusBadge status={goal.status} />
                         </TableCell>
-                        <TableCell className="px-4 py-4">
+                        <TableCell className="px-4 py-3">
                           <div className="flex justify-end">
                             <GoalLockDialog
                               goal={{
@@ -300,6 +292,6 @@ export default async function AdminReviewCyclesPage() {
           )}
         </CardContent>
       </Card>
-    </div>
+    </DashboardPage>
   );
 }

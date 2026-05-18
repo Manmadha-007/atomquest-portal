@@ -2,6 +2,10 @@ import { Activity } from "lucide-react";
 
 import { AnalyticsOverview } from "@/components/analytics/analytics-overview";
 import { DashboardAuthState } from "@/components/layout/dashboard-auth-state";
+import {
+  DashboardHero,
+  DashboardPage,
+} from "@/components/layout/dashboard-page";
 import { ExportActions } from "@/components/reports/export-actions";
 import { getManagerAnalytics } from "@/lib/analytics/dashboard-analytics";
 import { getDashboardUser } from "@/lib/auth/session";
@@ -55,28 +59,14 @@ export default async function ManagerAnalyticsPage() {
   const analytics = await getManagerAnalytics(user.id);
 
   return (
-    <div className="grid gap-6">
-      <section className="overflow-hidden rounded-2xl border bg-card">
-        <div className="relative isolate p-6 sm:p-8">
-          <div className="absolute inset-y-0 right-0 -z-10 hidden w-1/2 bg-gradient-to-l from-emerald-500/10 via-sky-500/5 to-transparent lg:block" />
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <div className="max-w-3xl space-y-3">
-              <div className="inline-flex items-center gap-2 rounded-full border bg-background px-3 py-1 text-xs font-medium text-muted-foreground">
-                <Activity className="size-3.5" aria-hidden="true" />
-                Manager analytics
-              </div>
-              <div className="space-y-2">
-                <h1 className="font-heading text-3xl font-semibold tracking-tight sm:text-4xl">
-                  Team execution analytics
-                </h1>
-                <p className="text-sm leading-6 text-muted-foreground sm:text-base">
-                  Monitor direct-report goal completion, approval queue health,
-                  overdue risk, and quarterly progress trends for the active
-                  review cycle.
-                </p>
-              </div>
-            </div>
-            <div className="rounded-xl border bg-background/80 p-4 shadow-sm">
+    <DashboardPage>
+      <DashboardHero
+        eyebrow="Manager analytics"
+        gradientClassName="from-emerald-500/10 via-sky-500/5 to-transparent"
+        icon={Activity}
+        title="Team execution analytics"
+        description="Monitor direct-report goal completion, approval queue health, overdue risk, and quarterly progress trends for the active review cycle."
+      >
               <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 Active cycle
               </p>
@@ -89,10 +79,7 @@ export default async function ManagerAnalyticsPage() {
                   {formatDate(analytics.reviewCycle.endDate)}
                 </p>
               ) : null}
-            </div>
-          </div>
-        </div>
-      </section>
+      </DashboardHero>
 
       <ExportActions
         actions={managerExportActions}
@@ -100,6 +87,6 @@ export default async function ManagerAnalyticsPage() {
       />
 
       <AnalyticsOverview analytics={analytics} scope="manager" />
-    </div>
+    </DashboardPage>
   );
 }

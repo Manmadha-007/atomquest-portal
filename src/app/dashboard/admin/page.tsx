@@ -18,6 +18,11 @@ import {
 import Link from "next/link";
 
 import { DashboardAuthState } from "@/components/layout/dashboard-auth-state";
+import {
+  DashboardHero,
+  DashboardMetricGrid,
+  DashboardPage,
+} from "@/components/layout/dashboard-page";
 import { KpiCard } from "@/components/analytics/kpi-card";
 import { ExportActions } from "@/components/reports/export-actions";
 import { Button } from "@/components/ui/button";
@@ -613,38 +618,15 @@ export default async function AdminPage() {
   ];
 
   return (
-    <div className="grid gap-6">
-      <section className="overflow-hidden rounded-2xl border bg-card">
-        <div className="relative isolate p-6 sm:p-8">
-          <div className="absolute inset-y-0 right-0 -z-10 hidden w-1/2 bg-gradient-to-l from-sky-500/10 via-emerald-500/5 to-transparent lg:block" />
-
-          <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
-            <div className="max-w-3xl space-y-3">
-              <div className="inline-flex items-center gap-2 rounded-full border bg-background px-3 py-1 text-xs font-medium text-muted-foreground">
-                <LayoutDashboard
-                  className="size-3.5"
-                  aria-hidden="true"
-                />
-
-                Executive operations center
-              </div>
-
-              <div className="space-y-2">
-                <h1 className="font-heading text-3xl font-semibold tracking-tight sm:text-4xl">
-                  AtomQuest goal operations
-                </h1>
-
-                <p className="text-sm leading-6 text-muted-foreground sm:text-base">
-                  Monitor enterprise goal health,
-                  approval flow, completion
-                  readiness, and governance
-                  exposure from one administrator
-                  command view.
-                </p>
-              </div>
-            </div>
-
-            <div className="grid gap-3 rounded-xl border bg-background/80 p-4 shadow-sm sm:grid-cols-3 lg:grid-cols-1">
+    <DashboardPage>
+      <DashboardHero
+        eyebrow="Executive operations center"
+        gradientClassName="from-sky-500/10 via-emerald-500/5 to-transparent"
+        icon={LayoutDashboard}
+        summaryClassName="sm:grid-cols-3 lg:grid-cols-1"
+        title="AtomQuest goal operations"
+        description="Monitor enterprise goal health, approval flow, completion readiness, and governance exposure from one administrator command view."
+      >
               <div>
                 <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                   Active cycle
@@ -709,12 +691,12 @@ export default async function AdminPage() {
                   reviews awaiting decision
                 </p>
               </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      </DashboardHero>
 
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+      <DashboardMetricGrid
+        ariaLabel="Executive KPI summary"
+        className="xl:grid-cols-5"
+      >
         {executiveKpis.map((kpi) => (
           <KpiCard
             key={kpi.label}
@@ -725,10 +707,10 @@ export default async function AdminPage() {
             tone={kpi.tone}
           />
         ))}
-      </section>
+      </DashboardMetricGrid>
 
-      <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
-        <Card className="rounded-lg">
+      <div className="grid gap-5 xl:grid-cols-[1.15fr_0.85fr] lg:gap-6">
+        <Card className="h-full rounded-lg">
           <CardHeader className="border-b">
             <CardTitle>
               Governance snapshot
@@ -755,7 +737,7 @@ export default async function AdminPage() {
           </CardContent>
         </Card>
 
-        <div className="grid gap-6">
+        <div className="grid gap-5 lg:gap-6">
           <Card className="rounded-lg">
             <CardHeader className="border-b">
               <CardTitle>
@@ -856,7 +838,7 @@ export default async function AdminPage() {
             <div className="divide-y">
               {recentActivity.map((log) => (
                 <div
-                  className="grid gap-3 px-4 py-4 sm:grid-cols-[1fr_auto] sm:items-center"
+                  className="grid gap-3 px-4 py-3 sm:grid-cols-[1fr_auto] sm:items-center"
                   key={log.id}
                 >
                   <div className="min-w-0">
@@ -906,6 +888,6 @@ export default async function AdminPage() {
           title="Executive report exports"
         />
       </section>
-    </div>
+    </DashboardPage>
   );
 }

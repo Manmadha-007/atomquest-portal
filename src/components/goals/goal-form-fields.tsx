@@ -85,8 +85,8 @@ export function GoalFormFields({ disabled = false }: GoalFormFieldsProps) {
   const isZeroGoal = measurementType === "ZERO";
 
   return (
-    <div className="grid gap-8">
-      <section className="grid gap-4">
+    <div className="grid gap-5">
+      <section className="grid gap-3">
         <div className="flex flex-col gap-1">
           <h2 className="text-sm font-semibold">Goal definition</h2>
           <p className="text-sm text-muted-foreground">
@@ -94,7 +94,7 @@ export function GoalFormFields({ disabled = false }: GoalFormFieldsProps) {
           </p>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-3 md:grid-cols-2 lg:gap-4">
           <FieldShell className="md:col-span-2">
             <FieldLabel htmlFor="title">Title</FieldLabel>
             <Input
@@ -139,7 +139,7 @@ export function GoalFormFields({ disabled = false }: GoalFormFieldsProps) {
               disabled={disabled}
               aria-invalid={Boolean(errors.description)}
               className={cn(
-                "min-h-28 w-full rounded-lg border border-input bg-transparent px-2.5 py-2 text-sm outline-none transition-colors placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:bg-input/30",
+                "min-h-24 w-full rounded-lg border border-input bg-transparent px-2.5 py-2 text-sm outline-none transition-colors placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:bg-input/30",
               )}
               {...register("description")}
             />
@@ -150,7 +150,7 @@ export function GoalFormFields({ disabled = false }: GoalFormFieldsProps) {
 
       <Separator />
 
-      <section className="grid gap-4">
+      <section className="grid gap-3">
         <div className="flex flex-col gap-1">
           <h2 className="text-sm font-semibold">Measurement model</h2>
           <p className="text-sm text-muted-foreground">
@@ -158,7 +158,7 @@ export function GoalFormFields({ disabled = false }: GoalFormFieldsProps) {
           </p>
         </div>
 
-        <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
+        <div className="grid gap-3 lg:grid-cols-[1.2fr_0.8fr] lg:gap-4">
           <FieldShell>
             <FieldLabel htmlFor="measurementType">Measurement type</FieldLabel>
             <Controller
@@ -205,7 +205,7 @@ export function GoalFormFields({ disabled = false }: GoalFormFieldsProps) {
           </div>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-3 md:grid-cols-2 lg:gap-4">
           <FieldShell>
             <FieldLabel htmlFor="startValue" required={!isTimelineGoal}>
               Start value
@@ -243,7 +243,7 @@ export function GoalFormFields({ disabled = false }: GoalFormFieldsProps) {
 
       <Separator />
 
-      <section className="grid gap-4">
+      <section className="grid gap-3">
         <div className="flex flex-col gap-1">
           <h2 className="text-sm font-semibold">Planning controls</h2>
           <p className="text-sm text-muted-foreground">
@@ -251,7 +251,7 @@ export function GoalFormFields({ disabled = false }: GoalFormFieldsProps) {
           </p>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-3 md:grid-cols-2 lg:gap-4">
           <FieldShell>
             <FieldLabel htmlFor="weightage">Weightage</FieldLabel>
             <div className="relative">

@@ -14,6 +14,11 @@ import {
 } from "@/components/admin/employees-table";
 import { DashboardAuthState } from "@/components/layout/dashboard-auth-state";
 import {
+  DashboardHero,
+  DashboardMetricGrid,
+  DashboardPage,
+} from "@/components/layout/dashboard-page";
+import {
   Card,
   CardContent,
   CardDescription,
@@ -348,28 +353,14 @@ export default async function AdminEmployeesPage() {
     analytics.reviewCycle?.label ?? "no active review cycle";
 
   return (
-    <div className="grid gap-6">
-      <section className="overflow-hidden rounded-2xl border bg-card">
-        <div className="relative isolate p-6 sm:p-8">
-          <div className="absolute inset-y-0 right-0 -z-10 hidden w-1/2 bg-gradient-to-l from-blue-500/10 via-emerald-500/5 to-transparent lg:block" />
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <div className="max-w-3xl space-y-3">
-              <div className="inline-flex items-center gap-2 rounded-full border bg-background px-3 py-1 text-xs font-medium text-muted-foreground">
-                <UsersRound className="size-3.5" aria-hidden="true" />
-                Admin workforce directory
-              </div>
-              <div className="space-y-2">
-                <h1 className="font-heading text-3xl font-semibold tracking-tight sm:text-4xl">
-                  Employees
-                </h1>
-                <p className="text-sm leading-6 text-muted-foreground sm:text-base">
-                  Inspect role coverage, manager relationships, active-cycle
-                  goal load, completion readiness, and approval exposure across
-                  the enterprise workforce.
-                </p>
-              </div>
-            </div>
-            <div className="rounded-xl border bg-background/80 p-4 shadow-sm">
+    <DashboardPage>
+      <DashboardHero
+        eyebrow="Admin workforce directory"
+        gradientClassName="from-blue-500/10 via-emerald-500/5 to-transparent"
+        icon={UsersRound}
+        title="Employees"
+        description="Inspect role coverage, manager relationships, active-cycle goal load, completion readiness, and approval exposure across the enterprise workforce."
+      >
               <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 Current cycle
               </p>
@@ -384,17 +375,17 @@ export default async function AdminEmployeesPage() {
                   Workforce records remain visible without cycle analytics.
                 </p>
               )}
-            </div>
-          </div>
-        </div>
-      </section>
+      </DashboardHero>
 
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+      <DashboardMetricGrid
+        ariaLabel="Workforce directory summary"
+        className="xl:grid-cols-5"
+      >
         {metrics.map((metric) => {
           const Icon = metric.icon;
 
           return (
-            <Card className="rounded-lg" key={metric.label}>
+            <Card className="h-full rounded-lg" key={metric.label}>
               <CardHeader className="grid-cols-[1fr_auto] items-start gap-3 pb-2">
                 <div className="space-y-1">
                   <CardDescription>{metric.label}</CardDescription>
@@ -412,12 +403,12 @@ export default async function AdminEmployeesPage() {
             </Card>
           );
         })}
-      </section>
+      </DashboardMetricGrid>
 
       <EmployeesTable
         employees={tableRows}
         reviewCycleLabel={reviewCycleLabel}
       />
-    </div>
+    </DashboardPage>
   );
 }

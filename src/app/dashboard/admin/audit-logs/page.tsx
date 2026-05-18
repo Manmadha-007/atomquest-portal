@@ -6,6 +6,11 @@ import {
   type AuditLogTableRow,
 } from "@/components/admin/audit-logs-table";
 import { DashboardAuthState } from "@/components/layout/dashboard-auth-state";
+import {
+  DashboardHero,
+  DashboardMetricGrid,
+  DashboardPage,
+} from "@/components/layout/dashboard-page";
 import { ExportActions } from "@/components/reports/export-actions";
 import {
   Card,
@@ -134,30 +139,20 @@ export default async function AdminAuditLogsPage() {
   const tableRows = logs.map(mapAuditLogToRow);
 
   return (
-    <div className="grid gap-6">
-      <section className="overflow-hidden rounded-2xl border bg-card">
-        <div className="relative isolate p-6 sm:p-8">
-          <div className="absolute inset-y-0 right-0 -z-10 hidden w-1/2 bg-gradient-to-l from-slate-500/10 via-blue-500/5 to-transparent lg:block" />
-          <div className="max-w-3xl space-y-3">
-            <div className="inline-flex items-center gap-2 rounded-full border bg-background px-3 py-1 text-xs font-medium text-muted-foreground">
-              <ShieldCheck className="size-3.5" aria-hidden="true" />
-              Audit governance
-            </div>
-            <div className="space-y-2">
-              <h1 className="font-heading text-3xl font-semibold tracking-tight sm:text-4xl">
-                Audit logs
-              </h1>
-              <p className="text-sm leading-6 text-muted-foreground sm:text-base">
-                Review administrative governance actions, workflow decisions,
-                entity changes, and structured metadata from the audit trail.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+    <DashboardPage>
+      <DashboardHero
+        eyebrow="Audit governance"
+        gradientClassName="from-slate-500/10 via-blue-500/5 to-transparent"
+        icon={ShieldCheck}
+        title="Audit logs"
+        description="Review administrative governance actions, workflow decisions, entity changes, and structured metadata from the audit trail."
+      />
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card className="rounded-lg">
+      <DashboardMetricGrid
+        ariaLabel="Audit log summary"
+        className="md:grid-cols-3"
+      >
+        <Card className="h-full rounded-lg">
           <CardHeader className="pb-2">
             <CardDescription>Total records</CardDescription>
             <CardTitle className="flex items-center gap-2 text-2xl">
@@ -166,13 +161,13 @@ export default async function AdminAuditLogsPage() {
             </CardTitle>
           </CardHeader>
         </Card>
-        <Card className="rounded-lg">
+        <Card className="h-full rounded-lg">
           <CardHeader className="pb-2">
             <CardDescription>Governance events</CardDescription>
             <CardTitle className="text-2xl">{governanceLogCount}</CardTitle>
           </CardHeader>
         </Card>
-        <Card className="rounded-lg">
+        <Card className="h-full rounded-lg">
           <CardHeader className="pb-2">
             <CardDescription>Actors recorded</CardDescription>
             <CardTitle className="flex items-center gap-2 text-2xl">
@@ -181,7 +176,7 @@ export default async function AdminAuditLogsPage() {
             </CardTitle>
           </CardHeader>
         </Card>
-      </div>
+      </DashboardMetricGrid>
 
       <ExportActions
         actions={auditLogExportActions}
@@ -189,6 +184,6 @@ export default async function AdminAuditLogsPage() {
       />
 
       <AuditLogsTable logs={tableRows} />
-    </div>
+    </DashboardPage>
   );
 }

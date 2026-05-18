@@ -30,9 +30,9 @@ function ConfirmSignoutButton() {
       type="submit"
       variant="destructive"
       disabled={pending}
-      className="gap-1.5"
+      className="h-10 w-full gap-2 sm:h-9 sm:w-auto"
     >
-      <LogOut className="size-3.5" aria-hidden="true" />
+      <LogOut className="size-4 sm:size-3.5" aria-hidden="true" />
       {pending ? "Signing out..." : "Sign out"}
     </Button>
   );
@@ -55,34 +55,34 @@ export function SignoutConfirmation({
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader className="gap-3">
-          <div className="flex size-10 items-center justify-center rounded-lg bg-slate-950 text-slate-50">
+      <DialogContent className="sm:max-w-md gap-5 p-5 sm:p-6">
+        <DialogHeader className="gap-4">
+          <div className="flex size-11 items-center justify-center rounded-xl bg-slate-950 text-slate-50">
             <ShieldCheck className="size-5" aria-hidden="true" />
           </div>
           <div className="space-y-2">
-            <DialogTitle>Sign out of AtomQuest?</DialogTitle>
-            <DialogDescription className="leading-6">
+            <DialogTitle className="text-lg sm:text-base">Sign out of AtomQuest?</DialogTitle>
+            <DialogDescription className="leading-relaxed">
               Your current {workspaceLabel.toLowerCase()} session will end and
               you will return to the public platform page.
             </DialogDescription>
           </div>
         </DialogHeader>
 
-        <div className="rounded-lg border bg-muted/30 p-3 text-sm">
-          <p className="font-medium">{userLabel ?? "AtomQuest user"}</p>
-          <p className="mt-1 text-xs text-muted-foreground">{workspaceLabel}</p>
+        <div className="rounded-xl border bg-muted/30 px-4 py-3.5 text-sm">
+          <p className="truncate font-medium">{userLabel ?? "AtomQuest user"}</p>
+          <p className="mt-1 truncate text-xs text-muted-foreground">{workspaceLabel}</p>
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="gap-2.5 sm:gap-2">
+          <form action={action} className="contents">
+            <ConfirmSignoutButton />
+          </form>
           <DialogClose asChild>
-            <Button type="button" variant="outline">
+            <Button type="button" variant="outline" className="h-10 w-full sm:h-9 sm:w-auto">
               Cancel
             </Button>
           </DialogClose>
-          <form action={action}>
-            <ConfirmSignoutButton />
-          </form>
         </DialogFooter>
       </DialogContent>
     </Dialog>
