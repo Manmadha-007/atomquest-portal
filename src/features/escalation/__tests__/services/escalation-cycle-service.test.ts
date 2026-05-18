@@ -10,7 +10,9 @@ import { runEscalationCycleWithClient } from "@/features/escalation/services/esc
 import {
   ACTIVE_CYCLE_START,
   daysAfter,
+  employee,
   escalationRule,
+  manager,
 } from "@/features/escalation/__tests__/fixtures/escalation-fixtures";
 import { createEscalationTestDb } from "@/features/escalation/__tests__/helpers/in-memory-escalation-db";
 import { createCapturingProvider } from "@/features/escalation/__tests__/helpers/notification-providers";
@@ -147,5 +149,38 @@ describe("runEscalationCycleWithClient", () => {
     assert.equal(state.escalationLogs.length, 1);
     assert.equal(state.escalationNotificationDeliveries.length, 1);
     assert.equal(emailProvider.sentPayloads.length, 1);
+  });
+
+  test("completes multi-log governance execution with delivery audit persistence", async () => {
+    const employees = Array.from({ length: 20 }, (_, index) =>
+      employee({
+        id: `employee-notification-${index + 1}`,
+        firstName: `Notification${index + 1}`,
+        lastName: "Governance",
+        email: `notification.${index + 1}@example.com`,
+      }),
+    );
+    const emailProvider = createCapturingProvider({ name: "Email" });
+    const { db, state } = createEscalationTestDb({
+      users: [manager(), ...employees],
+      escalationRules: [escalationRule()],
+    });
+
+    const result = await runEscalationCycleWithClient({
+      db,
+      triggerSource: EscalationTriggerSource.SYSTEM,
+      now: daysAfter(ACTIVE_CYCLE_START, 5),
+      providers: [emailProvider],
+    });
+
+    assert.equal(result.status, EscalationExecutionStatus.COMPLETED);
+    assert.equal(result.summary.logsCreated, employees.length);
+    assert.equal(result.summary.notificationsAttempted, employees.length);
+    assert.equal(result.summary.notificationsDelivered, employees.length);
+    assert.equal(result.summary.notificationDuplicates, 0);
+    assert.equal(result.summary.failures, 0);
+    assert.equal(state.escalationLogs.length, employees.length);
+    assert.equal(state.escalationNotificationDeliveries.length, employees.length);
+    assert.equal(emailProvider.sentPayloads.length, employees.length);
   });
 });

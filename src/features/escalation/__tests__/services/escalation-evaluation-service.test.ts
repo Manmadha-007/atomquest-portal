@@ -133,6 +133,36 @@ describe("evaluateEscalationsWithClient", () => {
     assert.equal(state.escalationLogs.length, 1);
   });
 
+  test("larger governance evaluation remains idempotent across repeated runs", async () => {
+    const employees = Array.from({ length: 60 }, (_, index) =>
+      employee({
+        id: `employee-product-${index + 1}`,
+        firstName: `Employee${index + 1}`,
+        lastName: "Governance",
+        email: `employee.${index + 1}@example.com`,
+      }),
+    );
+    const { db, state } = createEscalationTestDb({
+      users: [manager(), ...employees],
+      escalationRules: [escalationRule()],
+    });
+
+    const firstRun = await evaluateEscalationsWithClient({
+      db,
+      now: daysAfter(ACTIVE_CYCLE_START, 5),
+    });
+    const secondRun = await evaluateEscalationsWithClient({
+      db,
+      now: daysAfter(ACTIVE_CYCLE_START, 6),
+    });
+
+    assert.equal(firstRun.createdLogCount, employees.length);
+    assert.equal(firstRun.skippedDuplicateCount, 0);
+    assert.equal(secondRun.createdLogCount, 0);
+    assert.equal(secondRun.skippedDuplicateCount, employees.length);
+    assert.equal(state.escalationLogs.length, employees.length);
+  });
+
   test("evaluation remains stable when no active rules exist", async () => {
     const { db, state } = createEscalationTestDb({
       escalationRules: [

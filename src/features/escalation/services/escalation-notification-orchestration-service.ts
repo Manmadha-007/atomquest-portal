@@ -147,15 +147,9 @@ export async function orchestrateEscalationNotifications(input?: {
 
   const { prisma } = await import("@/lib/prisma");
 
-  return prisma.$transaction(
-    (tx) =>
-      orchestrateEscalationNotificationsWithClient({
-        db: tx,
-        providers: input?.providers,
-        attemptedAt,
-      }),
-    {
-      isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
-    },
-  );
+  return orchestrateEscalationNotificationsWithClient({
+    db: prisma as unknown as EscalationDbClient,
+    providers: input?.providers,
+    attemptedAt,
+  });
 }

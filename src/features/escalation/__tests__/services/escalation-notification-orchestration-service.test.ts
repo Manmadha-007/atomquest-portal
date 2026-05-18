@@ -15,10 +15,12 @@ import {
   BASE_NOW,
   ACTIVE_CYCLE_START,
   daysAfter,
+  employee,
   escalationLog,
   escalationNotificationDelivery,
   escalationRule,
   goal,
+  manager,
 } from "@/features/escalation/__tests__/fixtures/escalation-fixtures";
 import { createEscalationTestDb } from "@/features/escalation/__tests__/helpers/in-memory-escalation-db";
 import { createCapturingProvider } from "@/features/escalation/__tests__/helpers/notification-providers";
@@ -284,5 +286,51 @@ describe("orchestrateEscalationNotificationsWithClient", () => {
     assert.equal(secondRun.duplicateCount, 1);
     assert.equal(emailProvider.sentPayloads.length, 1);
     assert.equal(state.escalationNotificationDeliveries.length, 1);
+  });
+
+  test("delivers a larger open escalation set without duplicate delivery records", async () => {
+    const rule = escalationRule();
+    const employees = Array.from({ length: 20 }, (_, index) =>
+      employee({
+        id: `employee-open-log-${index + 1}`,
+        firstName: `OpenLog${index + 1}`,
+        lastName: "Governance",
+        email: `open.log.${index + 1}@example.com`,
+      }),
+    );
+    const logs = employees.map((item, index) =>
+      escalationLog({
+        id: `open-escalation-log-${index + 1}`,
+        escalationRuleId: rule.id,
+        escalationType: rule.type,
+        escalationLevel: rule.escalationLevel,
+        employeeId: item.id,
+        managerId: item.managerId,
+      }),
+    );
+    const emailProvider = createCapturingProvider({ name: "Email" });
+    const { db, state } = createEscalationTestDb({
+      users: [manager(), ...employees],
+      escalationRules: [rule],
+      escalationLogs: logs,
+    });
+
+    const firstRun = await orchestrateEscalationNotificationsWithClient({
+      db,
+      providers: [emailProvider],
+      attemptedAt: BASE_NOW,
+    });
+    const secondRun = await orchestrateEscalationNotificationsWithClient({
+      db,
+      providers: [emailProvider],
+      attemptedAt: daysAfter(BASE_NOW, 1),
+    });
+
+    assert.equal(firstRun.deliveredCount, employees.length);
+    assert.equal(firstRun.duplicateCount, 0);
+    assert.equal(secondRun.deliveredCount, 0);
+    assert.equal(secondRun.duplicateCount, employees.length);
+    assert.equal(state.escalationNotificationDeliveries.length, employees.length);
+    assert.equal(emailProvider.sentPayloads.length, employees.length);
   });
 });

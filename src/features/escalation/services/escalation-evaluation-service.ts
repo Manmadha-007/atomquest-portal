@@ -9,6 +9,7 @@ import type {
   EscalationEvaluationRunResult,
   EscalationRuleEvaluationResult,
 } from "@/features/escalation/types";
+import { governanceExecutionTransactionOptions } from "@/features/escalation/utils/transaction-options";
 
 const activeEscalationRuleSelect = {
   id: true,
@@ -115,8 +116,6 @@ export async function evaluateEscalations(input?: {
         db: tx,
         now,
       }),
-    {
-      isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
-    },
+    governanceExecutionTransactionOptions,
   );
 }

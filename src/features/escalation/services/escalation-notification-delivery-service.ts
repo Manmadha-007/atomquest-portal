@@ -41,6 +41,15 @@ function toDeliveryStatus(result: ProviderExecutionResult) {
   }
 }
 
+function isUniqueConstraintError(error: unknown) {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    (error as { code?: string }).code === "P2002"
+  );
+}
+
 export async function deliverEscalationNotification(input: {
   db: EscalationDbClient;
   provider: NotificationProvider;
@@ -97,41 +106,70 @@ export async function deliverEscalationNotification(input: {
   }
 
   const status = toDeliveryStatus(providerResult);
-  const delivery = await input.db.escalationNotificationDelivery.create({
-    data: {
-      escalationLogId: input.escalationLog.id,
-      channel,
-      status,
-      recipientUserId: input.recipient.id,
-      recipientAddress:
-        channel === EscalationNotificationChannel.EMAIL
-          ? input.recipient.email
-          : providerResult.recipientIdentifier ?? "Teams Webhook",
-      providerName: providerResult.providerName,
-      attemptedAt: input.attemptedAt,
-      deliveredAt:
-        status === EscalationNotificationStatus.DELIVERED
-          ? input.attemptedAt
-          : null,
-      error: providerResult.error,
-      metadata: {
-        durationMs: providerResult.durationMs,
-        recipientIdentifier: providerResult.recipientIdentifier,
-        providerStatus: providerResult.status,
-        escalationType: input.escalationLog.escalationType,
-        escalationLevel: input.escalationLog.escalationLevel,
-      } satisfies Prisma.JsonObject,
-    },
-    select: { id: true },
-  });
 
-  return {
-    escalationLogId: input.escalationLog.id,
-    recipientUserId: input.recipient.id,
-    channel,
-    providerName: providerResult.providerName,
-    status,
-    deliveryId: delivery.id,
-    error: providerResult.error,
-  };
+  try {
+    const delivery = await input.db.escalationNotificationDelivery.create({
+      data: {
+        escalationLogId: input.escalationLog.id,
+        channel,
+        status,
+        recipientUserId: input.recipient.id,
+        recipientAddress:
+          channel === EscalationNotificationChannel.EMAIL
+            ? input.recipient.email
+            : providerResult.recipientIdentifier ?? "Teams Webhook",
+        providerName: providerResult.providerName,
+        attemptedAt: input.attemptedAt,
+        deliveredAt:
+          status === EscalationNotificationStatus.DELIVERED
+            ? input.attemptedAt
+            : null,
+        error: providerResult.error,
+        metadata: {
+          durationMs: providerResult.durationMs,
+          recipientIdentifier: providerResult.recipientIdentifier,
+          providerStatus: providerResult.status,
+          escalationType: input.escalationLog.escalationType,
+          escalationLevel: input.escalationLog.escalationLevel,
+        } satisfies Prisma.JsonObject,
+      },
+      select: { id: true },
+    });
+
+    return {
+      escalationLogId: input.escalationLog.id,
+      recipientUserId: input.recipient.id,
+      channel,
+      providerName: providerResult.providerName,
+      status,
+      deliveryId: delivery.id,
+      error: providerResult.error,
+    };
+  } catch (error) {
+    if (!isUniqueConstraintError(error)) {
+      throw error;
+    }
+
+    const conflictingDelivery =
+      await input.db.escalationNotificationDelivery.findFirst({
+        where: {
+          escalationLogId: input.escalationLog.id,
+          channel,
+          recipientUserId: input.recipient.id,
+        },
+        select: { id: true, status: true },
+      });
+
+    return {
+      escalationLogId: input.escalationLog.id,
+      recipientUserId: input.recipient.id,
+      channel,
+      providerName: input.provider.name,
+      status: "DUPLICATE",
+      deliveryId: conflictingDelivery?.id,
+      skippedReason: conflictingDelivery
+        ? `Delivery already recorded with status ${conflictingDelivery.status}.`
+        : "Delivery already recorded by a concurrent governance notification run.",
+    };
+  }
 }
