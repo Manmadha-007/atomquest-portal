@@ -2,6 +2,8 @@ import "dotenv/config";
 
 import {
   ApprovalDecision,
+  EscalationLevel,
+  EscalationType,
   GoalMeasurementType,
   GoalStatus,
   Prisma,
@@ -99,7 +101,81 @@ async function seedCycles() {
   console.log(`  ✓ ${cycles.length} review cycles`);
 }
 
-// ── Seed Shared Goal Groups ──
+// --- Seed Escalation Governance Rules ---
+const escalationRuleSeeds: {
+  id: string;
+  type: EscalationType;
+  name: string;
+  description: string;
+  thresholdDays: number;
+  escalationLevel: EscalationLevel;
+  targetRole: UserRole;
+}[] = [
+  {
+    id: uuid(3001),
+    type: EscalationType.GOAL_NOT_SUBMITTED,
+    name: "Goal submission overdue after 3 days",
+    description: "Flags employees who have not submitted required quarterly goals within three days of the submission window.",
+    thresholdDays: 3,
+    escalationLevel: EscalationLevel.LEVEL_1,
+    targetRole: UserRole.EMPLOYEE,
+  },
+  {
+    id: uuid(3002),
+    type: EscalationType.APPROVAL_PENDING_TOO_LONG,
+    name: "Approval pending after 2 days",
+    description: "Flags manager approval queues when submitted goals remain pending beyond two business days.",
+    thresholdDays: 2,
+    escalationLevel: EscalationLevel.LEVEL_1,
+    targetRole: UserRole.MANAGER,
+  },
+  {
+    id: uuid(3003),
+    type: EscalationType.CHECKIN_MISSED,
+    name: "Check-in overdue after 5 days",
+    description: "Flags missed employee progress check-ins after five days without a recorded quarterly update.",
+    thresholdDays: 5,
+    escalationLevel: EscalationLevel.LEVEL_1,
+    targetRole: UserRole.EMPLOYEE,
+  },
+];
+
+async function seedEscalationRules() {
+  console.log("Seeding escalation governance rules...");
+
+  for (const rule of escalationRuleSeeds) {
+    await prisma.escalationRule.upsert({
+      where: { id: rule.id },
+      update: {
+        type: rule.type,
+        name: rule.name,
+        description: rule.description,
+        thresholdDays: rule.thresholdDays,
+        escalationLevel: rule.escalationLevel,
+        targetRole: rule.targetRole,
+        reviewCycleId: null,
+        departmentScope: null,
+        isActive: true,
+      },
+      create: {
+        id: rule.id,
+        type: rule.type,
+        name: rule.name,
+        description: rule.description,
+        thresholdDays: rule.thresholdDays,
+        escalationLevel: rule.escalationLevel,
+        targetRole: rule.targetRole,
+        reviewCycleId: null,
+        departmentScope: null,
+        isActive: true,
+      },
+    });
+  }
+
+  console.log(`  - ${escalationRuleSeeds.length} escalation governance rules`);
+}
+
+// --- Seed Shared Goal Groups ---
 const sharedGroupDefs: { key: string; idx: number; desc: string; creatorIdx: number }[] = [
   { key: "Q2 Cross-Functional Reliability Initiative", idx: 201, desc: "Cross-functional goals improving customer-facing reliability, delivery rhythm, and health score visibility.", creatorIdx: 3 },
   { key: "Platform Reliability Program", idx: 202, desc: "Strategic initiative to achieve 99.99% platform availability through infrastructure hardening, API reliability, and incident elimination.", creatorIdx: 1 },
@@ -652,6 +728,7 @@ async function main() {
 
   await seedUsers(pwHash);
   await seedCycles();
+  await seedEscalationRules();
   await seedSharedGoalGroups();
   await seedGoals();
   await seedUpdates();
