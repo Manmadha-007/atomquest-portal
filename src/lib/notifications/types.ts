@@ -4,6 +4,7 @@ export enum NotificationEvent {
   GOAL_REJECTED = 'GOAL_REJECTED',
   GOAL_UPDATED = 'GOAL_UPDATED',
   CHECKIN_REMINDER = 'CHECKIN_REMINDER',
+  ESCALATION_OPENED = 'ESCALATION_OPENED',
 }
 
 export interface NotificationActor {

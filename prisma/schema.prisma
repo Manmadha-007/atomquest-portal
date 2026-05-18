@@ -58,11 +58,36 @@ enum EscalationStatus {
   DISMISSED
 }
 
+enum EscalationNotificationChannel {
+  EMAIL
+  TEAMS
+}
+
+enum EscalationNotificationStatus {
+  DELIVERED
+  SKIPPED
+  FAILED
+}
+
+enum EscalationExecutionStatus {
+  RUNNING
+  COMPLETED
+  FAILED
+  PARTIALLY_COMPLETED
+}
+
+enum EscalationTriggerSource {
+  MANUAL
+  API
+  CLI
+  SYSTEM
+}
+
 model User {
-  id                       String            @id @default(uuid()) @db.Uuid
-  employeeNumber           String?           @unique
+  id                       String                           @id @default(uuid()) @db.Uuid
+  employeeNumber           String?                          @unique
   name                     String?
-  email                    String            @unique
+  email                    String                           @unique
   emailVerified            DateTime?
   image                    String?
   passwordHash             String?
@@ -70,25 +95,29 @@ model User {
   lastName                 String
   title                    String?
   department               String?
-  role                     UserRole          @default(EMPLOYEE)
-  isActive                 Boolean           @default(true)
-  managerId                String?           @db.Uuid
-  manager                  User?             @relation("ManagerToReports", fields: [managerId], references: [id], onDelete: SetNull)
-  directReports            User[]            @relation("ManagerToReports")
-  goalsOwned               Goal[]            @relation("GoalOwner")
-  goalsCreated             Goal[]            @relation("GoalCreator")
-  goalUpdates              GoalUpdate[]      @relation("GoalUpdateAuthor")
-  goalApprovals            GoalApproval[]    @relation("GoalApprover")
-  reviewCyclesCreated      ReviewCycle[]     @relation("ReviewCycleCreator")
-  sharedGoalGroups         SharedGoalGroup[] @relation("SharedGoalGroupMembers")
-  sharedGoalGroupsCreated  SharedGoalGroup[] @relation("SharedGoalGroupCreator")
-  auditLogs                AuditLog[]        @relation("AuditActor")
-  escalationLogsAsEmployee EscalationLog[]   @relation("EscalationEmployee")
-  escalationLogsAsManager  EscalationLog[]   @relation("EscalationManager")
+  role                     UserRole                         @default(EMPLOYEE)
+  isActive                 Boolean                          @default(true)
+  managerId                String?                          @db.Uuid
+  manager                  User?                            @relation("ManagerToReports", fields: [managerId], references: [id], onDelete: SetNull)
+  directReports            User[]                           @relation("ManagerToReports")
+  goalsOwned               Goal[]                           @relation("GoalOwner")
+  goalsCreated             Goal[]                           @relation("GoalCreator")
+  goalUpdates              GoalUpdate[]                     @relation("GoalUpdateAuthor")
+  goalApprovals            GoalApproval[]                   @relation("GoalApprover")
+  reviewCyclesCreated      ReviewCycle[]                    @relation("ReviewCycleCreator")
+  sharedGoalGroups         SharedGoalGroup[]                @relation("SharedGoalGroupMembers")
+  sharedGoalGroupsCreated  SharedGoalGroup[]                @relation("SharedGoalGroupCreator")
+  auditLogs                AuditLog[]                       @relation("AuditActor")
+  escalationLogsAsEmployee EscalationLog[]                  @relation("EscalationEmployee")
+  escalationLogsAsManager  EscalationLog[]                  @relation("EscalationManager")
+  escalationResolutions    EscalationLog[]                  @relation("EscalationResolvedBy")
+  escalationDismissals     EscalationLog[]                  @relation("EscalationDismissedBy")
+  escalationNotifications  EscalationNotificationDelivery[] @relation("EscalationNotificationRecipient")
+  escalationExecutions     EscalationExecution[]            @relation("EscalationExecutionTrigger")
   accounts                 Account[]
   sessions                 Session[]
-  createdAt                DateTime          @default(now())
-  updatedAt                DateTime          @updatedAt
+  createdAt                DateTime                         @default(now())
+  updatedAt                DateTime                         @updatedAt
 
   @@index([managerId])
   @@index([role, isActive])
@@ -300,24 +329,33 @@ model EscalationRule {
 }
 
 model EscalationLog {
-  id               String           @id @default(uuid()) @db.Uuid
-  escalationRuleId String           @db.Uuid
-  escalationRule   EscalationRule   @relation(fields: [escalationRuleId], references: [id], onDelete: Restrict)
-  escalationType   EscalationType
-  escalationLevel  EscalationLevel
-  status           EscalationStatus @default(OPEN)
-  triggeredAt      DateTime         @default(now())
-  resolvedAt       DateTime?
-  employeeId       String           @db.Uuid
-  employee         User             @relation("EscalationEmployee", fields: [employeeId], references: [id], onDelete: Restrict)
-  managerId        String?          @db.Uuid
-  manager          User?            @relation("EscalationManager", fields: [managerId], references: [id], onDelete: Restrict)
-  targetGoalId     String?          @db.Uuid
-  targetGoal       Goal?            @relation("EscalationTargetGoal", fields: [targetGoalId], references: [id], onDelete: SetNull)
-  message          String
-  metadata         Json?
-  createdAt        DateTime         @default(now())
-  updatedAt        DateTime         @updatedAt
+  id                     String                           @id @default(uuid()) @db.Uuid
+  escalationRuleId       String                           @db.Uuid
+  escalationRule         EscalationRule                   @relation(fields: [escalationRuleId], references: [id], onDelete: Restrict)
+  escalationType         EscalationType
+  escalationLevel        EscalationLevel
+  status                 EscalationStatus                 @default(OPEN)
+  triggeredAt            DateTime                         @default(now())
+  resolvedAt             DateTime?
+  resolvedByUserId       String?                          @db.Uuid
+  resolvedByUser         User?                            @relation("EscalationResolvedBy", fields: [resolvedByUserId], references: [id], onDelete: SetNull)
+  dismissedAt            DateTime?
+  dismissedByUserId      String?                          @db.Uuid
+  dismissedByUser        User?                            @relation("EscalationDismissedBy", fields: [dismissedByUserId], references: [id], onDelete: SetNull)
+  resolutionReason       String?
+  dismissalReason        String?
+  resolutionNotes        String?
+  employeeId             String                           @db.Uuid
+  employee               User                             @relation("EscalationEmployee", fields: [employeeId], references: [id], onDelete: Restrict)
+  managerId              String?                          @db.Uuid
+  manager                User?                            @relation("EscalationManager", fields: [managerId], references: [id], onDelete: Restrict)
+  targetGoalId           String?                          @db.Uuid
+  targetGoal             Goal?                            @relation("EscalationTargetGoal", fields: [targetGoalId], references: [id], onDelete: SetNull)
+  message                String
+  metadata               Json?
+  notificationDeliveries EscalationNotificationDelivery[]
+  createdAt              DateTime                         @default(now())
+  updatedAt              DateTime                         @updatedAt
 
   @@index([escalationRuleId, triggeredAt])
   @@index([employeeId, triggeredAt])
@@ -326,6 +364,59 @@ model EscalationLog {
   @@index([escalationType, status])
   @@index([escalationLevel, status])
   @@index([status, triggeredAt])
+  @@index([resolvedByUserId, resolvedAt])
+  @@index([dismissedByUserId, dismissedAt])
+}
+
+model EscalationNotificationDelivery {
+  id               String                        @id @default(uuid()) @db.Uuid
+  escalationLogId  String                        @db.Uuid
+  escalationLog    EscalationLog                 @relation(fields: [escalationLogId], references: [id], onDelete: Cascade)
+  channel          EscalationNotificationChannel
+  status           EscalationNotificationStatus
+  recipientUserId  String                        @db.Uuid
+  recipientUser    User                          @relation("EscalationNotificationRecipient", fields: [recipientUserId], references: [id], onDelete: Restrict)
+  recipientAddress String?
+  providerName     String
+  attemptedAt      DateTime                      @default(now())
+  deliveredAt      DateTime?
+  error            String?
+  metadata         Json?
+  createdAt        DateTime                      @default(now())
+  updatedAt        DateTime                      @updatedAt
+
+  @@unique([escalationLogId, channel, recipientUserId])
+  @@index([escalationLogId, attemptedAt])
+  @@index([recipientUserId, attemptedAt])
+  @@index([channel, status])
+  @@index([status, attemptedAt])
+}
+
+model EscalationExecution {
+  id                     String                    @id @default(uuid()) @db.Uuid
+  startedAt              DateTime                  @default(now())
+  completedAt            DateTime?
+  status                 EscalationExecutionStatus @default(RUNNING)
+  triggeredByUserId      String?                   @db.Uuid
+  triggeredByUser        User?                     @relation("EscalationExecutionTrigger", fields: [triggeredByUserId], references: [id], onDelete: SetNull)
+  triggerSource          EscalationTriggerSource
+  rulesEvaluated         Int                       @default(0)
+  violationsDetected     Int                       @default(0)
+  logsCreated            Int                       @default(0)
+  evaluationDuplicates   Int                       @default(0)
+  notificationsAttempted Int                       @default(0)
+  notificationsDelivered Int                       @default(0)
+  notificationsSkipped   Int                       @default(0)
+  notificationDuplicates Int                       @default(0)
+  failures               Int                       @default(0)
+  errorSummary           String?
+  metadata               Json?
+  createdAt              DateTime                  @default(now())
+  updatedAt              DateTime                  @updatedAt
+
+  @@index([status, startedAt])
+  @@index([triggerSource, startedAt])
+  @@index([triggeredByUserId, startedAt])
 }
 
 model AuditLog {

@@ -5,12 +5,14 @@ import { generateGoalSubmittedCard } from '../teams/cards/goal-submitted-card';
 import { generateGoalApprovedCard } from '../teams/cards/goal-approved-card';
 import { generateGoalRejectedCard } from '../teams/cards/goal-rejected-card';
 import { generateCheckinReminderCard } from '../teams/cards/checkin-reminder-card';
+import { generateEscalationOpenedCard } from '../teams/cards/escalation-opened-card';
 
 const SUPPORTED_EVENTS = new Set([
   NotificationEvent.GOAL_SUBMITTED,
   NotificationEvent.GOAL_APPROVED,
   NotificationEvent.GOAL_REJECTED,
   NotificationEvent.CHECKIN_REMINDER,
+  NotificationEvent.ESCALATION_OPENED,
 ]);
 
 export class TeamsProvider implements NotificationProvider {
@@ -54,7 +56,7 @@ export class TeamsProvider implements NotificationProvider {
       const goalId = String(payload.metadata?.goalId || '');
       const goalTitle = String(payload.metadata?.goalTitle || 'Unknown Goal');
 
-      if (!goalId) {
+      if (payload.event !== NotificationEvent.ESCALATION_OPENED && !goalId) {
         return createResult('skipped', 'Missing goalId in metadata');
       }
 
@@ -83,6 +85,20 @@ export class TeamsProvider implements NotificationProvider {
         case NotificationEvent.CHECKIN_REMINDER: {
           const employeeName = payload.recipient.name || 'Team Member';
           card = generateCheckinReminderCard({ employeeName, goalTitle, goalId });
+          break;
+        }
+        case NotificationEvent.ESCALATION_OPENED: {
+          card = generateEscalationOpenedCard({
+            recipientName: payload.recipient.name || 'Team Member',
+            title: String(payload.metadata?.title || 'Escalation requires attention'),
+            message: String(payload.metadata?.message || 'A governance escalation requires attention.'),
+            ruleName: String(payload.metadata?.ruleName || 'Escalation policy'),
+            escalationType: String(payload.metadata?.escalationType || 'Escalation'),
+            escalationLevel: String(payload.metadata?.escalationLevel || 'Escalation level'),
+            goalTitle: payload.metadata?.goalTitle ? String(payload.metadata.goalTitle) : null,
+            actionUrl: String(payload.metadata?.deepLinkUrl || process.env.APP_BASE_URL || 'http://localhost:3000/dashboard'),
+            actionLabel: String(payload.metadata?.actionLabel || 'Review Escalation'),
+          });
           break;
         }
         default:

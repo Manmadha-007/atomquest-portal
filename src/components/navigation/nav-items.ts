@@ -6,6 +6,7 @@ import {
   Goal,
   LayoutDashboard,
   ListChecks,
+  ShieldAlert,
   Share2,
   ShieldCheck,
   Target,
@@ -61,6 +62,13 @@ export const dashboardNavItems = {
     },
 
     {
+      title: "Governance",
+      href: "/dashboard/admin/governance",
+      icon: ShieldAlert,
+      description: "Escalation operations console",
+    },
+
+    {
       title: "Audit Logs",
       href: "/dashboard/admin/audit-logs",
       icon: ShieldCheck,
@@ -102,6 +110,13 @@ export const dashboardNavItems = {
       href: "/dashboard/manager/analytics",
       icon: BarChart3,
       description: "Manager-level insights",
+    },
+
+    {
+      title: "Governance",
+      href: "/dashboard/manager/governance",
+      icon: ShieldAlert,
+      description: "Assigned escalation visibility",
     },
   ],
 

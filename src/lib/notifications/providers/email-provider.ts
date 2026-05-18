@@ -5,12 +5,14 @@ import { generateGoalSubmittedEmail } from '../email/templates/goal-submitted';
 import { generateCheckinReminderEmail } from '../email/templates/checkin-reminder';
 import { generateGoalApprovedEmail } from '../email/templates/goal-approved';
 import { generateGoalRejectedEmail } from '../email/templates/goal-rejected';
+import { generateEscalationOpenedEmail } from '../email/templates/escalation-opened';
 
 const SUPPORTED_EVENTS = new Set([
   NotificationEvent.GOAL_SUBMITTED,
   NotificationEvent.GOAL_APPROVED,
   NotificationEvent.GOAL_REJECTED,
   NotificationEvent.CHECKIN_REMINDER,
+  NotificationEvent.ESCALATION_OPENED,
 ]);
 
 export class EmailProvider implements NotificationProvider {
@@ -49,7 +51,7 @@ export class EmailProvider implements NotificationProvider {
       const goalId = String(payload.metadata?.goalId || '');
       const goalTitle = String(payload.metadata?.goalTitle || 'Unknown Goal');
 
-      if (!goalId) {
+      if (payload.event !== NotificationEvent.ESCALATION_OPENED && !goalId) {
         return createResult('skipped', 'Missing goalId in metadata', recipientEmail);
       }
 
@@ -85,6 +87,22 @@ export class EmailProvider implements NotificationProvider {
           const actorName = payload.recipient.name || 'Team Member';
           const message = payload.metadata?.message ? String(payload.metadata.message) : undefined;
           const generated = generateCheckinReminderEmail({ actorName, goalTitle, goalId, message });
+          subject = generated.subject;
+          html = generated.html;
+          break;
+        }
+        case NotificationEvent.ESCALATION_OPENED: {
+          const generated = generateEscalationOpenedEmail({
+            recipientName: payload.recipient.name || 'Team Member',
+            title: String(payload.metadata?.title || 'Escalation requires attention'),
+            message: String(payload.metadata?.message || 'A governance escalation requires attention.'),
+            ruleName: String(payload.metadata?.ruleName || 'Escalation policy'),
+            escalationType: String(payload.metadata?.escalationType || 'Escalation'),
+            escalationLevel: String(payload.metadata?.escalationLevel || 'Escalation level'),
+            goalTitle: payload.metadata?.goalTitle ? String(payload.metadata.goalTitle) : null,
+            actionUrl: String(payload.metadata?.deepLinkUrl || process.env.APP_BASE_URL || 'http://localhost:3000/dashboard'),
+            actionLabel: String(payload.metadata?.actionLabel || 'Review Escalation'),
+          });
           subject = generated.subject;
           html = generated.html;
           break;

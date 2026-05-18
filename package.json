@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test:escalation": "node --import tsx --test \"src/features/escalation/__tests__/**/*.test.ts\"",
     "postinstall": "prisma generate"
   },
   "prisma": {
