@@ -1,23 +1,19 @@
 # AtomQuest Portal
 
 <p align="center">
-  <img
-    src="docs/architecture/atomquest-high-level-architecture.png"
-    alt="AtomQuest High-Level Architecture"
-    width="100%"
-  />
+
+<img src="https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=next.js" />
+<img src="https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react" />
+<img src="https://img.shields.io/badge/TypeScript-Strict-3178C6?style=flat-square&logo=typescript" />
+<img src="https://img.shields.io/badge/PostgreSQL-Database-336791?style=flat-square&logo=postgresql" />
+<img src="https://img.shields.io/badge/Prisma-ORM-2D3748?style=flat-square&logo=prisma" />
+<img src="https://img.shields.io/badge/Auth.js-v5-black?style=flat-square" />
+<img src="https://img.shields.io/badge/License-MIT-purple?style=flat-square" />
+
 </p>
 
 <p align="center">
-
-![Next.js](https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js)
-![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react)
-![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue?style=for-the-badge&logo=typescript)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-336791?style=for-the-badge&logo=postgresql)
-![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748?style=for-the-badge&logo=prisma)
-![Auth.js](https://img.shields.io/badge/Auth.js-v5-black?style=for-the-badge)
-![License](https://img.shields.io/badge/License-MIT-purple?style=for-the-badge)
-
+  Enterprise Goal Operations • Governance Workflows • Escalation Lifecycle Management
 </p>
 
 ---
